@@ -192,6 +192,17 @@ def _evaluate(company, financials, amount, term, annual_rate, calculation_date, 
         for name in ("cash_inflow", "operating_outflow", "existing_debt_payment"):
             if by_month.get(key, {}).get(name) is None:
                 missing.append(f"draft_data.financial_months.{key}.{name}")
+    result.checks.append(
+        SourceResult(
+            CheckSource.DATA_QUALITY,
+            CheckStatus.NO_DATA if missing else CheckStatus.SUCCESS,
+            None if missing else {"financial_month_count": 6},
+            "FINANCIAL_HISTORY_INCOMPLETE" if missing else None,
+            "data-quality-0.2",
+            credit.completed_at,
+            credit.completed_at,
+        )
+    )
     if missing:
         return finish(Routing.NEEDS_INFO, "FINANCIAL_HISTORY_INCOMPLETE", missing)
     months = [by_month[month.isoformat()] for month in FINANCIAL_MONTHS]

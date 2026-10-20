@@ -16,7 +16,18 @@ from pydantic import (
 )
 
 from credit_cabinet.core.demo import FINANCIAL_MONTHS
-from credit_cabinet.models.enums import ApplicationStatus, FormStep, LegalForm, Purpose
+from credit_cabinet.models.enums import (
+    ApplicationStatus,
+    CheckSource,
+    CheckStatus,
+    DecisionOutcome,
+    DecisionSource,
+    FormStep,
+    LegalForm,
+    Purpose,
+    RiskBand,
+    Routing,
+)
 
 MAX_MONEY = Decimal("9999999999999999.99")
 
@@ -210,6 +221,56 @@ class DraftDataResponse(BaseModel):
     info_response: str | None = None
 
 
+class ReasonResponse(BaseModel):
+    code: str
+    message: str
+
+
+class DecisionResponse(BaseModel):
+    id: UUID
+    revision_id: UUID
+    assessment_id: UUID
+    outcome: DecisionOutcome
+    source: DecisionSource
+    approved_amount: MoneyOutput | None
+    approved_term_months: int | None
+    annual_rate_percent: RateOutput | None
+    monthly_payment: MoneyOutput | None
+    reasons: list[ReasonResponse]
+    public_explanation: str
+    policy_version: str
+    created_at: datetime
+
+
+class InformationRequestResponse(BaseModel):
+    id: UUID
+    message_to_client: str
+    requested_fields: list[str]
+
+
+class CheckResponse(BaseModel):
+    source: CheckSource
+    status: CheckStatus
+    reasons: list[ReasonResponse]
+    source_version: str
+    completed_at: datetime
+
+
+class AssessmentResponse(BaseModel):
+    id: UUID
+    revision_id: UUID
+    run_no: int
+    rules_version: str
+    risk_score: int | None
+    risk_band: RiskBand
+    routing: Routing
+    reasons: list[ReasonResponse]
+    calculation_details: dict
+    checks: list[CheckResponse]
+    provenance: ProvenanceResponse
+    completed_at: datetime
+
+
 class DraftResponse(BaseModel):
     id: UUID
     company_id: UUID
@@ -225,9 +286,12 @@ class DraftResponse(BaseModel):
     calculation_date: date
     policy_version: str
     provenance: ProvenanceResponse
-    allowed_actions: list[Literal["EDIT_DRAFT"]]
-    open_information_request: None = None
-    decision: None = None
+    allowed_actions: list[Literal["EDIT_DRAFT", "SUBMIT"]]
+    open_information_request: InformationRequestResponse | None = None
+    decision: DecisionResponse | None = None
+    latest_revision_id: UUID | None = None
+    latest_revision_no: int | None = None
+    assessment: AssessmentResponse | None = None
     created_at: datetime
     updated_at: datetime
 

@@ -20,6 +20,7 @@ from credit_cabinet.models.enums import ApplicationStatus, FinancialSource, Form
 from credit_cabinet.schemas.business import DraftCreate, DraftPatch, DraftResponse
 from credit_cabinet.services.access import client_application, client_company
 from credit_cabinet.services.auth import AuthService, Principal
+from credit_cabinet.services.views import enrich_application
 
 logger = logging.getLogger(__name__)
 
@@ -61,12 +62,12 @@ def remember_draft(principal: Principal, application: Application):
     }
 
 
-def draft_view(application: Application, product: CreditProduct) -> DraftResponse:
+def draft_view(application: Application, product: CreditProduct, db: Session) -> DraftResponse:
     data = deepcopy(application.draft_data)
     provenance = data.pop("provenance", profile_provenance())
-    # No credit-history source is consulted or exposed at this stage, even with confirmation.
+    # Draft provenance stays separate from the checks of its submitted revision.
     provenance["credit_history"] = None
-    return DraftResponse(
+    response = DraftResponse(
         id=application.id,
         company_id=application.company_id,
         product_id=application.product_id,
@@ -81,10 +82,13 @@ def draft_view(application: Application, product: CreditProduct) -> DraftRespons
         calculation_date=application.calculation_date,
         policy_version=product.policy_version,
         provenance=provenance,
-        allowed_actions=["EDIT_DRAFT"] if application.status == ApplicationStatus.DRAFT else [],
+        allowed_actions=(["EDIT_DRAFT", "SUBMIT"] if product.is_active else ["EDIT_DRAFT"])
+        if application.status in (ApplicationStatus.DRAFT, ApplicationStatus.NEEDS_INFO)
+        else [],
         created_at=application.created_at,
         updated_at=application.updated_at,
     )
+    return enrich_application(db, application, response)
 
 
 def create_draft(
@@ -153,14 +157,14 @@ def create_draft(
             "version": application.lock_version,
         },
     )
-    return draft_view(application, product)
+    return draft_view(application, product, db)
 
 
 def patch_draft(
     db: Session, principal: Principal, application_id: UUID, body: DraftPatch, auth: AuthService
 ):
     application = client_application(db, principal.user.id, application_id, lock=True)
-    if application.status != ApplicationStatus.DRAFT:
+    if application.status not in (ApplicationStatus.DRAFT, ApplicationStatus.NEEDS_INFO):
         raise APIError(
             409, "APPLICATION_NOT_EDITABLE", "Заявка недоступна для редактирования черновика"
         )
@@ -208,7 +212,7 @@ def patch_draft(
             "version": application.lock_version,
         },
     )
-    return draft_view(application, product)
+    return draft_view(application, product, db)
 
 
 def list_drafts(db: Session, user_id: UUID, limit: int, offset: int, company_id: UUID | None):
@@ -238,7 +242,7 @@ def list_drafts(db: Session, user_id: UUID, limit: int, offset: int, company_id:
         query.order_by(Application.updated_at.desc(), Application.id).limit(limit).offset(offset)
     ).all()
     return {
-        "items": [draft_view(application, product) for application, product in rows],
+        "items": [draft_view(application, product, db) for application, product in rows],
         "total": total,
         "limit": limit,
         "offset": offset,

@@ -6,11 +6,12 @@ from uuid import uuid4
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from credit_cabinet.api import auth, business, health
+from credit_cabinet.api import auth, business, health, submissions
 from credit_cabinet.api.errors import install_error_handlers
 from credit_cabinet.core.config import Settings
 from credit_cabinet.core.logging import configure_logging, exception_fields, request_id_context
 from credit_cabinet.db.session import build_engine, build_session_factory
+from credit_cabinet.integrations.fixtures import FixtureSources
 from credit_cabinet.schemas.errors import ErrorResponse
 from credit_cabinet.services.auth import AuthService
 
@@ -27,6 +28,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.engine = build_engine(settings)
         app.state.session_factory = build_session_factory(app.state.engine)
         app.state.auth = AuthService(settings)
+        app.state.sources = FixtureSources(settings.demo_dataset_dir)
         try:
             logger.info("app.started")
             yield
@@ -87,5 +89,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(auth.router)
     app.include_router(business.router)
+    app.include_router(submissions.router)
     app.include_router(health.router)
     return app

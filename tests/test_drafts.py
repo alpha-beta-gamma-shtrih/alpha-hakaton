@@ -15,19 +15,10 @@ from credit_cabinet.models import (
     AuthSession,
     CompanyMembership,
 )
-from credit_cabinet.services.seed import import_bundle, load_bundle
-from tests.conftest import ROOT, csrf_headers, login
+from tests.conftest import SEED_PASSWORD, csrf_headers, login
 
-SEED_PASSWORD = "New-demo-password-only-26!"
 C01 = str(uuid5(DEMO_NAMESPACE, "company:C01"))
 C02 = str(uuid5(DEMO_NAMESPACE, "company:C02"))
-
-
-@pytest.fixture
-def seeded(app):
-    with app.state.session_factory() as db:
-        import_bundle(db, load_bundle(ROOT / "demo_data/demo_0_2"), SEED_PASSWORD)
-    return app
 
 
 def new_draft(client):
@@ -76,7 +67,7 @@ def test_create_prefills_without_confirmation_or_evaluation(seeded, client):
     }
     assert len(draft["draft_data"]["financial_months"]) == 6
     assert draft["provenance"]["credit_history"] is None
-    assert draft["allowed_actions"] == ["EDIT_DRAFT"]
+    assert draft["allowed_actions"] == ["EDIT_DRAFT", "SUBMIT"]
     assert draft["decision"] is None and draft["open_information_request"] is None
     context = client.get("/api/auth/me").json()["user"]["ui_context"]
     assert context == {

@@ -100,7 +100,7 @@ def applications(
 @router.get("/applications/{application_id}", response_model=DraftResponse, tags=["drafts"])
 def application(application_id: UUID, db: Database, principal: Client):
     row = client_application(db, principal.user.id, application_id)
-    return draft_view(row, db.get(CreditProduct, row.product_id))
+    return draft_view(row, db.get(CreditProduct, row.product_id), db)
 
 
 @router.patch("/applications/{application_id}", response_model=DraftResponse, tags=["drafts"])

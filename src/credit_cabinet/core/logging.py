@@ -24,6 +24,9 @@ _FIELDS = (
     "traceback",
     "application_id",
     "version",
+    "revision_id",
+    "run_no",
+    "routing",
 )
 
 

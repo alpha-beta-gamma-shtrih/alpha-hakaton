@@ -29,7 +29,7 @@ def find_client_application(db: Session, user_id: UUID, application_id: UUID, *,
         .where(CompanyMembership.user_id == user_id, Application.id == application_id)
     )
     if lock:
-        query = query.with_for_update(of=Application)
+        query = query.with_for_update(of=Application).execution_options(populate_existing=True)
     return db.scalar(query)
 
 
@@ -61,7 +61,7 @@ def safe_ui_context(db: Session, user: User) -> dict:
             return {"section": "overview"}
         result["last_application_id"] = str(application.id)
         # Future final statuses should open the result, not an editable form.
-        if application.status == ApplicationStatus.DRAFT:
+        if application.status in (ApplicationStatus.DRAFT, ApplicationStatus.NEEDS_INFO):
             result["step"] = application.ui_step.value
         else:
             result.pop("step", None)
