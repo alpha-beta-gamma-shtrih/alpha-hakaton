@@ -160,6 +160,8 @@ class FixtureEntry(StrictModel):
     source_version: str
     normalized_data: dict | None
     provenance: ProvenanceItem
+    revision_no: int | None = Field(default=None, strict=True, ge=1)
+    run_no: int = Field(default=1, strict=True, ge=1)
 
 
 class ScenarioSeed(StrictModel):

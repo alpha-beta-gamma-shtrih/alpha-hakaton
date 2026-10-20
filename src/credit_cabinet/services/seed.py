@@ -157,6 +157,11 @@ def load_bundle(directory: Path) -> SeedBundle:
             ("bki_responses.json", CreditFacts, "MOCK_BKI", "bki-mock-0.2"),
         ]:
             responses = TypeAdapter(list[FixtureEntry]).validate_python(read_json(root / filename))
+            unique(
+                responses,
+                lambda row: (row.company_key, row.revision_no, row.run_no),
+                "fixture attempt",
+            )
             # Lists may later contain multiple ordered technical responses per company.
             if {row.company_key for row in responses} != set(company_map):
                 raise DatasetError("Fixture companies differ from manifest")
