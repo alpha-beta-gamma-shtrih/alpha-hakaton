@@ -1,6 +1,6 @@
 # Договоренности перед реализацией
 
-Статус: согласованный план demo-0.2; начало реализации разрешено. Этот документ дополняет [ARCHITECTURE.md](ARCHITECTURE.md) и [DEVELOPMENT.md](DEVELOPMENT.md). Структура зафиксирована в README; backend создается отдельной веткой.
+Статус: согласованный план demo-0.2; начало реализации разрешено. Этот документ дополняет [ARCHITECTURE.md](ARCHITECTURE.md) и [DEVELOPMENT.md](DEVELOPMENT.md). Структура зафиксирована в README; в SB/backend-foundation реализованы FastAPI, модели, миграции и авторизация. Текущие команды и точный контракт — BACKEND.md.
 
 Подробные поля БД и ограничения находятся в [DATABASE.md](DATABASE.md), экраны двух контуров и переходы — в [USER_FLOWS.md](USER_FLOWS.md). AI-помощь в той же форме подбора подтверждена командой; полноценный свободный чат не входит в MVP. Поля формы, форматы наборов и конкретная политика заданы в [SYNTETIC.md](SYNTETIC.md), текущая версия demo-0.2.
 
@@ -38,13 +38,13 @@
 
 ### Сроки и browser cookie
 
-Предлагаемая политика, не банковский норматив: клиенту не более 8 часов с момента входа и не более 60 минут без пользовательской активности; сотруднику 4 часа и 15 минут соответственно. Оба ограничения проверяет сервер. Эти числа нужно подтвердить по UX.
+Реализованная демонстрационная политика, не банковский норматив: клиенту не более 8 часов с момента входа и не более 60 минут без пользовательской активности; сотруднику 4 часа и 15 минут соответственно. Оба ограничения проверяет сервер. Значения настраиваются отдельно для двух ролей через env.
 
 Cookie постоянная, с явным Max-Age в пределах абсолютного срока, HttpOnly, SameSite=Lax и Path=/; Secure включен при HTTPS. Для локального HTTP — отдельная явно описанная dev-настройка. Токен не кладем в localStorage. Сохранение cookie относится к тому же браузерному профилю, а не к любому браузеру на устройстве; инкогнито и очистка данных могут убрать ее ([MDN Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie)).
 
 Автоматический polling не продлевает сессию бесконечно: фоновое чтение статуса не считается пользовательской активностью. В MVP нет автоматического фонового refresh, который отменяет idle-timeout.
 
-Изменяющие запросы защищаем CSRF-токеном, связанным с сессией; для входа предусматриваем предварительный защитный контекст и проверку origin. SameSite — дополнительный барьер. Контракт получения CSRF и передачи заголовка фиксируем вместе с Ксюшей ([OWASP CSRF](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)). Добавляем ограничение попыток входа и одинаковое внешнее сообщение для неверного логина/пароля ([OWASP Authentication](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)).
+Изменяющие запросы защищаем CSRF-токеном, связанным с сессией; для входа предусматриваем предварительный защитный контекст и проверку origin. SameSite — дополнительный барьер. Контракт /csrf, X-CSRF-Token и /activity зафиксирован в BACKEND.md ([OWASP CSRF](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)). Добавляем ограничение попыток входа и одинаковое внешнее сообщение для неверного логина/пароля ([OWASP Authentication](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)).
 
 ### Что означает «вернуться на то же место»
 
@@ -85,7 +85,7 @@ Frontend по открытии запрашивает текущего поль�
 
 ## 5. Как Сергею сразу упростить Docker Диме
 
-Здесь договоренности о будущей реализации, не созданные файлы или выполненные команды.
+Backend уже предоставляет pyproject/uv.lock, env, миграцию, точку запуска и health; точные команды — [BACKEND.md](BACKEND.md). Таблица включает также будущие frontend, importer и AI.
 
 | Договоренность | Сергей / Ксюша предоставляют | Дима обеспечивает |
 | --- | --- | --- |
@@ -98,7 +98,7 @@ Frontend по открытии запрашивает текущего поль�
 | AI | HTTP-адаптер, таймаут, ограниченный ответ, явный fallback | Отдельный runtime/volume, получение весов и GPU/CPU-профили |
 | Файлы и логи | Пути относительно конфигурации; логи в stdout, без секретов | Volumes при необходимости, непривилегированный пользователь, Docker logs |
 
-Предлагаемые env-параметры: DATABASE_URL, APP_ENV, PUBLIC_BASE_URL, COOKIE_SECURE, SESSION_ABSOLUTE_TTL_SECONDS, SESSION_IDLE_TTL_SECONDS, DEMO_MODE, LLM_BASE_URL, LLM_MODEL, LLM_TIMEOUT_SECONDS. Ролевые сроки сессий можно определить в настройках приложения. Публичные frontend-переменные не содержат секретов.
+Действующие env-параметры определены в .env.example и BACKEND.md: DATABASE_URL, APP_ENV, PUBLIC_BASE_URL, ALLOWED_ORIGINS, COOKIE_SECURE, CSRF_SIGNING_KEY, CLIENT_SESSION_ABSOLUTE_TTL_SECONDS, CLIENT_SESSION_IDLE_TTL_SECONDS, BANK_SESSION_ABSOLUTE_TTL_SECONDS, BANK_SESSION_IDLE_TTL_SECONDS, LOGIN_RATE_LIMIT, LOGIN_RATE_WINDOW_SECONDS. DEMO_MODE и LLM_* пока не читаются: импорт и AI еще не реализованы. Публичные frontend-переменные не содержат секретов.
 
 Внутри контейнера localhost означает этот контейнер. Для локального backend вне Docker адрес PostgreSQL может быть localhost с отдельно проброшенным dev-портом; различие выражается конфигурацией. В демонстрационном профиле PostgreSQL и Ollama не публикуем в интернет.
 
@@ -124,7 +124,7 @@ AI не является условием readiness кредитного API: п
 | Dockerfile, compose, reverse proxy, запуск AI | Дима |
 | Документация API/данных/правил | Владелец соответствующего компонента |
 
-Расположение lock-файлов и build context выбираем один раз: backend-зависимости живут рядом с backend, frontend-зависимости рядом с frontend. Все участники используют один контракт имен, не независимо придумывают названия полей.
+Корневые pyproject.toml/uv.lock относятся к src/credit_cabinet; frontend-зависимости живут в frontend/. Все участники используют один контракт имен, не независимо придумывают названия полей.
 
 ## 7. Валера и София: синтетические данные как продуктовая задача
 

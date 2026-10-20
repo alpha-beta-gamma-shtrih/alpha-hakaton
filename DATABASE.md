@@ -1,6 +1,6 @@
 # База данных: спецификация для demo-0.2
 
-Статус: согласованная схема MVP, синхронизированная с [SYNTETIC.md](SYNTETIC.md), schema_version=2 / demo-policy-0.2. Набор и продукт: demo-0.2 / WC_DEMO/version=2. schema_version — версия предметного контракта, не миграция Alembic. Начало реализации разрешено; модели и миграции создаются отдельной веткой backend. Общая архитектура: [ARCHITECTURE.md](ARCHITECTURE.md). Интерфейсы и жизненный цикл: [USER_FLOWS.md](USER_FLOWS.md).
+Статус: согласованная схема MVP, синхронизированная с [SYNTETIC.md](SYNTETIC.md), schema_version=2 / demo-policy-0.2. Набор и продукт: demo-0.2 / WC_DEMO/version=2. schema_version — версия предметного контракта, не миграция Alembic. Все 15 ORM-моделей реализованы в src/credit_cabinet/models; начальная миграция — migrations/versions/0001_demo_02.py. Это схема хранения: предметные команды/скоринг еще не реализованы. Учетные записи и сессии работают. Общая архитектура: [ARCHITECTURE.md](ARCHITECTURE.md). Интерфейсы и жизненный цикл: [USER_FLOWS.md](USER_FLOWS.md).
 
 ## 1. Границы и принципы
 
