@@ -13,11 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class APIError(Exception):
-    def __init__(self, status_code: int, code: str, message: str, headers=None):
+    def __init__(self, status_code: int, code: str, message: str, headers=None, fields=None):
         self.status_code = status_code
         self.code = code
         self.message = message
         self.headers = headers
+        self.fields = fields
 
 
 def error_response(
@@ -41,7 +42,9 @@ def install_error_handlers(app: FastAPI) -> None:
             if getattr(request.state, "user_id", None):
                 fields["user_id"] = request.state.user_id
             logger.warning("auth.request_rejected", extra=fields)
-        return error_response(request, exc.status_code, exc.code, exc.message, headers=exc.headers)
+        return error_response(
+            request, exc.status_code, exc.code, exc.message, fields=exc.fields, headers=exc.headers
+        )
 
     @app.exception_handler(RequestValidationError)
     async def handle_validation(request: Request, exc: RequestValidationError):

@@ -14,6 +14,7 @@ from credit_cabinet.models.enums import Role
 
 ROOT = Path(__file__).resolve().parents[1]
 PASSWORD = "Test-password-only-29!"
+SEED_PASSWORD = "New-demo-password-only-26!"
 
 
 def migrate(engine, revision="head"):
@@ -75,6 +76,15 @@ def app(settings, password_hash):
 @pytest.fixture
 def client(app):
     return app.state.test_client
+
+
+@pytest.fixture
+def seeded(app):
+    from credit_cabinet.services.seed import import_bundle, load_bundle
+
+    with app.state.session_factory() as db:
+        import_bundle(db, load_bundle(ROOT / "demo_data/demo_0_2"), SEED_PASSWORD)
+    return app
 
 
 def login(client, email="client@example.com", password=PASSWORD):
