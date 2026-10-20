@@ -29,6 +29,7 @@ dev = [
 [project.scripts]
 credit-cabinet = "credit_cabinet.__main__:main"
 credit-cabinet-user = "credit_cabinet.cli:create_user"
+credit-cabinet-seed = "credit_cabinet.seed:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/credit_cabinet"]

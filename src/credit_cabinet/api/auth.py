@@ -1,6 +1,7 @@
 import secrets
 
 from fastapi import APIRouter, Request, Response
+from sqlalchemy.orm import Session
 
 from credit_cabinet.api.dependencies import Authenticated, CSRFToken, Database, check_origin
 from credit_cabinet.api.errors import APIError
@@ -9,9 +10,9 @@ from credit_cabinet.core.constants import (
     PREAUTH_TTL_SECONDS,
     SESSION_COOKIE,
 )
-from credit_cabinet.models.enums import FormStep
 from credit_cabinet.schemas.auth import CSRFResponse, LoginRequest, SessionResponse, UserResponse
 from credit_cabinet.schemas.errors import ErrorResponse
+from credit_cabinet.services.access import safe_ui_context
 from credit_cabinet.services.auth import Principal
 
 router = APIRouter(
@@ -21,15 +22,8 @@ router = APIRouter(
 )
 
 
-def session_view(principal: Principal) -> SessionResponse:
-    # Only expose known UI keys, never return a complete ORM object.
-    context = principal.user.ui_context or {}
-    safe_context = {}
-    if context.get("section") in {"overview", "applications", "bank"}:
-        safe_context["section"] = context["section"]
-    if context.get("step") in {step.value for step in FormStep}:
-        safe_context["step"] = context["step"]
-    # Last application is resolved with ownership checks by future application APIs.
+def session_view(principal: Principal, db: Session) -> SessionResponse:
+    safe_context = safe_ui_context(db, principal.user)
     return SessionResponse(
         user=UserResponse(
             id=principal.user.id,
@@ -108,18 +102,18 @@ def login(
         httponly=True,
         samesite="lax",
     )
-    return session_view(principal)
+    return session_view(principal, db)
 
 
 @router.get("/me", response_model=SessionResponse)
-def me(principal: Authenticated):
-    return session_view(principal)
+def me(principal: Authenticated, db: Database):
+    return session_view(principal, db)
 
 
 @router.post("/activity", response_model=SessionResponse)
 def activity(request: Request, db: Database, principal: Authenticated):
     request.app.state.auth.activity(db, principal)
-    return session_view(principal)
+    return session_view(principal, db)
 
 
 @router.post("/logout", status_code=204)

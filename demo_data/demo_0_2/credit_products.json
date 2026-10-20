@@ -1,0 +1,105 @@
+[
+  {
+    "code": "WC_DEMO",
+    "version": 2,
+    "name": "Оборотный кредит — демонстрационные условия",
+    "description": "Синтетический продукт demo-0.2. Реальное кредитование и выдача не выполняются.",
+    "allowed_purposes": [
+      "INVENTORY",
+      "OPERATING_EXPENSES",
+      "SEASONAL_PURCHASE"
+    ],
+    "min_amount": "100000.00",
+    "max_amount": "5000000.00",
+    "min_term_months": 6,
+    "max_term_months": 24,
+    "annual_rate_percent": "24.000",
+    "policy_version": "demo-policy-0.2",
+    "is_active": true,
+    "policy_config": {
+      "calculation_date": "2026-10-01",
+      "financial_months": [
+        "2026-04-01",
+        "2026-05-01",
+        "2026-06-01",
+        "2026-07-01",
+        "2026-08-01",
+        "2026-09-01"
+      ],
+      "minimum_business_age_months": 6,
+      "maximum_load_ratio": "0.80",
+      "debt_payment_tolerance_absolute": "1000.00",
+      "debt_payment_tolerance_ratio": "0.10",
+      "severe_overdue_days": 60,
+      "score_cap": 100,
+      "approve_max_score": 29,
+      "manual_review_max_score": 59,
+      "age_score_bands": [
+        {
+          "min_months": 6,
+          "max_months": 11,
+          "points": 20
+        },
+        {
+          "min_months": 12,
+          "max_months": 23,
+          "points": 10
+        },
+        {
+          "min_months": 24,
+          "max_months": null,
+          "points": 0
+        }
+      ],
+      "load_score_bands": [
+        {
+          "upper_inclusive": "0.35",
+          "points": 0
+        },
+        {
+          "upper_inclusive": "0.50",
+          "points": 10
+        },
+        {
+          "upper_inclusive": "0.65",
+          "points": 25
+        },
+        {
+          "upper_inclusive": "0.80",
+          "points": 40
+        }
+      ],
+      "trend_score_bands": [
+        {
+          "lower_inclusive": "0.00",
+          "points": 0
+        },
+        {
+          "lower_inclusive": "-0.15",
+          "points": 5
+        },
+        {
+          "lower_inclusive": "-0.30",
+          "points": 15
+        },
+        {
+          "lower_inclusive": null,
+          "points": 25
+        }
+      ],
+      "overdue_score_bands": [
+        {
+          "min_days": 1,
+          "max_days": 29,
+          "points": 10
+        },
+        {
+          "min_days": 30,
+          "max_days": 59,
+          "points": 25
+        }
+      ],
+      "absent_credit_history_points": 15
+    }
+  }
+]

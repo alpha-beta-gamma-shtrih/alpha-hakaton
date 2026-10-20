@@ -1,0 +1,2 @@
+demo_data/**/*.csv text eol=lf
+demo_data/**/*.json text eol=lf

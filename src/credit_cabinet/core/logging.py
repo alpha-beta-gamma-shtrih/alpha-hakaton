@@ -22,6 +22,8 @@ _FIELDS = (
     "role",
     "reason",
     "traceback",
+    "application_id",
+    "version",
 )
 
 

@@ -183,7 +183,7 @@ class AuthService:
             self.settings.client_session_idle_ttl_seconds,
         )
 
-    def activity(self, db: Session, principal: Principal) -> datetime:
+    def activity(self, db: Session, principal: Principal, *, commit: bool = True) -> datetime:
         now = utc_now()
         _, idle_ttl = self.ttls(principal.user.role)
         idle_until = min(now + timedelta(seconds=idle_ttl), principal.session.absolute_expires_at)
@@ -199,7 +199,8 @@ class AuthService:
         ).rowcount
         if count != 1:
             raise APIError(401, "AUTH_REQUIRED", "Требуется повторный вход")
-        db.commit()
+        if commit:
+            db.commit()
         return idle_until
 
     def logout(self, db: Session, principal: Principal) -> None:
