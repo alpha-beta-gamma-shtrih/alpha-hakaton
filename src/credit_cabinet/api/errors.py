@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException
 
+from credit_cabinet.core.logging import exception_fields
 from credit_cabinet.schemas.errors import ErrorResponse
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ class APIError(Exception):
 def error_response(
     request: Request, status: int, code: str, message: str, fields=None, headers=None
 ):
+    request.state.error_code = code
     body = ErrorResponse(
         code=code,
         message=message,
@@ -34,6 +36,11 @@ def error_response(
 def install_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(APIError)
     async def handle_api_error(request: Request, exc: APIError):
+        if exc.code in {"CSRF_INVALID", "ORIGIN_FORBIDDEN", "ROLE_FORBIDDEN"}:
+            fields = {"reason": exc.code}
+            if getattr(request.state, "user_id", None):
+                fields["user_id"] = request.state.user_id
+            logger.warning("auth.request_rejected", extra=fields)
         return error_response(request, exc.status_code, exc.code, exc.message, headers=exc.headers)
 
     @app.exception_handler(RequestValidationError)
@@ -63,10 +70,7 @@ def install_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(SQLAlchemyError)
     async def handle_database(request: Request, exc: SQLAlchemyError):
-        # No exception string: DB errors can include a URL, parameters or hashes.
-        logger.error(
-            "database_error request_id=%s type=%s", request.state.request_id, type(exc).__name__
-        )
+        logger.error("database.error", extra=exception_fields(exc))
         return error_response(
             request, 503, "DATABASE_UNAVAILABLE", "База данных временно недоступна"
         )

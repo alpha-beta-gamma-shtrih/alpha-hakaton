@@ -48,6 +48,8 @@ def csrf_context(request: Request, response: Response, db: Database):
     auth = request.app.state.auth
     principal = auth.authenticate(db, request.cookies.get(SESSION_COOKIE))
     if principal:
+        request.state.user_id = str(principal.user.id)
+        request.state.role = principal.user.role.value
         return CSRFResponse(csrf_token=principal.session.csrf_token)
     csrf, signed_cookie = auth.preauth_context()
     response.set_cookie(
@@ -87,6 +89,8 @@ def login(
         request.client.host if request.client else "unknown",
         request.cookies.get(SESSION_COOKIE),
     )
+    request.state.user_id = str(principal.user.id)
+    request.state.role = principal.user.role.value
     absolute_ttl, _ = auth.ttls(principal.user.role)
     response.set_cookie(
         SESSION_COOKIE,

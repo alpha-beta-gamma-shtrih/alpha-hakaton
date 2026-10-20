@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     public_base_url: str = "http://localhost:8080"
     allowed_origins: list[str] = Field(default_factory=lambda: ["http://localhost:8080"])
     cookie_secure: bool = True
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     csrf_signing_key: SecretStr
     client_session_absolute_ttl_seconds: int = Field(default=28800, gt=0)
     client_session_idle_ttl_seconds: int = Field(default=3600, gt=0)

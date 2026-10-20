@@ -28,6 +28,8 @@ def require_principal(request: Request, db: Database, csrf_token: CSRFToken = No
     principal = request.app.state.auth.authenticate(db, request.cookies.get(SESSION_COOKIE))
     if principal is None:
         raise APIError(401, "AUTH_REQUIRED", "Требуется повторный вход")
+    request.state.user_id = str(principal.user.id)
+    request.state.role = principal.user.role.value
     if request.method not in {"GET", "HEAD", "OPTIONS"}:
         check_origin(request)
         if not csrf_token or not secrets.compare_digest(

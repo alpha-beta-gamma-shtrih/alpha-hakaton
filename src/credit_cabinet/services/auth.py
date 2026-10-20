@@ -1,3 +1,4 @@
+import logging
 import secrets
 from collections import OrderedDict, deque
 from dataclasses import dataclass
@@ -22,6 +23,8 @@ from credit_cabinet.core.security import (
 )
 from credit_cabinet.models import AuthSession, User
 from credit_cabinet.models.enums import Role
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -98,12 +101,26 @@ class AuthService:
             return None
         session, user = row
         now = utc_now()
-        if (
-            not user.is_active
-            or session.revoked_at is not None
-            or session.absolute_expires_at <= now
-            or session.idle_expires_at <= now
-        ):
+        fields = {"user_id": str(user.id), "role": user.role.value}
+        if not user.is_active or session.revoked_at is not None:
+            logger.warning(
+                "auth.session_rejected",
+                extra={
+                    **fields,
+                    "reason": "USER_INACTIVE" if not user.is_active else "SESSION_REVOKED",
+                },
+            )
+            return None
+        if session.absolute_expires_at <= now or session.idle_expires_at <= now:
+            logger.info(
+                "auth.session_expired",
+                extra={
+                    **fields,
+                    "reason": "ABSOLUTE_TIMEOUT"
+                    if session.absolute_expires_at <= now
+                    else "IDLE_TIMEOUT",
+                },
+            )
             return None
         return Principal(user=user, session=session)
 
@@ -115,10 +132,15 @@ class AuthService:
         address: str,
         previous_token: str | None,
     ) -> tuple[Principal, str]:
-        self.limiter.check(address, email)
+        try:
+            self.limiter.check(address, email)
+        except APIError:
+            logger.warning("auth.login_rate_limited", extra={"reason": "ATTEMPT_LIMIT"})
+            raise
         user = db.scalar(select(User).where(User.email == email))
         valid = verify_password(user.password_hash if user else self.dummy_hash, password)
         if user is None or not valid or not user.is_active:
+            logger.warning("auth.login_failed", extra={"reason": "INVALID_CREDENTIALS"})
             raise APIError(401, "INVALID_CREDENTIALS", "Неверный логин или пароль")
         if password_hasher.check_needs_rehash(user.password_hash):
             user.password_hash = hash_password(password)
@@ -145,6 +167,9 @@ class AuthService:
         )
         db.add(session)
         db.commit()
+        logger.info(
+            "auth.login_succeeded", extra={"user_id": str(user.id), "role": user.role.value}
+        )
         return Principal(user, session), raw
 
     def ttls(self, role: Role) -> tuple[int, int]:
@@ -184,3 +209,10 @@ class AuthService:
             .values(revoked_at=utc_now())
         )
         db.commit()
+        logger.info(
+            "auth.logout_succeeded",
+            extra={
+                "user_id": str(principal.user.id),
+                "role": principal.user.role.value,
+            },
+        )

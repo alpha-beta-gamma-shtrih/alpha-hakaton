@@ -30,7 +30,7 @@ src/credit_cabinet/                  Python-пакет backend
   core/
     config.py                       Настройки из env
     constants.py
-    logging.py
+    logging.py                      JSON-логи, request_id, безопасный стек ошибок
     security.py                     Argon2id, случайные токены, UTC
   db/
     base.py                         DeclarativeBase, типы и naming convention
