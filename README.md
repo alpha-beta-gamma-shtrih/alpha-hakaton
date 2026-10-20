@@ -2,9 +2,10 @@
 
 Прототип для хакатона: путь малого и микробизнеса от выбора финансирования до результата рассмотрения заявки, связанный с рабочим местом сотрудника банка.
 
-**Текущий этап: сохраняемые черновики demo-0.2.** Работают авторизация, PostgreSQL/15 моделей, логирование, минимальный импорт C01/C02, доступ к компаниям/продукту, создание и сохранение заявок с version и восстановлением контекста. Последний полный прогон: 105 тестов, включая PostgreSQL и двух одновременных писателей. Отправка/скоринг/банк/AI — следующие этапы.
+**Текущий этап: отправка и расчеты demo-0.2.** Работают авторизация, импорт C01/C02, сохраняемые черновики, неизменяемые отправки, локальные ФНС/БКИ, 15 правил решения, автоматическое решение, дозапрос/новая отправка, технический повтор сотрудником и предварительное сравнение вариантов. Последний полный прогон: 196 тестов, включая PostgreSQL, одновременные отправки и запрет изменения снимка прямым SQL. Банковская очередь/ручные решения, документы и AI — следующие этапы.
 
-- [Пошаговая проверка импорта, доступа и черновиков через Swagger](DRAFTS_CHECK.md).
+- [Пошаговая проверка отправки, расчетов и дозапроса через Swagger](SUBMISSION_CHECK.md).
+- [Проверка импорта, доступа и черновиков](DRAFTS_CHECK.md).
 - [Разработка и правила Git](DEVELOPMENT.md).
 - [Запуск backend, настройки и контракт авторизации для Ксюши и Димы](BACKEND.md).
 - [Согласованная архитектура, данные и план MVP](ARCHITECTURE.md).
@@ -13,7 +14,7 @@
 - [БД: таблицы, поля, снимки, связи и хранение за весь цикл](DATABASE.md).
 - [Клиентский и банковский контуры, экраны и жизненный цикл](USER_FLOWS.md).
 
-Границы MVP и demo-0.2 согласованы. Frontend зафиксирован на React/TypeScript/Vite, его реализует Ксюша. Backend запускается отдельно от frontend/Docker. Для авторизации нужна доступная PostgreSQL и учетные записи, созданные seed или CLI; сценарий до сохраненного черновика уже работает, отправка на рассмотрение пока недоступна.
+Границы MVP и demo-0.2 согласованы. Frontend зафиксирован на React/TypeScript/Vite, его реализует Ксюша. Backend запускается отдельно от frontend/Docker. Для авторизации нужна доступная PostgreSQL и учетные записи, созданные seed или CLI; работает путь от черновика до автоматического результата, а также дозапрос/новая отправка.
 
 ## Структура проекта
 
@@ -27,6 +28,8 @@ src/credit_cabinet/                  Python-пакет backend
   api/
     auth.py                         Вход, CSRF, текущий пользователь, выход
     business.py                     Компании, продукт, черновики и события
+    submissions.py                  Отправка, чтение снимка/решения, технический повтор
+    scenarios.py                    Предварительное сравнение вариантов
     dependencies.py                 Сессия БД, проверка входа/роли/CSRF
     errors.py                       Единый формат ошибок
     health.py                       Liveness/readiness
@@ -34,6 +37,7 @@ src/credit_cabinet/                  Python-пакет backend
     config.py                       Настройки из env
     constants.py
     demo.py                         Дата расчета и окно финансов demo-0.2
+    policy_contract.json            Зафиксированная конфигурация demo-policy-0.2
     logging.py                      JSON-логи, request_id, безопасный стек ошибок
     security.py                     Argon2id, случайные токены, UTC
   db/
@@ -51,16 +55,24 @@ src/credit_cabinet/                  Python-пакет backend
     errors.py
     business.py                     DTO формы и каталога
     seed.py                         Типы файлов набора
+    submissions.py                  DTO снимка, отправки и повтора
+    scenarios.py                    DTO предварительного сравнения
   services/
     auth.py                         Прикладная логика сессий
     access.py                       Membership и безопасное восстановление
     drafts.py                       Создание/сохранение черновика
+    snapshots.py                    Валидация отправки и содержательный hash
+    submissions.py                  Фиксация отправки, проверки и результат
+    policy.py                       Чистые Decimal-расчеты и правила
+    scenarios.py                    Кандидаты на одном наборе фактов
+    views.py, reasons.py            Публичные DTO и объяснения
     seed.py                         Проверка набора и транзакционный импорт
-  integrations/                     Место под будущие адаптеры
+  integrations/fixtures.py          Локальные детерминированные ФНС/БКИ
 migrations/
   env.py
   script.py.mako
   versions/0001_demo_02.py           Начальная схема из 15 таблиц
+  versions/0002_revision_immutability.py  Защита снимков UPDATE/DELETE
 alembic.ini
 pyproject.toml
 uv.lock
@@ -75,13 +87,16 @@ tests/                              Авторизация, БД, миграци
   test_logging.py
   test_seed.py
   test_drafts.py
-  test_drafts_postgres.py            Реальная конкуренция двух записей
+  test_drafts_postgres.py            Реальные гонки PATCH/submit и restart
+  test_policy.py, test_fixtures.py   Пороги правил и симуляторы
+  test_snapshots.py, test_submissions.py
+  test_scenarios.py                  Сравнение без изменения заявки
 demo_data/demo_0_2/                  Минимальный C01/C02; расширяют Валера и София
 frontend/                           Область Ксюши
 *.md                                Архитектура и контракты команды
 ```
 
-Исходники находятся в `src/`, тесты и миграции — вне устанавливаемого Python-пакета. Точка входа — `python -m credit_cabinet`. Зависимости фиксируем в корневых `pyproject.toml` и `uv.lock`; конфигурацию запуска — в `.env.example`. Docker/Compose и reverse proxy добавляет Дима в корне, исходники frontend — Ксюша в `frontend/`. Будущий integrations отмечен .gitkeep. Контракт для React — frontend/README.md и docs/openapi.json.
+Исходники находятся в `src/`, тесты и миграции — вне устанавливаемого Python-пакета. Точка входа — `python -m credit_cabinet`. Зависимости фиксируем в корневых `pyproject.toml` и `uv.lock`; конфигурацию запуска — в `.env.example`. Docker/Compose и reverse proxy добавляет Дима в корне, исходники frontend — Ксюша в `frontend/`. Локальные адаптеры читают версионированные fixtures из demo_data/demo_0_2. Контракт для React — frontend/README.md и docs/openapi.json.
 
 ## Быстрый запуск backend
 
@@ -89,7 +104,7 @@ frontend/                           Область Ксюши
 
 ```powershell
 uv sync --locked
-Copy-Item .env.example .env
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 uv run python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
@@ -108,7 +123,7 @@ uv run python -m credit_cabinet
 
 | Участник | С чего начать чтение |
 | --- | --- |
-| Ксюша | frontend/README.md и DRAFTS_CHECK.md: готовые черновики; затем BACKEND.md: готовый вход/сессии; затем SYNTETIC.md, разделы 3–4 и 11: поля/подтверждения, ошибки, provenance, калькулятор/AI; затем USER_FLOWS.md |
+| Ксюша | frontend/README.md и SUBMISSION_CHECK.md: отправка/результат/варианты; DRAFTS_CHECK.md: черновики; затем BACKEND.md: готовый вход/сессии; затем SYNTETIC.md, разделы 3–4 и 11: поля/подтверждения, ошибки, provenance, калькулятор/AI; затем USER_FLOWS.md |
 | Валера и София | SYNTETIC.md, разделы 2–3, 5 и 7–12: demo_data/demo_0_2, форматы, юридический факт, происхождение и ожидаемые исходы |
 | Сергей | SYNTETIC.md и DATABASE.md: защита подтверждения БКИ перед вызовами, 15 шагов политики, снимки и хранение |
 | Дима | BACKEND.md: команды процесса/миграций и health; затем DEVELOPMENT.md и IMPLEMENTATION_PLAN.md: manifest/schema 2, WC_DEMO/version 2, импорт demo-0.2 и воспроизводимый запуск |

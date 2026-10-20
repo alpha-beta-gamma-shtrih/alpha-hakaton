@@ -9,7 +9,7 @@
       "CREATE_DRAFT",
       "SAVE_PARAMETERS",
       "CONFIRM_DATA",
-      "SUBMIT_FUTURE_STAGE"
+      "SUBMIT"
     ],
     "expected_result": {
       "status": "APPROVED",
@@ -32,7 +32,7 @@
       "CREATE_DRAFT",
       "SAVE_PARAMETERS",
       "CONFIRM_DATA",
-      "SUBMIT_FUTURE_STAGE"
+      "SUBMIT"
     ],
     "expected_result": {
       "status": "REJECTED",

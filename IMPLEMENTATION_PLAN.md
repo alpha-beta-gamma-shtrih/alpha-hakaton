@@ -142,9 +142,9 @@ AI не является условием readiness кредитного API: п
 
 | Участник | Следующее действие | Передаваемый результат |
 | --- | --- | --- |
-| Сергей | Довести следующий этап отправки/расчета/локальных проверок | Текущий импорт, membership и черновики уже проверяются по DRAFTS_CHECK.md |
+| Сергей | Банковская очередь, ручной дозапрос/решение, затем AI | Отправка/снимки/скоринг/варианты готовы по SUBMISSION_CHECK.md |
 | Дима | Упаковать API/PostgreSQL/однократный init | Команды миграции и seed готовы; для новых пользователей DEMO_USER_PASSWORD |
-| Ксюша | React/TypeScript/Vite, вход, компании/продукт и форма с автосохранением | frontend/README.md, docs/openapi.json и DRAFTS_CHECK.md |
+| Ксюша | React/TypeScript/Vite, вход, компании/продукт и форма с автосохранением | frontend/README.md, docs/openapi.json, SUBMISSION_CHECK.md и DRAFTS_CHECK.md |
 | Валера | Расширить C01/C02 до C01–C08 | CSV/JSON в demo_data/demo_0_2 по готовым образцам |
 | София | Добавить негативные/повторные ответы и сверить ожидаемые исходы | fns_responses.json, bki_responses.json, scenarios.json и manifest |
 
