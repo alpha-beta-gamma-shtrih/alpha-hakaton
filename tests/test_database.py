@@ -8,7 +8,7 @@ from alembic import command
 from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.migration import MigrationContext
-from sqlalchemy import inspect, select
+from sqlalchemy import inspect, select, text
 from sqlalchemy.exc import IntegrityError, StatementError
 from sqlalchemy.orm.exc import StaleDataError
 
@@ -165,6 +165,25 @@ def test_migration_downgrade_and_upgrade(app):
         assert set(inspect(connection).get_table_names()) == {"alembic_version"}
         command.upgrade(config, "head")
         assert len(inspect(connection).get_table_names()) == 16
+
+
+@pytest.mark.parametrize(
+    "operation",
+    [
+        "UPDATE application_revisions SET input_hash = :hash WHERE id = :id",
+        "DELETE FROM application_revisions WHERE id = :id",
+    ],
+)
+def test_submitted_revision_rejects_direct_sql_mutation(app, operation):
+    with app.state.session_factory() as db:
+        user, _, applications = business_rows(db)
+        rev = revision(db, applications[0], user)
+        rev_id = rev.id.hex
+        db.commit()
+        with pytest.raises(IntegrityError, match="immutable"):
+            db.execute(text(operation), {"id": rev_id, "hash": "b" * 64})
+        db.rollback()
+        assert db.scalar(select(ApplicationRevision)).input_hash == "a" * 64
 
 
 @pytest.mark.parametrize(
