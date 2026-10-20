@@ -39,7 +39,10 @@ def submit_application(
     application, revision = submit(
         db, principal, application_id, body, request.app.state.auth, request.app.state.sources
     )
-    assessment = latest_assessment(db, revision.id)
+    has_confirmation = (
+        application.draft_data.get("confirmations", {}).get("credit_history_check_allowed") is True
+    )
+    assessment = latest_assessment(db, revision.id) if has_confirmation else None
     return SubmissionResponse(
         application=draft_view(application, db.get(CreditProduct, application.product_id), db),
         revision=revision_view(revision),

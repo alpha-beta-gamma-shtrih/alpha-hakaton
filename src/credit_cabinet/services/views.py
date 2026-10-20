@@ -96,11 +96,19 @@ def enrich_application(db, application, response):
     if revision:
         response.latest_revision_id = revision.id
         response.latest_revision_no = revision.revision_no
-        assessment = db.scalar(
-            select(Assessment)
-            .where(Assessment.revision_id == revision.id)
-            .order_by(Assessment.run_no.desc())
-            .limit(1)
+        has_confirmation = (
+            application.draft_data.get("confirmations", {}).get("credit_history_check_allowed")
+            is True
+        )
+        assessment = (
+            db.scalar(
+                select(Assessment)
+                .where(Assessment.revision_id == revision.id)
+                .order_by(Assessment.run_no.desc())
+                .limit(1)
+            )
+            if has_confirmation
+            else None
         )
         # Current draft consent gates access to cached history as well as new calls.
         if (

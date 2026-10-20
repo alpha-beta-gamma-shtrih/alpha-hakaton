@@ -26,7 +26,10 @@ def compare(db, user_id, application_id, body, sources):
             "Заявка уже изменена; сохраните форму и получите актуальную версию",
         )
     revision = latest_revision(db, application.id)
-    assessment = latest_assessment(db, revision.id) if revision else None
+    allowed = (
+        application.draft_data.get("confirmations", {}).get("credit_history_check_allowed") is True
+    )
+    assessment = latest_assessment(db, revision.id) if allowed and revision else None
     if revision and application.status not in (
         ApplicationStatus.DRAFT,
         ApplicationStatus.NEEDS_INFO,
@@ -45,9 +48,6 @@ def compare(db, user_id, application_id, body, sources):
         }
     else:
         payload = application_input(db, application, require_confirmation=False)
-    allowed = (
-        application.draft_data.get("confirmations", {}).get("credit_history_check_allowed") is True
-    )
     cache = {}
     if allowed and assessment:
         for row in db.scalars(

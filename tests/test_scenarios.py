@@ -2,6 +2,8 @@ from copy import deepcopy
 from datetime import date
 from uuid import UUID, uuid4
 
+from sqlalchemy import event
+
 from credit_cabinet.models import Company
 from tests.conftest import csrf_headers, login
 from tests.test_drafts import C01, SEED_PASSWORD, patch
@@ -114,11 +116,24 @@ def test_withdrawn_confirmation_blocks_cached_history_and_submit_replay(seeded, 
     assert updated["assessment"] is None
     adapter = AlteredSources(seeded.state.sources, crash=True)
     seeded.state.sources = adapter
-    response = compare(client, updated)
-    assert response.status_code == 200 and response.json()["mode"] == "CALCULATION_ONLY"
-    assert not adapter.calls
-    replay = send(client, draft, key=key).json()
-    assert replay["assessment"] is None and replay["application"]["assessment"] is None
+    queries = []
+
+    def capture(_connection, _cursor, statement, _params, _context, _many):
+        queries.append(statement.lower())
+
+    event.listen(seeded.state.engine, "before_cursor_execute", capture)
+    try:
+        response = compare(client, updated)
+        assert response.status_code == 200 and response.json()["mode"] == "CALCULATION_ONLY"
+        assert not adapter.calls
+        replay = send(client, draft, key=key).json()
+        assert replay["assessment"] is None and replay["application"]["assessment"] is None
+        assert client.get(f"/api/applications/{draft['id']}").json()["assessment"] is None
+    finally:
+        event.remove(seeded.state.engine, "before_cursor_execute", capture)
+    assert not any(
+        "from assessments" in query or "from check_results" in query for query in queries
+    )
 
 
 def test_duplicate_candidates_are_removed_at_product_bounds(seeded, client):
