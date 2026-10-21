@@ -5,9 +5,15 @@ from threading import Event
 import pytest
 from pydantic import ValidationError
 
-from credit_cabinet.integrations.ollama import OllamaAdvisor
+from credit_cabinet.integrations.ollama import ModelFailure, OllamaAdvisor
 
 DIGEST = "a" * 64
+CONTEXT = {
+    "mode": "EXPLAIN",
+    "factors": [{"factor_id": "DATA_ORIGIN", "candidate_id": None, "text": "demo"}],
+    "candidate_ids": ["REQUESTED"],
+    "next_step": {"id": "REVIEW_PARAMETERS"},
+}
 SELECTION = {
     "summary_factor_ids": ["DATA_ORIGIN"],
     "comparisons": [],
@@ -43,7 +49,7 @@ def fake_request(settings, *, content=None, **changes):
 def test_structured_ollama_generation_and_digest(settings, monkeypatch):
     adapter = OllamaAdvisor(settings)
     monkeypatch.setattr(adapter, "request", fake_request(settings))
-    result = adapter.generate({"mode": "EXPLAIN"})
+    result = adapter.generate(CONTEXT)
     assert result.error_code is None
     assert result.selection.model_dump() == SELECTION
     assert result.model_digest == "sha256:" + DIGEST
@@ -62,7 +68,7 @@ def test_structured_ollama_generation_and_digest(settings, monkeypatch):
 def test_invalid_runtime_response_is_fallback(settings, monkeypatch, change):
     adapter = OllamaAdvisor(settings)
     monkeypatch.setattr(adapter, "request", fake_request(settings, **change))
-    assert adapter.generate({}).error_code == "LLM_RESPONSE_INVALID"
+    assert adapter.generate(CONTEXT).error_code == "LLM_RESPONSE_INVALID"
 
 
 @pytest.mark.parametrize(
@@ -113,7 +119,7 @@ def test_parallel_generation_is_bounded(settings, monkeypatch):
 
     monkeypatch.setattr(adapter, "request", request)
     with ThreadPoolExecutor() as pool:
-        pending = pool.submit(adapter.generate, {})
+        pending = pool.submit(adapter.generate, CONTEXT)
         assert entered.wait(timeout=5)
         try:
             assert adapter.generate({}).error_code == "LLM_BUSY"
@@ -128,3 +134,35 @@ def test_parallel_generation_is_bounded(settings, monkeypatch):
 def test_runtime_url_rejects_credentials_and_paths(settings, url):
     with pytest.raises(ValidationError):
         type(settings).model_validate({**settings.model_dump(), "llm_base_url": url})
+
+
+@pytest.mark.parametrize(
+    "status,content,code",
+    [
+        (302, b"private-redirect", "LLM_UNAVAILABLE"),
+        (404, b"private-error", "LLM_MODEL_UNAVAILABLE"),
+        (200, b"x" * 101, "LLM_RESPONSE_INVALID"),
+    ],
+)
+def test_http_response_limits_and_redirects(settings, monkeypatch, status, content, code):
+    from io import BytesIO
+    from time import monotonic
+    from types import SimpleNamespace
+
+    connection = SimpleNamespace(sock=SimpleNamespace(settimeout=lambda value: None), closed=False)
+    connection.request = lambda *args: None
+    response = BytesIO(content)
+    response.status = status
+    connection.getresponse = lambda: response
+
+    def close():
+        connection.closed = True
+
+    connection.close = close
+    monkeypatch.setattr(
+        "credit_cabinet.integrations.ollama.http.client.HTTPConnection", lambda *args: connection
+    )
+    with pytest.raises(ModelFailure) as error:
+        OllamaAdvisor(settings).request("GET", "/api/tags", None, monotonic() + 5, 100)
+    assert error.value.args == (code,)
+    assert connection.closed

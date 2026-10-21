@@ -128,9 +128,14 @@ def build_facts(comparison, application, mode):
             identifier,
         )
         if candidate["load_ratio"] is not None:
+            score = (
+                f"Риск-балл {candidate['risk_score']}."
+                if candidate["risk_score"] is not None
+                else "Риск-балл не рассчитывался."
+            )
             card(
                 identifier + "_LOAD",
-                f"Демонстрационная долговая нагрузка: {Decimal(candidate['load_ratio']) * 100:.2f}%; риск-балл {candidate['risk_score']}.",
+                f"Демонстрационная долговая нагрузка: {Decimal(candidate['load_ratio']) * 100:.2f}%. {score}",
                 identifier,
             )
         if identifier != "REQUESTED":
@@ -178,6 +183,10 @@ def valid_selection(selection, context):
     available = {row["factor_id"]: row for row in context["factors"]}
     summary = selection.summary_factor_ids
     if len(summary) != len(set(summary)) or not set(summary) <= available.keys():
+        return False
+    if context["mode"] == "EXPLAIN" and any(
+        available[key]["candidate_id"] not in (None, "REQUESTED") for key in summary
+    ):
         return False
     expected = set(context["candidate_ids"]) if context["mode"] == "COMPARE" else set()
     if {row.candidate_id for row in selection.comparisons} != expected or len(

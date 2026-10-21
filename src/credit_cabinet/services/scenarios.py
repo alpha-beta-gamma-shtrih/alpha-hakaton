@@ -4,6 +4,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
+from uuid import UUID
 
 from sqlalchemy import select
 
@@ -22,8 +23,8 @@ from credit_cabinet.services.submissions import latest_assessment, latest_revisi
 class ComparisonContext:
     response: ScenariosResponse
     payload: dict
-    revision_id: object
-    assessment_id: object
+    revision_id: UUID | None
+    assessment_id: UUID | None
     missing_fields: list[str]
 
 

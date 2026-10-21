@@ -100,6 +100,19 @@ class OllamaAdvisor:
             if self.settings.llm_model_digest and digest != self.settings.llm_model_digest:
                 raise ModelFailure("LLM_MODEL_MISMATCH")
             schema = ModelSelection.model_json_schema()
+            allowed_facts = [
+                row["factor_id"]
+                for row in context["factors"]
+                if context["mode"] == "COMPARE" or row["candidate_id"] in (None, "REQUESTED")
+            ]
+            schema["properties"]["summary_factor_ids"]["items"]["enum"] = allowed_facts
+            schema["properties"]["next_step_id"]["enum"] = [context["next_step"]["id"]]
+            comparison_count = len(context["candidate_ids"]) if context["mode"] == "COMPARE" else 0
+            schema["properties"]["comparisons"]["minItems"] = comparison_count
+            schema["properties"]["comparisons"]["maxItems"] = comparison_count
+            schema["$defs"]["CandidateSelection"]["properties"]["candidate_id"]["enum"] = context[
+                "candidate_ids"
+            ]
             result = self.request(
                 "POST",
                 "/api/chat",
