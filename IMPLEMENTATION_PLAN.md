@@ -1,6 +1,6 @@
 # Договоренности перед реализацией
 
-Статус: согласованный план demo-0.2; начало реализации разрешено. Этот документ дополняет [ARCHITECTURE.md](ARCHITECTURE.md) и [DEVELOPMENT.md](DEVELOPMENT.md). Структура зафиксирована в README; в SB/backend-foundation реализованы FastAPI, модели, миграции, авторизация/логи, импорт C01/C02 и API черновиков с доступом по membership. Новая ручная приемка — DRAFTS_CHECK.md. Текущие команды и точный контракт — BACKEND.md.
+Статус: согласованный план demo-0.2; начало реализации разрешено. Этот документ дополняет [ARCHITECTURE.md](ARCHITECTURE.md) и [DEVELOPMENT.md](DEVELOPMENT.md). Структура зафиксирована в README; в SB/backend-foundation реализованы основа, клиентские черновики/отправка/расчеты и банковская очередь/карточка/ручные действия. Новая ручная приемка — BANK_CHECK.md, предыдущие — SUBMISSION_CHECK.md и DRAFTS_CHECK.md. Текущие команды и точный контракт — BACKEND.md.
 
 Подробные поля БД и ограничения находятся в [DATABASE.md](DATABASE.md), экраны двух контуров и переходы — в [USER_FLOWS.md](USER_FLOWS.md). AI-помощь в той же форме подбора подтверждена командой; полноценный свободный чат не входит в MVP. Поля формы, форматы наборов и конкретная политика заданы в [SYNTETIC.md](SYNTETIC.md), текущая версия demo-0.2.
 
@@ -142,9 +142,9 @@ AI не является условием readiness кредитного API: п
 
 | Участник | Следующее действие | Передаваемый результат |
 | --- | --- | --- |
-| Сергей | Банковская очередь, ручной дозапрос/решение, затем AI | Отправка/снимки/скоринг/варианты готовы по SUBMISSION_CHECK.md |
+| Сергей | Демо-документы, согласованная AI-функция, общая интеграция | Банк готов по BANK_CHECK.md, клиент/расчеты по SUBMISSION_CHECK.md |
 | Дима | Упаковать API/PostgreSQL/однократный init | Команды миграции и seed готовы; для новых пользователей DEMO_USER_PASSWORD |
-| Ксюша | React/TypeScript/Vite, вход, компании/продукт и форма с автосохранением | frontend/README.md, docs/openapi.json, SUBMISSION_CHECK.md и DRAFTS_CHECK.md |
+| Ксюша | React/TypeScript/Vite, вход, компании/продукт и форма с автосохранением | frontend/README.md, docs/openapi.json, BANK_CHECK.md, SUBMISSION_CHECK.md и DRAFTS_CHECK.md |
 | Валера | Расширить C01/C02 до C01–C08 | CSV/JSON в demo_data/demo_0_2 по готовым образцам |
 | София | Добавить негативные/повторные ответы и сверить ожидаемые исходы | fns_responses.json, bki_responses.json, scenarios.json и manifest |
 

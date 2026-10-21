@@ -32,6 +32,18 @@ POST /api/applications/{id}/scenarios принимает только expected_v
 
 Без подтверждения БКИ mode=CALCULATION_ONLY: платеж/общая сумма/переплата доступны, риск/маршрут/нагрузка null. С подтверждением mode=PREVIEW; правила те же, что при отправке. preliminary_route показывать как предварительную оценку. is_binding всегда false. Поле reasons содержит code/message, reason_codes — список кодов. Обращение не меняет status/version и не создает официальное решение.
 
-AI, банковская очередь/ручные решения и документы пока не подключены. Для сотрудника есть только POST retry-processing по SUBMISSION_CHECK.md; макеты остальных экранов показывают состояние разработки.
+AI и документы пока не подключены. Банковские API готовы по [BANK_CHECK.md](../BANK_CHECK.md).
 
-Банк не получает клиентские черновики: эти маршруты для BANK_STAFF возвращают 403. Для банковских экранов позже будут отдельные DTO отправленных снимков. Backend не заменяется логикой проверки прав на frontend.
+Банк не получает клиентские черновики: клиентские маршруты для BANK_STAFF возвращают 403. Для сотрудника использовать отдельные DTO и /api/bank/applications. Backend не заменяется логикой проверки прав на frontend.
+
+## Банковский кабинет
+
+1. После /auth/me с user.role=BANK_STAFF открыть банковский интерфейс. GET /api/bank/applications возвращает items/total/limit/offset. По умолчанию незавершенные статусы; для финальных передать status=APPROVED или REJECTED. status — повторяемый список; также есть company_id, limit=1–100, offset>=0. Сортировка: сначала более ранняя отправка. В строке есть продукт, риск и assessment_reasons.
+2. GET /api/bank/applications/{id}: revision/assessment/decision, открытый и прошлые дозапросы, список revisions, version и allowed_actions. Все бизнес-поля — из отправки. Пока клиент печатает ответ или правит сумму, банк видит старый снимок. Version при этом может вырасти: это контроль конфликта.
+3. GET /{id}/revisions/{revision_no} возвращает revision и все assessments по run_no. История /{id}/events включает автора и привязку к отправке. Кнопки действий относятся только к актуальной карточке, не к исторической версии.
+4. POST /{id}/request-info: expected_version, message_to_client (20–1000 символов), requested_fields из enum OpenAPI. Для финансов доступны путь draft_data.financial_months целиком либо конкретный месяц/показатель; нельзя запрашивать role/is_bankrupt/provenance. Ответ — обновленная BankCard со статусом NEEDS_INFO.
+5. POST /{id}/decision: expected_version, outcome=APPROVED/REJECTED, обязательное public_explanation (20–1000), необязательный internal_comment (1–2000 или null). Условия предложения сотрудник не вводит: сервер берет их из снимка. Ответ — BankCard с MANUAL-решением. Внутренний комментарий относится только к банковскому экрану; публичное обоснование увидит клиент.
+6. Кнопки показывать по allowed_actions: BORDERLINE_RISK — REQUEST_INFO/APPROVE/REJECT; TREND_BASELINE_ZERO — REQUEST_INFO; техническая/неподтвержденная проверка — RETRY_PROCESSING. Для NEEDS_INFO и финальных статусов действий сотрудника нет. Retry остается POST /{id}/retry-processing по SUBMISSION_CHECK.md.
+7. При 409 обновить карточку и показать конфликт, не повторять ручное решение с новой version автоматически. На время команды блокировать кнопку. Все POST требуют CSRF. После успешной команды обновить карточку и очередь; финальная заявка уйдет из очереди по умолчанию.
+
+Assessment хранит рекомендацию правил: после ручного APPROVED он может по-прежнему иметь routing=MANUAL_REVIEW и risk_score=40. Финальный результат показывается из status/decision. Чтение и polling не продлевают idle-сессию; /auth/activity используется при реальном взаимодействии. Отдельных сотрудников-исполнителей и назначения заявки в MVP нет.
