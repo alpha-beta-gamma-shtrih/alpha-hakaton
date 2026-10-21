@@ -1,0 +1,42 @@
+{
+  "measured_at_utc": "2026-10-21T17:54:54.921228+00:00",
+  "runtime": "Ollama",
+  "runtime_version": "0.40.5",
+  "method": "tests/test_advisor_live.py; temporary SQLite database; local real model; first case includes model loading",
+  "generation_config": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 384,
+    "think": false
+  },
+  "loaded_model_size_bytes": 3180247121,
+  "loaded_model_size_vram_bytes": 3180247121,
+  "cases": [
+    {
+      "case": "EXPLAIN_C01",
+      "model_id": "qwen3:4b",
+      "model_digest": "sha256:359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+      "latency_ms": 5746,
+      "status": "SUCCESS",
+      "prompt_version": "advisor-grounded-0.2.1"
+    },
+    {
+      "case": "COMPARE_C01",
+      "model_id": "qwen3:4b",
+      "model_digest": "sha256:359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+      "latency_ms": 3399,
+      "status": "SUCCESS",
+      "prompt_version": "advisor-grounded-0.2.1"
+    },
+    {
+      "case": "EXPLAIN_MISSING_FINANCES",
+      "model_id": "qwen3:4b",
+      "model_digest": "sha256:359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+      "latency_ms": 1461,
+      "status": "SUCCESS",
+      "prompt_version": "advisor-grounded-0.2.1"
+    }
+  ],
+  "limits": "Three successful contract checks on one laptop. Latency measures adapter calls including model metadata/loading/inference, not the full API request; no statistical performance or credit-risk-quality claim."
+}
