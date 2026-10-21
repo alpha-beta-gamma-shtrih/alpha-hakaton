@@ -1,6 +1,8 @@
 """Public explanations; never pass fixture error messages or internal comments."""
 
 MESSAGES = {
+    "MANUAL_APPROVED": "Сотрудник одобрил заявку в пределах условий отправленной версии.",
+    "MANUAL_REJECTED": "Сотрудник отклонил заявку после рассмотрения демонстрационных факторов риска.",
     "CREDIT_HISTORY_CONFIRMATION_REQUIRED": "Для полной предварительной оценки подтвердите демонстрационную проверку истории. Расчет платежа доступен.",
     "DEMO_POLICY_PASSED": "Заявка прошла демонстрационные правила продукта.",
     "COMPANY_BANKRUPTCY": "Юридическая демо-проверка выявила признак банкротства.",

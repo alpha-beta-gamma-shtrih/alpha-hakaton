@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path, Query, Request
 
 from credit_cabinet.api.dependencies import Database, require_bank_staff
 from credit_cabinet.schemas.bank import (
@@ -10,9 +10,12 @@ from credit_cabinet.schemas.bank import (
     BankQueuePage,
     BankRevisionDetail,
     BankStatus,
+    ManualDecision,
+    ManualInformationRequest,
 )
 from credit_cabinet.schemas.errors import ErrorResponse
 from credit_cabinet.services import bank as service
+from credit_cabinet.services import bank_commands
 from credit_cabinet.services.auth import Principal
 
 Bank = Annotated[Principal, Depends(require_bank_staff)]
@@ -51,3 +54,27 @@ def revision(
 @router.get("/{application_id}/events", response_model=BankEventList)
 def events(application_id: UUID, db: Database, principal: Bank):
     return service.history(db, application_id)
+
+
+@router.post("/{application_id}/request-info", response_model=BankCard)
+def request_info(
+    application_id: UUID,
+    body: ManualInformationRequest,
+    request: Request,
+    db: Database,
+    principal: Bank,
+):
+    row, revision = bank_commands.request_information(
+        db, principal, application_id, body, request.app.state.auth
+    )
+    return service.card(db, row, revision)
+
+
+@router.post("/{application_id}/decision", response_model=BankCard)
+def decision(
+    application_id: UUID, body: ManualDecision, request: Request, db: Database, principal: Bank
+):
+    row, revision = bank_commands.decide(
+        db, principal, application_id, body, request.app.state.auth
+    )
+    return service.card(db, row, revision)
