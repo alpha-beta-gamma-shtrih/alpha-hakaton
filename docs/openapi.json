@@ -2722,6 +2722,120 @@
         }
       }
     },
+    "/api/documents/{document_id}": {
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Download",
+        "description": "Клиент: членство в компании. Банк: ID и SHA-256 в отправленном снимке.",
+        "operationId": "download_api_documents__document_id__get",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Проверенный синтетический CSV; cookie-сессия обязательна, CSRF для GET не нужен",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Content-SHA256": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
     "/health/live": {
       "get": {
         "tags": [
@@ -4255,6 +4369,75 @@
         ],
         "title": "DecisionSource"
       },
+      "DocumentResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "application_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Application Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "original_filename": {
+            "type": "string",
+            "title": "Original Filename"
+          },
+          "mime_type": {
+            "type": "string",
+            "title": "Mime Type"
+          },
+          "content_sha256": {
+            "type": "string",
+            "title": "Content Sha256"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "source": {
+            "$ref": "#/components/schemas/DocumentSource"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "download_url": {
+            "type": "string",
+            "title": "Download Url",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "application_id",
+          "kind",
+          "original_filename",
+          "mime_type",
+          "content_sha256",
+          "size_bytes",
+          "source",
+          "created_at",
+          "download_url"
+        ],
+        "title": "DocumentResponse"
+      },
+      "DocumentSource": {
+        "type": "string",
+        "enum": [
+          "DEMO",
+          "UPLOAD"
+        ],
+        "title": "DocumentSource"
+      },
       "DraftCreate": {
         "properties": {
           "company_id": {
@@ -4452,6 +4635,13 @@
       },
       "DraftResponse": {
         "properties": {
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentResponse"
+            },
+            "type": "array",
+            "title": "Documents"
+          },
           "id": {
             "type": "string",
             "format": "uuid",
@@ -4612,6 +4802,7 @@
         },
         "type": "object",
         "required": [
+          "documents",
           "id",
           "company_id",
           "product_id",
@@ -5386,7 +5577,9 @@
             "title": "Product Snapshot"
           },
           "document_refs": {
-            "items": {},
+            "items": {
+              "$ref": "#/components/schemas/DocumentResponse"
+            },
             "type": "array",
             "title": "Document Refs"
           },
