@@ -8,6 +8,7 @@ from sqlalchemy import delete, select
 
 from credit_cabinet.integrations.documents import DocumentStore
 from credit_cabinet.models import (
+    Application,
     ApplicationRevision,
     CompanyMembership,
     Document,
@@ -63,6 +64,25 @@ def test_access_rechecked_after_membership_revocation(seeded, client):
         db.execute(delete(CompanyMembership).where(CompanyMembership.user_id == user.id))
         db.commit()
     assert client.get(url(draft)).status_code == 404
+
+
+def test_second_company_receives_its_own_template(seeded, client):
+    from tests.test_drafts import C02
+
+    assert login(client, "client2@example.com", SEED_PASSWORD).status_code == 200
+    product = client.get("/api/products").json()["items"][0]["id"]
+    response = client.post(
+        "/api/applications",
+        json={"company_id": C02, "product_id": product},
+        headers=csrf_headers(client),
+    )
+    assert response.status_code == 201
+    draft = response.json()
+    assert draft["documents"][0]["original_filename"] == "C02.csv"
+    assert (
+        client.get(url(draft)).content
+        == (ROOT / "demo_data/demo_0_2/documents/C02.csv").read_bytes()
+    )
 
 
 def test_bank_only_downloads_sent_attachments(seeded, client):
@@ -173,6 +193,45 @@ def test_unsafe_download_methods_are_not_exposed(seeded, client):
     assert client.post(url(draft), headers=csrf_headers(client)).status_code == 405
     assert client.delete(url(draft), headers=csrf_headers(client)).status_code == 405
     assert client.get("/api/documents/not-a-uuid").status_code == 422
+
+
+@pytest.mark.parametrize("invalid_ref", ["legacy_empty", "wrong_hash", "other_application"])
+def test_bank_requires_exact_document_reference(seeded, client, invalid_ref):
+    from credit_cabinet.services.snapshots import application_input, financial_input_hash
+
+    draft = ready(client)
+    with seeded.state.session_factory() as db:
+        application = db.get(Application, UUID(draft["id"]))
+        payload = application_input(db, application)
+        if invalid_ref == "legacy_empty":
+            payload["document_refs"] = []
+        elif invalid_ref == "wrong_hash":
+            payload["document_refs"][0]["content_sha256"] = "b" * 64
+        else:
+            payload["document_refs"][0]["application_id"] = str(uuid4())
+        db.add(
+            ApplicationRevision(
+                application_id=application.id,
+                revision_no=1,
+                submitted_by_user_id=application.created_by_user_id,
+                source_lock_version=application.lock_version,
+                submission_key=uuid4(),
+                input_hash=financial_input_hash(payload),
+                requested_amount=application.requested_amount,
+                term_months=application.term_months,
+                purpose_code=application.purpose_code,
+                company_snapshot=payload["company_snapshot"],
+                financial_snapshot=payload["financial_snapshot"],
+                product_snapshot=payload["product_snapshot"],
+                document_refs=payload["document_refs"],
+                schema_version=2,
+            )
+        )
+        application.status = "SUBMITTED"
+        db.commit()
+    assert client.get(url(draft)).status_code == 200
+    assert login(client, "bank@example.com").status_code == 200
+    assert client.get(url(draft)).status_code == 404
 
 
 def test_expired_session_cannot_download(seeded, client, monkeypatch):

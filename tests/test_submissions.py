@@ -271,6 +271,7 @@ def test_needs_info_resubmission_keeps_old_snapshot_and_closes_request(seeded, c
     assert second.status_code == 200, second.text
     body = second.json()
     assert body["application"]["status"] == "APPROVED" and body["revision"]["revision_no"] == 2
+    assert body["revision"]["document_refs"] == frozen["document_refs"]
     assert body["revision"]["input_hash"] != frozen["input_hash"]
     assert body["application"]["open_information_request"] is None
     with seeded.state.session_factory() as db:

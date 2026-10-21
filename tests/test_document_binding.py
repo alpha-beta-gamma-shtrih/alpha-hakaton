@@ -1,13 +1,13 @@
 from copy import deepcopy
 from hashlib import sha256
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import pytest
 from sqlalchemy import func, select, text
 from sqlalchemy.exc import IntegrityError
 
 from credit_cabinet.integrations.documents import DocumentStore
-from credit_cabinet.models import Application, ApplicationRevision, Document
+from credit_cabinet.models import Application, ApplicationEvent, ApplicationRevision, Document
 from tests.conftest import ROOT
 from tests.test_drafts import new_draft
 from tests.test_submissions import ready, send
@@ -46,7 +46,8 @@ def test_document_metadata_is_immutable_in_database(seeded, client, operation):
         assert db.scalar(select(func.count()).select_from(Document)) == 1
 
 
-def test_legacy_draft_attached_only_on_new_submission(seeded, client):
+@pytest.mark.parametrize("confirmed", [False, True])
+def test_legacy_draft_attached_only_on_new_valid_submission(seeded, client, confirmed):
     original = ready(client)
     with seeded.state.session_factory() as db:
         source = db.get(Application, UUID(original["id"]))
@@ -63,11 +64,22 @@ def test_legacy_draft_attached_only_on_new_submission(seeded, client):
             draft_data=deepcopy(source.draft_data),
         )
         db.add(legacy)
+        data = deepcopy(legacy.draft_data)
+        data["confirmations"]["data_confirmed"] = confirmed
+        legacy.draft_data = data
         db.commit()
         legacy_id = str(legacy.id)
     draft = client.get(f"/api/applications/{legacy_id}").json()
     assert draft["documents"] == []
-    result = send(client, draft).json()
+    response = send(client, draft)
+    if not confirmed:
+        assert response.status_code == 422
+        with seeded.state.session_factory() as db:
+            assert db.scalar(select(func.count()).select_from(Document)) == 1
+            assert db.scalar(select(func.count()).select_from(ApplicationRevision)) == 0
+        return
+    assert response.status_code == 200, response.text
+    result = response.json()
     assert result["revision"]["document_refs"][0]["application_id"] == legacy_id
     with seeded.state.session_factory() as db:
         assert db.scalar(select(func.count()).select_from(Document)) == 2
@@ -103,12 +115,4 @@ def test_template_failure_rolls_back_application_and_event(seeded, client, tmp_p
     with seeded.state.session_factory() as db:
         assert db.scalar(select(func.count()).select_from(Application)) == 0
         assert db.scalar(select(func.count()).select_from(Document)) == 0
-
-
-def test_failed_legacy_submission_does_not_create_document(seeded, client):
-    # Validation precedes attachment even on old drafts.
-    draft = new_draft(client)
-    response = send(client, draft, key=uuid4())
-    assert response.status_code == 422
-    with seeded.state.session_factory() as db:
-        assert db.scalar(select(func.count()).select_from(ApplicationRevision)) == 0
+        assert db.scalar(select(func.count()).select_from(ApplicationEvent)) == 0
