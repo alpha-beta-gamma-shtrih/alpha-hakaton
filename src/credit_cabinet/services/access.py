@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from credit_cabinet.api.errors import APIError
-from credit_cabinet.models import Application, Company, CompanyMembership, User
+from credit_cabinet.models import Application, ApplicationRevision, Company, CompanyMembership, User
 from credit_cabinet.models.enums import ApplicationStatus, FormStep, Role
 
 
@@ -66,3 +66,31 @@ def safe_ui_context(db: Session, user: User) -> dict:
         else:
             result.pop("step", None)
     return result
+
+
+def submitted_query():
+    last_no = (
+        select(func.max(ApplicationRevision.revision_no))
+        .where(ApplicationRevision.application_id == Application.id)
+        .correlate(Application)
+        .scalar_subquery()
+    )
+    return (
+        select(Application, ApplicationRevision)
+        .join(
+            ApplicationRevision,
+            (ApplicationRevision.application_id == Application.id)
+            & (ApplicationRevision.revision_no == last_no),
+        )
+        .where(Application.status != ApplicationStatus.DRAFT)
+    )
+
+
+def bank_application(db, application_id, *, lock=False):
+    query = submitted_query().where(Application.id == application_id)
+    if lock:
+        query = query.with_for_update(of=Application).execution_options(populate_existing=True)
+    row = db.execute(query).one_or_none()
+    if row is None:
+        raise APIError(404, "APPLICATION_NOT_FOUND", "Отправленная заявка не найдена")
+    return row

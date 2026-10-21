@@ -14,7 +14,7 @@ from credit_cabinet.models import (
     Decision,
     InformationRequest,
 )
-from credit_cabinet.models.enums import ApplicationStatus, InfoStatus
+from credit_cabinet.models.enums import InfoStatus
 from credit_cabinet.schemas.bank import (
     ACTIVE_BANK_STATUSES,
     BankAssessmentResponse,
@@ -23,37 +23,10 @@ from credit_cabinet.schemas.bank import (
     BankQueueItem,
     BankRevisionDetail,
 )
+from credit_cabinet.services.access import bank_application, submitted_query
 from credit_cabinet.services.bank_policy import bank_actions
 from credit_cabinet.services.submissions import latest_assessment
 from credit_cabinet.services.views import assessment_view, decision_view, revision_view
-
-
-def submitted_query():
-    last_no = (
-        select(func.max(ApplicationRevision.revision_no))
-        .where(ApplicationRevision.application_id == Application.id)
-        .correlate(Application)
-        .scalar_subquery()
-    )
-    return (
-        select(Application, ApplicationRevision)
-        .join(
-            ApplicationRevision,
-            (ApplicationRevision.application_id == Application.id)
-            & (ApplicationRevision.revision_no == last_no),
-        )
-        .where(Application.status != ApplicationStatus.DRAFT)
-    )
-
-
-def bank_application(db, application_id, *, lock=False):
-    query = submitted_query().where(Application.id == application_id)
-    if lock:
-        query = query.with_for_update(of=Application).execution_options(populate_existing=True)
-    row = db.execute(query).one_or_none()
-    if row is None:
-        raise APIError(404, "APPLICATION_NOT_FOUND", "Отправленная заявка не найдена")
-    return row
 
 
 def queue_item(db, application, revision, assessment):

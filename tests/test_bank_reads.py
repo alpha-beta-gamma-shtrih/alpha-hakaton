@@ -5,7 +5,7 @@ import pytest
 
 from credit_cabinet.models import Company
 from tests.bank_helpers import review_application
-from tests.conftest import login
+from tests.conftest import csrf_headers, login
 from tests.test_drafts import C01, SEED_PASSWORD, new_draft, patch
 from tests.test_submissions import AlteredSources, counts, ready, send
 
@@ -97,6 +97,15 @@ def test_draft_and_missing_application_are_indistinguishable_to_bank(seeded, cli
     for application_id in (draft["id"], str(uuid4())):
         for suffix in ("", "/events", "/revisions/1"):
             response = client.get(f"/api/bank/applications/{application_id}{suffix}")
+            assert (
+                response.status_code == 404 and response.json()["code"] == "APPLICATION_NOT_FOUND"
+            )
+        for version in (1, 99):
+            response = client.post(
+                f"/api/bank/applications/{application_id}/retry-processing",
+                json={"expected_version": version},
+                headers=csrf_headers(client),
+            )
             assert (
                 response.status_code == 404 and response.json()["code"] == "APPLICATION_NOT_FOUND"
             )

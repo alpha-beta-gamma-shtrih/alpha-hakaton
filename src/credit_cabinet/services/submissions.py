@@ -11,7 +11,6 @@ from sqlalchemy.orm.exc import StaleDataError
 from credit_cabinet.api.errors import APIError
 from credit_cabinet.core.security import utc_now
 from credit_cabinet.models import (
-    Application,
     ApplicationEvent,
     ApplicationRevision,
     Assessment,
@@ -27,7 +26,7 @@ from credit_cabinet.models.enums import (
     Routing,
 )
 from credit_cabinet.schemas.submissions import SubmitRequest
-from credit_cabinet.services.access import client_application
+from credit_cabinet.services.access import bank_application, client_application
 from credit_cabinet.services.auth import AuthService, Principal
 from credit_cabinet.services.drafts import remember_draft
 from credit_cabinet.services.policy import (
@@ -371,19 +370,9 @@ def date_from_revision(revision):
 
 
 def retry(db, principal, application_id, body, auth, sources):
-    application = db.scalar(
-        select(Application)
-        .where(Application.id == application_id)
-        .with_for_update()
-        .execution_options(populate_existing=True)
-    )
-    if application is None:
-        raise APIError(404, "APPLICATION_NOT_FOUND", "Заявка не найдена")
+    application, revision = bank_application(db, application_id, lock=True)
     if application.lock_version != body.expected_version:
         raise APIError(409, "VERSION_CONFLICT", "Заявка уже изменена")
-    revision = latest_revision(db, application.id)
-    if revision is None:
-        raise APIError(404, "APPLICATION_NOT_FOUND", "Отправленная заявка не найдена")
     assessment = latest_assessment(db, revision.id) if revision else None
     if revision is None or not can_retry(application, assessment):
         raise APIError(409, "PROCESSING_RETRY_NOT_ALLOWED", "Повтор обработки недоступен")

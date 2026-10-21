@@ -311,3 +311,31 @@ def test_request_input_rejects_unknown_or_duplicate_paths(seeded, client, fields
         question_body(submitted["application"]["version"], requested_fields=fields),
     )
     assert response.status_code == 422 and counts(seeded)["information_requests"] == 0
+
+
+@pytest.mark.parametrize("action", ["decision", "request-info"])
+def test_command_rolls_back_result_status_and_event_if_session_activity_fails(
+    seeded, client, action, monkeypatch
+):
+    from credit_cabinet.api.errors import APIError
+
+    submitted = review_application(client)
+    login(client, email="bank@example.com")
+    old_card = client.get(f"/api/bank/applications/{submitted['application']['id']}").json()
+    old_events = client.get(
+        f"/api/bank/applications/{submitted['application']['id']}/events"
+    ).json()
+
+    def expired(*_args, **_kwargs):
+        raise APIError(401, "AUTH_REQUIRED", "Требуется повторный вход")
+
+    monkeypatch.setattr(seeded.state.auth, "activity", expired)
+    payload = (
+        decision_body(old_card["version"])
+        if action == "decision"
+        else question_body(old_card["version"])
+    )
+    assert command(client, submitted, action, payload).status_code == 401
+    assert client.get(f"/api/bank/applications/{old_card['id']}").json() == old_card
+    assert client.get(f"/api/bank/applications/{old_card['id']}/events").json() == old_events
+    assert counts(seeded)["decisions"] == counts(seeded)["information_requests"] == 0

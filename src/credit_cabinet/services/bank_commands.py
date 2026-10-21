@@ -11,7 +11,7 @@ from credit_cabinet.api.errors import APIError
 from credit_cabinet.core.security import utc_now
 from credit_cabinet.models import Decision, InformationRequest
 from credit_cabinet.models.enums import ApplicationStatus, InfoStatus, Role
-from credit_cabinet.services.bank import bank_application
+from credit_cabinet.services.access import bank_application
 from credit_cabinet.services.bank_policy import bank_actions, saved_evaluation
 from credit_cabinet.services.submissions import event, latest_assessment
 
