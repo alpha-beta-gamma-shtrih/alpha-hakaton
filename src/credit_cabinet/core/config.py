@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     demo_user_password: SecretStr | None = None
     demo_dataset_dir: Path = Path("demo_data/demo_0_2")
+    documents_dir: Path = Path(".data/documents")
     csrf_signing_key: SecretStr
     client_session_absolute_ttl_seconds: int = Field(default=28800, gt=0)
     client_session_idle_ttl_seconds: int = Field(default=3600, gt=0)

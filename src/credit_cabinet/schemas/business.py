@@ -28,6 +28,7 @@ from credit_cabinet.models.enums import (
     RiskBand,
     Routing,
 )
+from credit_cabinet.schemas.documents import DocumentResponse
 
 MAX_MONEY = Decimal("9999999999999999.99")
 
@@ -272,6 +273,7 @@ class AssessmentResponse(BaseModel):
 
 
 class DraftResponse(BaseModel):
+    documents: list[DocumentResponse]
     id: UUID
     company_id: UUID
     product_id: UUID

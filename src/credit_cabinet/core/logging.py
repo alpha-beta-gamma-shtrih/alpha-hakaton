@@ -23,6 +23,7 @@ _FIELDS = (
     "reason",
     "traceback",
     "application_id",
+    "document_id",
     "version",
     "revision_id",
     "run_no",

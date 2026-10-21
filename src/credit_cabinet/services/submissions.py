@@ -10,6 +10,7 @@ from sqlalchemy.orm.exc import StaleDataError
 
 from credit_cabinet.api.errors import APIError
 from credit_cabinet.core.security import utc_now
+from credit_cabinet.integrations.documents import DocumentStore
 from credit_cabinet.models import (
     ApplicationEvent,
     ApplicationRevision,
@@ -28,6 +29,7 @@ from credit_cabinet.models.enums import (
 from credit_cabinet.schemas.submissions import SubmitRequest
 from credit_cabinet.services.access import bank_application, client_application
 from credit_cabinet.services.auth import AuthService, Principal
+from credit_cabinet.services.documents import document_references, ensure_documents
 from credit_cabinet.services.drafts import remember_draft
 from credit_cabinet.services.policy import (
     evaluate,
@@ -131,6 +133,10 @@ def submit(
             409, "APPLICATION_NOT_SUBMITTABLE", "Заявку нельзя отправить в текущем статусе"
         )
     payload = application_input(db, application)
+    store = DocumentStore(auth.settings)
+    for document in ensure_documents(db, application, principal.user.id, store):
+        store.read(document)
+    payload["document_refs"] = document_references(db, application.id)
     number = (
         db.scalar(
             select(func.max(ApplicationRevision.revision_no)).where(
