@@ -32,7 +32,13 @@ POST /api/applications/{id}/scenarios принимает только expected_v
 
 Без подтверждения БКИ mode=CALCULATION_ONLY: платеж/общая сумма/переплата доступны, риск/маршрут/нагрузка null. С подтверждением mode=PREVIEW; правила те же, что при отправке. preliminary_route показывать как предварительную оценку. is_binding всегда false. Поле reasons содержит code/message, reason_codes — список кодов. Обращение не меняет status/version и не создает официальное решение.
 
-AI и документы пока не подключены. Банковские API готовы по [BANK_CHECK.md](../BANK_CHECK.md).
+AI пока не подключен. Банковские API готовы по [BANK_CHECK.md](../BANK_CHECK.md); документы — по [DOCUMENTS_CHECK.md](../DOCUMENTS_CHECK.md).
+
+## Документы
+
+Клиент читает `application.documents`, сотрудник — `revision.document_refs` конкретной отправки. Элемент содержит `id`, `application_id`, `kind`, `original_filename`, `mime_type`, `content_sha256`, `size_bytes`, `source=DEMO`, `created_at`, `download_url`. Внутренних путей нет. GET по `download_url` требует cookie, CSRF не нужен. Общий origin/dev proxy; обычная ссылка скачивает CSV, для fetch обрабатывать ошибку до сохранения Blob. Ответ содержит Content-Disposition и X-Content-SHA256, кеширование запрещено. Банк до отправки, другой клиент и неизвестный UUID получают 404; без сессии — 401; поврежденный/отсутствующий файл — 503 DOCUMENT_UNAVAILABLE.
+
+CSV — исходный синтетический профиль; после редактирования CLIENT_DECLARED финансов он не переписывается и не подтверждает новые значения. Загрузки/замены документов в UI нет. Старые снимки могут иметь пустой document_refs; не подменять его текущим application.documents. Текущий GET/скачивание не продлевает idle-сессию.
 
 Банк не получает клиентские черновики: клиентские маршруты для BANK_STAFF возвращают 403. Для сотрудника использовать отдельные DTO и /api/bank/applications. Backend не заменяется логикой проверки прав на frontend.
 

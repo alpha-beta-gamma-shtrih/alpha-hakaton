@@ -1,6 +1,6 @@
 # Договоренности перед реализацией
 
-Статус: согласованный план demo-0.2; начало реализации разрешено. Этот документ дополняет [ARCHITECTURE.md](ARCHITECTURE.md) и [DEVELOPMENT.md](DEVELOPMENT.md). Структура зафиксирована в README; в SB/backend-foundation реализованы основа, клиентские черновики/отправка/расчеты и банковская очередь/карточка/ручные действия. Новая ручная приемка — BANK_CHECK.md, предыдущие — SUBMISSION_CHECK.md и DRAFTS_CHECK.md. Текущие команды и точный контракт — BACKEND.md.
+Статус: согласованный план demo-0.2; реализация идет. Этот документ дополняет [ARCHITECTURE.md](ARCHITECTURE.md) и [DEVELOPMENT.md](DEVELOPMENT.md). Структура, основа, клиентские черновики/отправка/расчеты и банковский контур вошли в main. В SB/demo-documents реализованы привязка CSV к заявке/снимку и закрытая выдача. Новая ручная приемка — DOCUMENTS_CHECK.md, предыдущие — BANK_CHECK.md, SUBMISSION_CHECK.md и DRAFTS_CHECK.md. Текущие команды и точный контракт — BACKEND.md. Диме нужен постоянный записываемый DOCUMENTS_DIR в дополнение к PostgreSQL; Ксюше доступны application.documents и revision.document_refs.
 
 Подробные поля БД и ограничения находятся в [DATABASE.md](DATABASE.md), экраны двух контуров и переходы — в [USER_FLOWS.md](USER_FLOWS.md). AI-помощь в той же форме подбора подтверждена командой; полноценный свободный чат не входит в MVP. Поля формы, форматы наборов и конкретная политика заданы в [SYNTETIC.md](SYNTETIC.md), текущая версия demo-0.2.
 
