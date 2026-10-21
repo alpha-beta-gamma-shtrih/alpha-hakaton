@@ -32,7 +32,7 @@ POST /api/applications/{id}/scenarios принимает только expected_v
 
 Без подтверждения БКИ mode=CALCULATION_ONLY: платеж/общая сумма/переплата доступны, риск/маршрут/нагрузка null. С подтверждением mode=PREVIEW; правила те же, что при отправке. preliminary_route показывать как предварительную оценку. is_binding всегда false. Поле reasons содержит code/message, reason_codes — список кодов. Обращение не меняет status/version и не создает официальное решение.
 
-AI пока не подключен. Банковские API готовы по [BANK_CHECK.md](../BANK_CHECK.md); документы — по [DOCUMENTS_CHECK.md](../DOCUMENTS_CHECK.md).
+AI подключен по [AI_CHECK.md](../AI_CHECK.md): POST /api/applications/{id}/advisor с expected_version и mode=EXPLAIN/COMPARE; CSRF обязателен. Ответ содержит status SUCCESS/FALLBACK, error_code, is_current, scenarios, factors, explanation, ID и контекст отчета. GET того же пути восстанавливает последний отчет, /advisor-reports/{report_id} — конкретный; GET не вызывает модель. Сотруднику доступны только bank-маршруты и отчеты по отправленной версии. Числа показывать из scenarios; устаревший ответ не показывать текущим. Отдельная кнопка выбора варианта вызывает обычный PATCH, отправка остается отдельной. Свободного чата нет. Банковские API готовы по [BANK_CHECK.md](../BANK_CHECK.md); документы — по [DOCUMENTS_CHECK.md](../DOCUMENTS_CHECK.md).
 
 ## Документы
 
