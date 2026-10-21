@@ -15,6 +15,11 @@ SELECTION = {
 }
 
 
+@pytest.fixture(autouse=True)
+def enable_model(settings):
+    settings.llm_enabled = True
+
+
 def fake_request(settings, *, content=None, **changes):
     def request(method, path, body, deadline, max_bytes):
         if path == "/api/tags":

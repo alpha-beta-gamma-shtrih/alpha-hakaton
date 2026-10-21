@@ -1,6 +1,7 @@
 """Read-only comparison; at most three candidates share one frozen set of source facts."""
 
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
@@ -17,7 +18,34 @@ from credit_cabinet.services.snapshots import application_input, financial_input
 from credit_cabinet.services.submissions import latest_assessment, latest_revision
 
 
+@dataclass
+class ComparisonContext:
+    response: ScenariosResponse
+    payload: dict
+    revision_id: object
+    assessment_id: object
+    missing_fields: list[str]
+
+
+def revision_payload(revision):
+    return {
+        "schema_version": revision.schema_version,
+        "calculation_date": revision.product_snapshot["policy_config"]["calculation_date"],
+        "requested_amount": format(revision.requested_amount, ".2f"),
+        "term_months": revision.term_months,
+        "purpose_code": revision.purpose_code.value,
+        "company_snapshot": deepcopy(revision.company_snapshot),
+        "financial_snapshot": deepcopy(revision.financial_snapshot),
+        "product_snapshot": deepcopy(revision.product_snapshot),
+        "document_refs": deepcopy(revision.document_refs),
+    }
+
+
 def compare(db, user_id, application_id, body, sources):
+    return prepare_comparison(db, user_id, application_id, body, sources).response
+
+
+def prepare_comparison(db, user_id, application_id, body, sources):
     application = client_application(db, user_id, application_id)
     if application.lock_version != body.expected_version:
         raise APIError(
@@ -35,17 +63,7 @@ def compare(db, user_id, application_id, body, sources):
         ApplicationStatus.NEEDS_INFO,
     ):
         # A result is compared against its submitted terms, even if the catalog changes later.
-        payload = {
-            "schema_version": revision.schema_version,
-            "calculation_date": revision.product_snapshot["policy_config"]["calculation_date"],
-            "requested_amount": format(revision.requested_amount, ".2f"),
-            "term_months": revision.term_months,
-            "purpose_code": revision.purpose_code.value,
-            "company_snapshot": deepcopy(revision.company_snapshot),
-            "financial_snapshot": deepcopy(revision.financial_snapshot),
-            "product_snapshot": deepcopy(revision.product_snapshot),
-            "document_refs": deepcopy(revision.document_refs),
-        }
+        payload = revision_payload(revision)
     else:
         payload = application_input(db, application, require_confirmation=False)
     cache = {}
@@ -92,6 +110,7 @@ def compare(db, user_id, application_id, body, sources):
         ("LONGER_TERM", amount, min(term + 12, product["max_term_months"])),
     ]
     candidates = []
+    missing_fields = []
     seen = set()
     for candidate_id, value, months in options:
         if (value, months) in seen:
@@ -109,6 +128,8 @@ def compare(db, user_id, application_id, body, sources):
                 calculation_date=date.fromisoformat(payload["calculation_date"]),
                 source=source,
             )
+            if candidate_id == "REQUESTED":
+                missing_fields = result.requested_fields
         provenance = {
             "company": deepcopy(payload["company_snapshot"]["provenance"]),
             "financial_months": deepcopy(
@@ -160,8 +181,17 @@ def compare(db, user_id, application_id, body, sources):
                 "term_months": candidate["term_months"],
             }
         )
-    return ScenariosResponse(
-        mode="PREVIEW" if allowed else "CALCULATION_ONLY",
-        application_version=application.lock_version,
-        candidates=candidates,
+    return ComparisonContext(
+        response=ScenariosResponse(
+            mode="PREVIEW" if allowed else "CALCULATION_ONLY",
+            application_version=application.lock_version,
+            candidates=candidates,
+        ),
+        payload=payload,
+        revision_id=revision.id
+        if revision
+        and application.status not in (ApplicationStatus.DRAFT, ApplicationStatus.NEEDS_INFO)
+        else None,
+        assessment_id=assessment.id if assessment else None,
+        missing_fields=missing_fields,
     )
