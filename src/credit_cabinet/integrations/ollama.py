@@ -92,11 +92,12 @@ class OllamaAdvisor:
             models = [row for row in metadata["models"] if row["name"] == model]
             if len(models) != 1:
                 raise ModelFailure("LLM_MODEL_UNAVAILABLE")
-            digest = models[0]["digest"]
-            if re.fullmatch(r"[a-f0-9]{64}", digest):
-                digest = "sha256:" + digest
-            if not re.fullmatch(r"sha256:[a-f0-9]{64}", digest):
+            raw_digest = models[0]["digest"]
+            if not isinstance(raw_digest, str) or not re.fullmatch(
+                r"(?:sha256:)?[a-f0-9]{64}", raw_digest
+            ):
                 raise ModelFailure("LLM_RESPONSE_INVALID")
+            digest = "sha256:" + raw_digest.removeprefix("sha256:")
             if self.settings.llm_model_digest and digest != self.settings.llm_model_digest:
                 raise ModelFailure("LLM_MODEL_MISMATCH")
             schema = ModelSelection.model_json_schema()

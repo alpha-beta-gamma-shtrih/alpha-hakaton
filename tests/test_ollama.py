@@ -107,6 +107,19 @@ def test_pinned_model_digest_checked_before_generation(settings, monkeypatch):
     assert adapter.generate({}).error_code == "LLM_MODEL_MISMATCH"
 
 
+@pytest.mark.parametrize("digest", [None, {}, "private-invalid-digest"])
+def test_invalid_digest_never_enters_report_metadata(settings, monkeypatch, digest):
+    adapter = OllamaAdvisor(settings)
+    monkeypatch.setattr(
+        adapter,
+        "request",
+        lambda *args: {"models": [{"name": settings.llm_model, "digest": digest}]},
+    )
+    result = adapter.generate(CONTEXT)
+    assert result.error_code == "LLM_RESPONSE_INVALID"
+    assert result.model_digest is None
+
+
 def test_parallel_generation_is_bounded(settings, monkeypatch):
     adapter = OllamaAdvisor(settings)
     entered, resume = Event(), Event()
