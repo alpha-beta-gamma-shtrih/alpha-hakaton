@@ -1,0 +1,150 @@
+from datetime import datetime
+from typing import Annotated, Literal
+from uuid import UUID
+
+from pydantic import BaseModel, Field, StringConstraints, field_validator
+
+from credit_cabinet.core.demo import FINANCIAL_MONTHS
+from credit_cabinet.models.enums import ApplicationStatus, InfoStatus, Purpose, Visibility
+from credit_cabinet.schemas.business import (
+    AssessmentResponse,
+    CheckResponse,
+    DecisionResponse,
+    EventResponse,
+    MoneyOutput,
+    PositiveInteger,
+    StrictModel,
+)
+from credit_cabinet.schemas.submissions import RevisionResponse
+
+BankAction = Literal["REQUEST_INFO", "APPROVE", "REJECT", "RETRY_PROCESSING"]
+BankStatus = Literal["SUBMITTED", "CHECKING", "NEEDS_INFO", "MANUAL_REVIEW", "APPROVED", "REJECTED"]
+ACTIVE_BANK_STATUSES = ("SUBMITTED", "CHECKING", "NEEDS_INFO", "MANUAL_REVIEW")
+REQUESTABLE_FIELDS = frozenset(
+    {
+        "requested_amount",
+        "term_months",
+        "purpose_code",
+        "purpose_details",
+        "draft_data.financial_months",
+        "draft_data.info_response",
+        *{
+            f"draft_data.financial_months.{month.isoformat()}.{field}"
+            for month in FINANCIAL_MONTHS
+            for field in ("cash_inflow", "operating_outflow", "existing_debt_payment")
+        },
+    }
+)
+PublicText = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=20, max_length=1000)
+]
+InternalText = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)
+]
+
+
+class BankCheckResponse(CheckResponse):
+    normalized_data: dict | None
+    error_code: str | None
+    started_at: datetime
+
+
+class BankAssessmentResponse(AssessmentResponse):
+    checks: list[BankCheckResponse]
+    input_facts: dict
+    started_at: datetime
+
+
+class BankDecisionResponse(DecisionResponse):
+    decided_by_user_id: UUID | None
+    internal_comment: str | None
+
+
+class BankInformationRequest(BaseModel):
+    model_config = {"from_attributes": True}
+    id: UUID
+    revision_id: UUID
+    created_by_user_id: UUID | None
+    requested_fields: list[str]
+    message_to_client: str
+    status: InfoStatus
+    answer_text: str | None
+    answered_revision_id: UUID | None
+    answered_at: datetime | None
+    created_at: datetime
+
+
+class BankRevisionSummary(BaseModel):
+    model_config = {"from_attributes": True}
+    id: UUID
+    revision_no: int
+    input_hash: str
+    created_at: datetime
+
+
+class BankQueueItem(BaseModel):
+    id: UUID
+    company_id: UUID
+    company_name: str
+    inn: str
+    status: ApplicationStatus
+    version: int
+    latest_revision_id: UUID
+    latest_revision_no: int
+    requested_amount: MoneyOutput
+    term_months: int
+    purpose_code: Purpose
+    submitted_at: datetime
+    allowed_actions: list[BankAction]
+
+
+class BankQueuePage(BaseModel):
+    items: list[BankQueueItem]
+    total: int
+    limit: int
+    offset: int
+
+
+class BankCard(BankQueueItem):
+    revision: RevisionResponse
+    assessment: BankAssessmentResponse | None
+    decision: BankDecisionResponse | None
+    open_information_request: BankInformationRequest | None
+    information_requests: list[BankInformationRequest]
+    revisions: list[BankRevisionSummary]
+
+
+class BankRevisionDetail(BaseModel):
+    revision: RevisionResponse
+    assessments: list[BankAssessmentResponse]
+
+
+class BankEventResponse(EventResponse):
+    revision_id: UUID | None
+    actor_user_id: UUID | None
+    visibility: Visibility
+    details: dict
+
+
+class BankEventList(BaseModel):
+    items: list[BankEventResponse]
+
+
+class ManualInformationRequest(StrictModel):
+    expected_version: PositiveInteger
+    message_to_client: PublicText
+    requested_fields: list[str] = Field(min_length=1, max_length=24)
+
+    @field_validator("requested_fields")
+    @classmethod
+    def allowed_fields(cls, value):
+        if len(set(value)) != len(value) or not set(value) <= REQUESTABLE_FIELDS:
+            raise ValueError("Use unique editable form paths from REQUESTABLE_FIELDS")
+        return value
+
+
+class ManualDecision(StrictModel):
+    expected_version: PositiveInteger
+    outcome: Literal["APPROVED", "REJECTED"]
+    public_explanation: PublicText
+    internal_comment: InternalText | None = None
