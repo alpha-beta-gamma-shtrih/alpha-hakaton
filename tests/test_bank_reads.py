@@ -20,6 +20,9 @@ def test_queue_filters_paginates_and_excludes_unsubmitted_and_final_by_default(s
     assert result["total"] == 2 and result["limit"] == 1 and result["offset"] == 0
     assert result["items"][0]["id"] == first["application"]["id"]
     assert result["items"][0]["requested_amount"] == "1000000.00"
+    assert result["items"][0]["product_code"] == "WC_DEMO"
+    assert result["items"][0]["risk_score"] == 40
+    assert result["items"][0]["assessment_reasons"][0]["code"] == "BORDERLINE_RISK"
     assert result["items"][0]["allowed_actions"] == ["REQUEST_INFO", "APPROVE", "REJECT"]
     next_page = client.get("/api/bank/applications?limit=1&offset=1").json()
     assert next_page["items"][0]["id"] == second["application"]["id"]

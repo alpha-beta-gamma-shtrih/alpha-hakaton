@@ -25,6 +25,7 @@ from credit_cabinet.schemas.bank import (
 )
 from credit_cabinet.services.access import bank_application, submitted_query
 from credit_cabinet.services.bank_policy import bank_actions
+from credit_cabinet.services.reasons import public_reasons
 from credit_cabinet.services.submissions import latest_assessment
 from credit_cabinet.services.views import assessment_view, decision_view, revision_view
 
@@ -35,6 +36,12 @@ def queue_item(db, application, revision, assessment):
         company_id=application.company_id,
         company_name=revision.company_snapshot["legal_name"],
         inn=revision.company_snapshot["inn"],
+        product_id=application.product_id,
+        product_code=revision.product_snapshot["code"],
+        product_version=revision.product_snapshot["version"],
+        risk_score=assessment.risk_score if assessment else None,
+        risk_band=assessment.risk_band if assessment else "UNKNOWN",
+        assessment_reasons=public_reasons(assessment.reason_codes) if assessment else [],
         status=application.status,
         version=application.lock_version,
         latest_revision_id=revision.id,

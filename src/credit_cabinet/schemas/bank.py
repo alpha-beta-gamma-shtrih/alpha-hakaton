@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 
 from credit_cabinet.core.demo import FINANCIAL_MONTHS
-from credit_cabinet.models.enums import ApplicationStatus, InfoStatus, Purpose, Visibility
+from credit_cabinet.models.enums import ApplicationStatus, InfoStatus, Purpose, RiskBand, Visibility
 from credit_cabinet.schemas.business import (
     AssessmentResponse,
     CheckResponse,
@@ -13,6 +13,7 @@ from credit_cabinet.schemas.business import (
     EventResponse,
     MoneyOutput,
     PositiveInteger,
+    ReasonResponse,
     StrictModel,
 )
 from credit_cabinet.schemas.submissions import RevisionResponse
@@ -87,6 +88,12 @@ class BankQueueItem(BaseModel):
     company_id: UUID
     company_name: str
     inn: str
+    product_id: UUID
+    product_code: str
+    product_version: int
+    risk_score: int | None
+    risk_band: RiskBand
+    assessment_reasons: list[ReasonResponse]
     status: ApplicationStatus
     version: int
     latest_revision_id: UUID
@@ -132,8 +139,17 @@ class BankEventList(BaseModel):
 
 class ManualInformationRequest(StrictModel):
     expected_version: PositiveInteger
-    message_to_client: PublicText
-    requested_fields: list[str] = Field(min_length=1, max_length=24)
+    message_to_client: PublicText = Field(
+        examples=["Уточните назначение расходов и ожидаемые поступления компании."]
+    )
+    requested_fields: list[str] = Field(
+        min_length=1,
+        max_length=24,
+        json_schema_extra={
+            "items": {"type": "string", "enum": sorted(REQUESTABLE_FIELDS)},
+            "uniqueItems": True,
+        },
+    )
 
     @field_validator("requested_fields")
     @classmethod
@@ -146,5 +162,7 @@ class ManualInformationRequest(StrictModel):
 class ManualDecision(StrictModel):
     expected_version: PositiveInteger
     outcome: Literal["APPROVED", "REJECTED"]
-    public_explanation: PublicText
+    public_explanation: PublicText = Field(
+        examples=["Показатели изучены, риск оценен в рамках демонстрационной политики."]
+    )
     internal_comment: InternalText | None = None
