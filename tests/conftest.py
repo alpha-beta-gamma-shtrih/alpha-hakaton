@@ -40,6 +40,7 @@ def settings(tmp_path):
         allowed_origins=["http://testserver"],
         cookie_secure=False,
         documents_dir=tmp_path / "documents",
+        llm_enabled=False,
     )
 
 
