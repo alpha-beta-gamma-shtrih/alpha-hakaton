@@ -6,7 +6,7 @@ from uuid import uuid4
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from credit_cabinet.api import auth, bank, business, health, scenarios, submissions
+from credit_cabinet.api import auth, bank, business, documents, health, scenarios, submissions
 from credit_cabinet.api.errors import install_error_handlers
 from credit_cabinet.core.config import Settings
 from credit_cabinet.core.logging import configure_logging, exception_fields, request_id_context
@@ -92,5 +92,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(submissions.router)
     app.include_router(bank.router)
     app.include_router(scenarios.router)
+    app.include_router(documents.router)
     app.include_router(health.router)
     return app

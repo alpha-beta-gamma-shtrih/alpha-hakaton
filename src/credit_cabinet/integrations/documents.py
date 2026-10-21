@@ -95,7 +95,7 @@ class DocumentStore:
                     raise ValueError("Invalid financial document")
                 result.append((template, content))
             return result
-        except (OSError, ValueError, KeyError, TypeError, ValidationError):
+        except (OSError, ValueError, KeyError, TypeError, ValidationError, csv.Error):
             raise unavailable() from None
 
     def path(self, key: str) -> Path:
