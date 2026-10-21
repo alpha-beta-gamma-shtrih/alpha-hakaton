@@ -254,16 +254,72 @@ def test_client_isolation_and_bank_sees_only_submitted_reports(seeded, client):
     assert client.get(f"/api/applications/{draft['id']}/advisor").status_code == 401
 
 
-def test_no_report_is_created_when_access_is_revoked_during_generation(seeded, client):
+@pytest.mark.parametrize(
+    "change,expected", [("membership", 404), ("consent", 422), ("logout", 401)]
+)
+def test_no_report_is_created_when_access_is_revoked_during_generation(
+    seeded, client, change, expected
+):
     draft = ready(client)
 
     def revoke():
+        if change == "logout":
+            assert client.post("/api/auth/logout", headers=csrf_headers(client)).status_code == 204
+            return
         with seeded.state.session_factory() as db:
-            user = db.scalar(select(User).where(User.email == "client@example.com"))
-            db.query(CompanyMembership).filter_by(user_id=user.id).delete()
+            if change == "membership":
+                user = db.scalar(select(User).where(User.email == "client@example.com"))
+                db.query(CompanyMembership).filter_by(user_id=user.id).delete()
+            else:
+                from credit_cabinet.models import Application
+
+                application = db.get(Application, UUID(draft["id"]))
+                data = deepcopy(application.draft_data)
+                data["confirmations"]["credit_history_check_allowed"] = False
+                application.draft_data = data
             db.commit()
 
     seeded.state.advisor = Model(during=revoke)
-    assert explain(client, draft).status_code == 404
+    assert explain(client, draft).status_code == expected
     with seeded.state.session_factory() as db:
         assert db.scalar(select(func.count()).select_from(AdvisorReport)) == 0
+
+
+def test_missing_finances_and_source_failure_are_explained_without_inventing_facts(seeded, client):
+    draft = ready(client)
+    months = draft["draft_data"]["financial_months"][:-1]
+    draft = patch(client, draft, draft_data={"financial_months": months}).json()
+    report = explain(client, draft).json()
+    assert any(row["factor_id"] == "MISSING_DATA" for row in report["factors"])
+    assert report["explanation"]["next_step"]["id"] == "COMPLETE_DATA"
+    assert report["scenarios"][0]["risk_score"] is None
+    draft = ready(client)
+    seeded.state.sources = AlteredSources(
+        seeded.state.sources, errors={"FNS": "private-source-error"}
+    )
+    report = explain(client, draft).json()
+    assert report["scenarios"][0]["preliminary_route"] == "MANUAL_REVIEW"
+    assert "private-source-error" not in str(report)
+    assert report["scenarios"][0]["risk_score"] is None
+
+
+def test_health_requests_work_while_model_is_waiting(seeded, client):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    draft = ready(client)
+    entered, resume = Event(), Event()
+
+    def waiting():
+        entered.set()
+        assert resume.wait(timeout=5)
+
+    seeded.state.advisor = Model(during=waiting)
+    with ThreadPoolExecutor() as pool:
+        pending = pool.submit(explain, client, draft)
+        assert entered.wait(timeout=5)
+        try:
+            assert client.get("/health/live").status_code == 200
+        finally:
+            resume.set()
+        assert pending.result().status_code == 200
