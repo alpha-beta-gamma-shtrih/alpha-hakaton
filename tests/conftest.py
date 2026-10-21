@@ -39,6 +39,7 @@ def settings(tmp_path):
         public_base_url="http://testserver",
         allowed_origins=["http://testserver"],
         cookie_secure=False,
+        documents_dir=tmp_path / "documents",
     )
 
 
