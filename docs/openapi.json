@@ -1854,6 +1854,754 @@
         }
       }
     },
+    "/api/bank/applications": {
+      "get": {
+        "tags": [
+          "bank"
+        ],
+        "summary": "Queue",
+        "operationId": "queue_api_bank_applications_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "SUBMITTED",
+                      "CHECKING",
+                      "NEEDS_INFO",
+                      "MANUAL_REVIEW",
+                      "APPROVED",
+                      "REJECTED"
+                    ],
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Company Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 2147483647,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankQueuePage"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/bank/applications/{application_id}": {
+      "get": {
+        "tags": [
+          "bank"
+        ],
+        "summary": "Application",
+        "operationId": "application_api_bank_applications__application_id__get",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankCard"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/bank/applications/{application_id}/revisions/{revision_no}": {
+      "get": {
+        "tags": [
+          "bank"
+        ],
+        "summary": "Revision",
+        "operationId": "revision_api_bank_applications__application_id__revisions__revision_no__get",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "revision_no",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Revision No"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankRevisionDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/bank/applications/{application_id}/events": {
+      "get": {
+        "tags": [
+          "bank"
+        ],
+        "summary": "Events",
+        "operationId": "events_api_bank_applications__application_id__events_get",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankEventList"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/bank/applications/{application_id}/request-info": {
+      "post": {
+        "tags": [
+          "bank"
+        ],
+        "summary": "Request Info",
+        "operationId": "request_info_api_bank_applications__application_id__request_info_post",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualInformationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankCard"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/bank/applications/{application_id}/decision": {
+      "post": {
+        "tags": [
+          "bank"
+        ],
+        "summary": "Decision",
+        "operationId": "decision_api_bank_applications__application_id__decision_post",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankCard"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
     "/api/applications/{application_id}/scenarios": {
       "post": {
         "tags": [
@@ -2109,6 +2857,882 @@
           "completed_at"
         ],
         "title": "AssessmentResponse"
+      },
+      "BankAssessmentResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Revision Id"
+          },
+          "run_no": {
+            "type": "integer",
+            "title": "Run No"
+          },
+          "rules_version": {
+            "type": "string",
+            "title": "Rules Version"
+          },
+          "risk_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Score"
+          },
+          "risk_band": {
+            "$ref": "#/components/schemas/RiskBand"
+          },
+          "routing": {
+            "$ref": "#/components/schemas/Routing"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReasonResponse"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "calculation_details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Calculation Details"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/BankCheckResponse"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/ProvenanceResponse"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Completed At"
+          },
+          "input_facts": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Input Facts"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "revision_id",
+          "run_no",
+          "rules_version",
+          "risk_score",
+          "risk_band",
+          "routing",
+          "reasons",
+          "calculation_details",
+          "checks",
+          "provenance",
+          "completed_at",
+          "input_facts",
+          "started_at"
+        ],
+        "title": "BankAssessmentResponse"
+      },
+      "BankCard": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "inn": {
+            "type": "string",
+            "title": "Inn"
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Product Id"
+          },
+          "product_code": {
+            "type": "string",
+            "title": "Product Code"
+          },
+          "product_version": {
+            "type": "integer",
+            "title": "Product Version"
+          },
+          "risk_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Score"
+          },
+          "risk_band": {
+            "$ref": "#/components/schemas/RiskBand"
+          },
+          "assessment_reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReasonResponse"
+            },
+            "type": "array",
+            "title": "Assessment Reasons"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ApplicationStatus"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "latest_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Latest Revision Id"
+          },
+          "latest_revision_no": {
+            "type": "integer",
+            "title": "Latest Revision No"
+          },
+          "requested_amount": {
+            "type": "string",
+            "title": "Requested Amount"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "purpose_code": {
+            "$ref": "#/components/schemas/Purpose"
+          },
+          "submitted_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Submitted At"
+          },
+          "allowed_actions": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "REQUEST_INFO",
+                "APPROVE",
+                "REJECT",
+                "RETRY_PROCESSING"
+              ]
+            },
+            "type": "array",
+            "title": "Allowed Actions"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/RevisionResponse"
+          },
+          "assessment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BankAssessmentResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BankDecisionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "open_information_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BankInformationRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "information_requests": {
+            "items": {
+              "$ref": "#/components/schemas/BankInformationRequest"
+            },
+            "type": "array",
+            "title": "Information Requests"
+          },
+          "revisions": {
+            "items": {
+              "$ref": "#/components/schemas/BankRevisionSummary"
+            },
+            "type": "array",
+            "title": "Revisions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "company_name",
+          "inn",
+          "product_id",
+          "product_code",
+          "product_version",
+          "risk_score",
+          "risk_band",
+          "assessment_reasons",
+          "status",
+          "version",
+          "latest_revision_id",
+          "latest_revision_no",
+          "requested_amount",
+          "term_months",
+          "purpose_code",
+          "submitted_at",
+          "allowed_actions",
+          "revision",
+          "assessment",
+          "decision",
+          "open_information_request",
+          "information_requests",
+          "revisions"
+        ],
+        "title": "BankCard"
+      },
+      "BankCheckResponse": {
+        "properties": {
+          "source": {
+            "$ref": "#/components/schemas/CheckSource"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CheckStatus"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReasonResponse"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "source_version": {
+            "type": "string",
+            "title": "Source Version"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Completed At"
+          },
+          "normalized_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Data"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "status",
+          "reasons",
+          "source_version",
+          "completed_at",
+          "normalized_data",
+          "error_code",
+          "started_at"
+        ],
+        "title": "BankCheckResponse"
+      },
+      "BankDecisionResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Revision Id"
+          },
+          "assessment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Assessment Id"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/DecisionOutcome"
+          },
+          "source": {
+            "$ref": "#/components/schemas/DecisionSource"
+          },
+          "approved_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved Amount"
+          },
+          "approved_term_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved Term Months"
+          },
+          "annual_rate_percent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Rate Percent"
+          },
+          "monthly_payment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly Payment"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReasonResponse"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "public_explanation": {
+            "type": "string",
+            "title": "Public Explanation"
+          },
+          "policy_version": {
+            "type": "string",
+            "title": "Policy Version"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "decided_by_user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided By User Id"
+          },
+          "internal_comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Internal Comment"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "revision_id",
+          "assessment_id",
+          "outcome",
+          "source",
+          "approved_amount",
+          "approved_term_months",
+          "annual_rate_percent",
+          "monthly_payment",
+          "reasons",
+          "public_explanation",
+          "policy_version",
+          "created_at",
+          "decided_by_user_id",
+          "internal_comment"
+        ],
+        "title": "BankDecisionResponse"
+      },
+      "BankEventList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BankEventResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "BankEventList"
+      },
+      "BankEventResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "sequence_no": {
+            "type": "integer",
+            "title": "Sequence No"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "from_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "to_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision Id"
+          },
+          "actor_user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor User Id"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sequence_no",
+          "event_type",
+          "from_status",
+          "to_status",
+          "message",
+          "created_at",
+          "revision_id",
+          "actor_user_id",
+          "visibility",
+          "details"
+        ],
+        "title": "BankEventResponse"
+      },
+      "BankInformationRequest": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Revision Id"
+          },
+          "created_by_user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By User Id"
+          },
+          "requested_fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Requested Fields"
+          },
+          "message_to_client": {
+            "type": "string",
+            "title": "Message To Client"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InfoStatus"
+          },
+          "answer_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Text"
+          },
+          "answered_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answered Revision Id"
+          },
+          "answered_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answered At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "revision_id",
+          "created_by_user_id",
+          "requested_fields",
+          "message_to_client",
+          "status",
+          "answer_text",
+          "answered_revision_id",
+          "answered_at",
+          "created_at"
+        ],
+        "title": "BankInformationRequest"
+      },
+      "BankQueueItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "inn": {
+            "type": "string",
+            "title": "Inn"
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Product Id"
+          },
+          "product_code": {
+            "type": "string",
+            "title": "Product Code"
+          },
+          "product_version": {
+            "type": "integer",
+            "title": "Product Version"
+          },
+          "risk_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Score"
+          },
+          "risk_band": {
+            "$ref": "#/components/schemas/RiskBand"
+          },
+          "assessment_reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReasonResponse"
+            },
+            "type": "array",
+            "title": "Assessment Reasons"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ApplicationStatus"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "latest_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Latest Revision Id"
+          },
+          "latest_revision_no": {
+            "type": "integer",
+            "title": "Latest Revision No"
+          },
+          "requested_amount": {
+            "type": "string",
+            "title": "Requested Amount"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "purpose_code": {
+            "$ref": "#/components/schemas/Purpose"
+          },
+          "submitted_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Submitted At"
+          },
+          "allowed_actions": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "REQUEST_INFO",
+                "APPROVE",
+                "REJECT",
+                "RETRY_PROCESSING"
+              ]
+            },
+            "type": "array",
+            "title": "Allowed Actions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "company_name",
+          "inn",
+          "product_id",
+          "product_code",
+          "product_version",
+          "risk_score",
+          "risk_band",
+          "assessment_reasons",
+          "status",
+          "version",
+          "latest_revision_id",
+          "latest_revision_no",
+          "requested_amount",
+          "term_months",
+          "purpose_code",
+          "submitted_at",
+          "allowed_actions"
+        ],
+        "title": "BankQueueItem"
+      },
+      "BankQueuePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BankQueueItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "BankQueuePage"
+      },
+      "BankRevisionDetail": {
+        "properties": {
+          "revision": {
+            "$ref": "#/components/schemas/RevisionResponse"
+          },
+          "assessments": {
+            "items": {
+              "$ref": "#/components/schemas/BankAssessmentResponse"
+            },
+            "type": "array",
+            "title": "Assessments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "revision",
+          "assessments"
+        ],
+        "title": "BankRevisionDetail"
+      },
+      "BankRevisionSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "revision_no": {
+            "type": "integer",
+            "title": "Revision No"
+          },
+          "input_hash": {
+            "type": "string",
+            "title": "Input Hash"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "revision_no",
+          "input_hash",
+          "created_at"
+        ],
+        "title": "BankRevisionSummary"
       },
       "CSRFResponse": {
         "properties": {
@@ -3249,6 +4873,14 @@
         ],
         "title": "FormStep"
       },
+      "InfoStatus": {
+        "type": "string",
+        "enum": [
+          "OPEN",
+          "ANSWERED"
+        ],
+        "title": "InfoStatus"
+      },
       "InformationRequestResponse": {
         "properties": {
           "id": {
@@ -3307,6 +4939,117 @@
           "password"
         ],
         "title": "LoginRequest"
+      },
+      "ManualDecision": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Expected Version"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "REJECTED"
+            ],
+            "title": "Outcome"
+          },
+          "public_explanation": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 20,
+            "title": "Public Explanation",
+            "examples": [
+              "Показатели изучены, риск оценен в рамках демонстрационной политики."
+            ]
+          },
+          "internal_comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Internal Comment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "outcome",
+          "public_explanation"
+        ],
+        "title": "ManualDecision"
+      },
+      "ManualInformationRequest": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Expected Version"
+          },
+          "message_to_client": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 20,
+            "title": "Message To Client",
+            "examples": [
+              "Уточните назначение расходов и ожидаемые поступления компании."
+            ]
+          },
+          "requested_fields": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "draft_data.financial_months",
+                "draft_data.financial_months.2026-04-01.cash_inflow",
+                "draft_data.financial_months.2026-04-01.existing_debt_payment",
+                "draft_data.financial_months.2026-04-01.operating_outflow",
+                "draft_data.financial_months.2026-05-01.cash_inflow",
+                "draft_data.financial_months.2026-05-01.existing_debt_payment",
+                "draft_data.financial_months.2026-05-01.operating_outflow",
+                "draft_data.financial_months.2026-06-01.cash_inflow",
+                "draft_data.financial_months.2026-06-01.existing_debt_payment",
+                "draft_data.financial_months.2026-06-01.operating_outflow",
+                "draft_data.financial_months.2026-07-01.cash_inflow",
+                "draft_data.financial_months.2026-07-01.existing_debt_payment",
+                "draft_data.financial_months.2026-07-01.operating_outflow",
+                "draft_data.financial_months.2026-08-01.cash_inflow",
+                "draft_data.financial_months.2026-08-01.existing_debt_payment",
+                "draft_data.financial_months.2026-08-01.operating_outflow",
+                "draft_data.financial_months.2026-09-01.cash_inflow",
+                "draft_data.financial_months.2026-09-01.existing_debt_payment",
+                "draft_data.financial_months.2026-09-01.operating_outflow",
+                "draft_data.info_response",
+                "purpose_code",
+                "purpose_details",
+                "requested_amount",
+                "term_months"
+              ]
+            },
+            "type": "array",
+            "maxItems": 24,
+            "minItems": 1,
+            "uniqueItems": true,
+            "title": "Requested Fields"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "message_to_client",
+          "requested_fields"
+        ],
+        "title": "ManualInformationRequest"
       },
       "ProductPage": {
         "properties": {
@@ -3863,6 +5606,14 @@
           "ui_context"
         ],
         "title": "UserResponse"
+      },
+      "Visibility": {
+        "type": "string",
+        "enum": [
+          "CLIENT",
+          "BANK"
+        ],
+        "title": "Visibility"
       }
     }
   }
