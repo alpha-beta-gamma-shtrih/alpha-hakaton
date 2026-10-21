@@ -9,6 +9,7 @@ from credit_cabinet.api.errors import APIError
 from credit_cabinet.core.demo import CALCULATION_DATE
 from credit_cabinet.models import Company, CreditProduct
 from credit_cabinet.schemas.business import CompanyResponse, DraftDataPatch, ProductResponse
+from credit_cabinet.services.documents import document_references
 from credit_cabinet.services.drafts import profile_provenance
 from credit_cabinet.services.policy import POLICY_CONFIG, POLICY_VERSION, canonical_hash, money
 
@@ -94,7 +95,7 @@ def application_input(db, application, *, require_confirmation=True):
         },
         "financial_snapshot": data,
         "product_snapshot": product_data,
-        "document_refs": [],
+        "document_refs": document_references(db, application.id),
     }
 
 

@@ -12,6 +12,7 @@ from credit_cabinet.schemas.business import (
     Purpose,
     StrictModel,
 )
+from credit_cabinet.schemas.documents import DocumentResponse
 
 
 class SubmitRequest(StrictModel):
@@ -36,7 +37,7 @@ class RevisionResponse(BaseModel):
     company_snapshot: dict
     financial_snapshot: dict
     product_snapshot: dict
-    document_refs: list
+    document_refs: list[DocumentResponse]
     schema_version: int
     submitted_by_user_id: UUID
     created_at: datetime

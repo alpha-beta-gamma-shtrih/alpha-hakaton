@@ -9,6 +9,7 @@ from sqlalchemy.orm.exc import StaleDataError
 from credit_cabinet.api.errors import APIError
 from credit_cabinet.core.demo import CALCULATION_DATE, FINANCIAL_AS_OF_DATE, FINANCIAL_MONTHS
 from credit_cabinet.core.security import utc_now
+from credit_cabinet.integrations.documents import DocumentStore
 from credit_cabinet.models import (
     Application,
     ApplicationEvent,
@@ -20,6 +21,7 @@ from credit_cabinet.models.enums import ApplicationStatus, FinancialSource, Form
 from credit_cabinet.schemas.business import DraftCreate, DraftPatch, DraftResponse
 from credit_cabinet.services.access import client_application, client_company
 from credit_cabinet.services.auth import AuthService, Principal
+from credit_cabinet.services.documents import document_references, ensure_documents
 from credit_cabinet.services.views import enrich_application
 
 logger = logging.getLogger(__name__)
@@ -68,6 +70,7 @@ def draft_view(application: Application, product: CreditProduct, db: Session) ->
     # Draft provenance stays separate from the checks of its submitted revision.
     provenance["credit_history"] = None
     response = DraftResponse(
+        documents=document_references(db, application.id),
         id=application.id,
         company_id=application.company_id,
         product_id=application.product_id,
@@ -133,6 +136,7 @@ def create_draft(
     )
     db.add(application)
     db.flush()
+    ensure_documents(db, application, principal.user.id, DocumentStore(auth.settings))
     db.add(
         ApplicationEvent(
             application_id=application.id,
