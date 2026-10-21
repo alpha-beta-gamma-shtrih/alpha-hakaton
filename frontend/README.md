@@ -1,3 +1,49 @@
-# Frontend
+# Frontend — React / TypeScript / Vite
 
-Область Ксюши. Стек и реализация добавляются ею. API использует относительный префикс `/api`, cookie и CSRF; контракты — [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md), [SYNTETIC.md](../SYNTETIC.md) и [USER_FLOWS.md](../USER_FLOWS.md). Backend расположен в `src/credit_cabinet/`; frontend не импортирует Python-модули и не обращается к БД напрямую.
+Область Ксюши. Стек React подтвержден командой; TypeScript/Vite остаются согласованной основой. Здесь пока только инструкция, UI не реализован.
+
+Работающие API: вход/CSRF/сессия, компании/продукт, черновики, submit, снимок/проверки/результат, автоматический дозапрос/ответ и scenarios. Контракты: [SUBMISSION_CHECK.md](../SUBMISSION_CHECK.md), [DRAFTS_CHECK.md](../DRAFTS_CHECK.md), [BACKEND.md](../BACKEND.md), [SYNTETIC.md](../SYNTETIC.md), [USER_FLOWS.md](../USER_FLOWS.md). Снимок OpenAPI — [docs/openapi.json](../docs/openapi.json); актуальная схема запущенного backend — GET /openapi.json.
+
+## Что подключать первым
+
+1. Dev proxy /api → http://localhost:8000, обращения frontend к относительным URL. В backend ALLOWED_ORIGINS должен включать точный origin Vite (обычно http://localhost:5173); .env.example уже содержит его. Не переписывать Origin на proxy и не смешивать localhost с 127.0.0.1. Cookie через браузер, X-CSRF-Token из /api/auth/csrf; после login получить новый CSRF.
+2. /api/auth/me: роль, срок сессии и ui_context.last_application_id/step. Сначала /me, затем GET разрешенной заявки. 401 — повторный вход, 404 при восстановлении — обзор.
+3. GET /api/companies и /products: списки items/total/limit/offset. Идентификаторы брать из API; C01/C02 — ключи файлов.
+4. POST /api/applications с company_id/product_id, затем форма по возвращенному DTO. Предзаполнение уже делает backend.
+5. PATCH с expected_version: отсутствующее поле сохраняется, null очищает nullable-поле, financial_months заменяется целиком. Отправлять только измененные поля, unknown/read-only поля не включать.
+6. Сериализовать автосохранения с задержкой около секунды. После ответа обновлять version. При 409 получить актуальный GET и показать конфликт, без автоматической перезаписи.
+7. Показать состояния «Сохраняем», «Сохранено», «Ошибка». Гарантировано сохраняется только подтвержденный сервером ввод. Шаг NEED/COMPANY/FINANCES/REVIEW сохраняется через тот же PATCH.
+8. /api/auth/activity вызывать по реальному взаимодействию с ограничением частоты; фоновый GET не продлевает сессию. Успешный POST/PATCH черновика уже продлевает idle TTL.
+
+Формат ошибок: code/message/field_errors/request_id. Деньги — строки с двумя десятичными знаками, ставка — с тремя; пустые деньги null, сроки — целые числа. Два отдельных checkbox; при частичном обновлении confirmations отсутствующий флаг сохраняется.
+
+## Отправка и результат
+
+- В DRAFT/NEEDS_INFO клиент получает EDIT_DRAFT/SUBMIT; в финале — пустой список. Сначала дождаться автосохранения, затем отправить POST /api/applications/{id}/submit с expected_version и новым submission_key (UUID). При потере ответа повторять тот же ключ и исходную версию. Пока исход не выяснен, новый ключ не создавать.
+- Перед отправкой оба checkbox должны быть явно true; backend возвращает 422 с путем поля при отсутствии подтверждения. Неполные финансы дают NEEDS_INFO после отправки, а не кредитный отказ.
+- Submit возвращает application/revision/assessment. Актуальный DTO application также доступен через GET; использовать возвращенную version, не увеличивать локально на единицу. Отправка фиксируется отдельно до проверки. При прерывании возможен SUBMITTED с assessment=null: показать незавершенную обработку; технический retry доступен сотруднику.
+- В GET заявки есть latest_revision_id/no, assessment, decision и open_information_request. Финальные данные рисовать из них. decision=null означает, что решения еще нет. Во внутренние комментарии UI клиента доступа не получает.
+- В NEEDS_INFO показать message_to_client/requested_fields; исправленные поля и info_response сохранять обычным PATCH. Новый submit — с новым ключом; сервер создает revision_no=2 и закрывает предыдущий дозапрос. GET /revisions/{revision_no} читает исторический снимок.
+- GET /decision: 404 DECISION_NOT_FOUND до финала; после финала возвращает публичное решение. 404 чужой заявки означает отсутствие доступа.
+
+## Предварительный калькулятор
+
+POST /api/applications/{id}/scenarios принимает только expected_version. До вызова сохранить параметры. Ответ: mode и candidates (до трех; исходный запрос, сумма 80%, срок +12 с границами продукта и удалением дублей). Кнопка выбора варианта сохраняет сумму/срок обычным PATCH; это не отправка.
+
+Без подтверждения БКИ mode=CALCULATION_ONLY: платеж/общая сумма/переплата доступны, риск/маршрут/нагрузка null. С подтверждением mode=PREVIEW; правила те же, что при отправке. preliminary_route показывать как предварительную оценку. is_binding всегда false. Поле reasons содержит code/message, reason_codes — список кодов. Обращение не меняет status/version и не создает официальное решение.
+
+AI и документы пока не подключены. Банковские API готовы по [BANK_CHECK.md](../BANK_CHECK.md).
+
+Банк не получает клиентские черновики: клиентские маршруты для BANK_STAFF возвращают 403. Для сотрудника использовать отдельные DTO и /api/bank/applications. Backend не заменяется логикой проверки прав на frontend.
+
+## Банковский кабинет
+
+1. После /auth/me с user.role=BANK_STAFF открыть банковский интерфейс. GET /api/bank/applications возвращает items/total/limit/offset. По умолчанию незавершенные статусы; для финальных передать status=APPROVED или REJECTED. status — повторяемый список; также есть company_id, limit=1–100, offset>=0. Сортировка: сначала более ранняя отправка. В строке есть продукт, риск и assessment_reasons.
+2. GET /api/bank/applications/{id}: revision/assessment/decision, открытый и прошлые дозапросы, список revisions, version и allowed_actions. Все бизнес-поля — из отправки. Пока клиент печатает ответ или правит сумму, банк видит старый снимок. Version при этом может вырасти: это контроль конфликта.
+3. GET /{id}/revisions/{revision_no} возвращает revision и все assessments по run_no. История /{id}/events включает автора и привязку к отправке. Кнопки действий относятся только к актуальной карточке, не к исторической версии.
+4. POST /{id}/request-info: expected_version, message_to_client (20–1000 символов), requested_fields из enum OpenAPI. Для финансов доступны путь draft_data.financial_months целиком либо конкретный месяц/показатель; нельзя запрашивать role/is_bankrupt/provenance. Ответ — обновленная BankCard со статусом NEEDS_INFO.
+5. POST /{id}/decision: expected_version, outcome=APPROVED/REJECTED, обязательное public_explanation (20–1000), необязательный internal_comment (1–2000 или null). Условия предложения сотрудник не вводит: сервер берет их из снимка. Ответ — BankCard с MANUAL-решением. Внутренний комментарий относится только к банковскому экрану; публичное обоснование увидит клиент.
+6. Кнопки показывать по allowed_actions: BORDERLINE_RISK — REQUEST_INFO/APPROVE/REJECT; TREND_BASELINE_ZERO — REQUEST_INFO; техническая/неподтвержденная проверка — RETRY_PROCESSING. Для NEEDS_INFO и финальных статусов действий сотрудника нет. Retry остается POST /{id}/retry-processing по SUBMISSION_CHECK.md.
+7. При 409 обновить карточку и показать конфликт, не повторять ручное решение с новой version автоматически. На время команды блокировать кнопку. Все POST требуют CSRF. После успешной команды обновить карточку и очередь; финальная заявка уйдет из очереди по умолчанию.
+
+Assessment хранит рекомендацию правил: после ручного APPROVED он может по-прежнему иметь routing=MANUAL_REVIEW и risk_score=40. Финальный результат показывается из status/decision. Чтение и polling не продлевают idle-сессию; /auth/activity используется при реальном взаимодействии. Отдельных сотрудников-исполнителей и назначения заявки в MVP нет.

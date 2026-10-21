@@ -1,0 +1,109 @@
+"""Validate submitted inputs and build canonical, detached snapshot values."""
+
+from copy import deepcopy
+from decimal import Decimal
+
+from pydantic import ValidationError
+
+from credit_cabinet.api.errors import APIError
+from credit_cabinet.core.demo import CALCULATION_DATE
+from credit_cabinet.models import Company, CreditProduct
+from credit_cabinet.schemas.business import CompanyResponse, DraftDataPatch, ProductResponse
+from credit_cabinet.services.drafts import profile_provenance
+from credit_cabinet.services.policy import POLICY_CONFIG, POLICY_VERSION, canonical_hash, money
+
+
+def invalid(code, message, path):
+    raise APIError(422, code, message, fields=[{"field": path, "message": message}])
+
+
+def validate_parameters(application, product):
+    if (
+        product.code != "WC_DEMO"
+        or product.version != 2
+        or product.policy_version != POLICY_VERSION
+        or product.policy_config != POLICY_CONFIG
+        or product.annual_rate_percent != Decimal("24.000")
+        or product.min_amount != Decimal("100000.00")
+        or product.max_amount != Decimal("5000000.00")
+        or product.min_term_months != 6
+        or product.max_term_months != 24
+        or set(product.allowed_purposes) != {"INVENTORY", "OPERATING_EXPENSES", "SEASONAL_PURCHASE"}
+        or application.calculation_date != CALCULATION_DATE
+    ):
+        raise APIError(
+            409,
+            "POLICY_VERSION_UNSUPPORTED",
+            "Условия продукта требуют согласованной версии демо-правил",
+        )
+    if not product.is_active:
+        raise APIError(409, "PRODUCT_UNAVAILABLE", "Продукт недоступен для новой отправки")
+    if (
+        application.requested_amount is None
+        or not product.min_amount <= application.requested_amount <= product.max_amount
+    ):
+        invalid("VALIDATION_ERROR", "Укажите сумму в пределах продукта", "requested_amount")
+    if (
+        application.term_months is None
+        or not product.min_term_months <= application.term_months <= product.max_term_months
+    ):
+        invalid("VALIDATION_ERROR", "Укажите срок в пределах продукта", "term_months")
+    if application.purpose_code is None or application.purpose_code not in product.allowed_purposes:
+        invalid("VALIDATION_ERROR", "Выберите допустимую цель", "purpose_code")
+
+
+def application_input(db, application, *, require_confirmation=True):
+    product = db.get(CreditProduct, application.product_id)
+    validate_parameters(application, product)
+    raw = deepcopy(application.draft_data)
+    provenance = raw.pop("provenance", profile_provenance())
+    try:
+        draft = DraftDataPatch.model_validate(raw)
+    except ValidationError:
+        invalid("VALIDATION_ERROR", "Проверьте структуру финансовых данных", "draft_data")
+    if require_confirmation and draft.confirmations.credit_history_check_allowed is not True:
+        invalid(
+            "CREDIT_HISTORY_CONFIRMATION_REQUIRED",
+            "Подтвердите демонстрационную проверку кредитной истории",
+            "draft_data.confirmations.credit_history_check_allowed",
+        )
+    if require_confirmation and draft.confirmations.data_confirmed is not True:
+        invalid(
+            "DATA_CONFIRMATION_REQUIRED",
+            "Подтвердите указанные сведения",
+            "draft_data.confirmations.data_confirmed",
+        )
+    data = draft.model_dump(mode="json")
+    data["financial_months"] = sorted(data["financial_months"], key=lambda row: row["month"])
+    data["provenance"] = deepcopy(provenance)
+    data["provenance"]["credit_history"] = None
+    # The initial schema stores optional client explanations inside financial_snapshot.
+    data["purpose_details"] = application.purpose_details
+    company = db.get(Company, application.company_id)
+    product_data = ProductResponse.model_validate(product).model_dump(mode="json")
+    product_data["policy_config"] = deepcopy(product.policy_config)
+    return {
+        "schema_version": 2,
+        "calculation_date": application.calculation_date.isoformat(),
+        "requested_amount": money(application.requested_amount),
+        "term_months": application.term_months,
+        "purpose_code": application.purpose_code.value,
+        "company_snapshot": {
+            **CompanyResponse.model_validate(company).model_dump(mode="json"),
+            "provenance": deepcopy(provenance["company"]),
+        },
+        "financial_snapshot": data,
+        "product_snapshot": product_data,
+        "document_refs": [],
+    }
+
+
+def financial_input_hash(payload):
+    def strip_timing(value):
+        if isinstance(value, dict):
+            return {key: strip_timing(item) for key, item in value.items() if key != "checked_at"}
+        if isinstance(value, list):
+            return [strip_timing(item) for item in value]
+        return value
+
+    return canonical_hash(strip_timing(payload))
