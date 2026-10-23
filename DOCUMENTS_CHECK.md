@@ -16,7 +16,7 @@ cd C:\alpha\alpha-hakaton
 
 Миграция `0003_document_immutability` запрещает UPDATE/DELETE метаданных документов. Старые заявки и снимки не меняет, таблиц по-прежнему 15. Повторный seed ничего не сбрасывает и сохраняет пароли существующих аккаунтов; для новых аккаунтов запросит пароль скрытым вводом.
 
-Открыть http://localhost:8000/docs. `GET /health/ready` → 200, `schema_revision=0003_document_immutability`. При 503 сначала проверить миграции/доступность PostgreSQL.
+Открыть http://localhost:8000/docs. `GET /health/ready` → 200, `schema_revision=0004_draft_archive`. При 503 сначала проверить миграции/доступность PostgreSQL.
 
 ## 2. Войти клиентом и создать новую заявку
 

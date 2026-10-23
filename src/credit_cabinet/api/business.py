@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, Response
 from sqlalchemy import func, select
 
 from credit_cabinet.api.dependencies import Database, require_client
@@ -12,6 +12,7 @@ from credit_cabinet.schemas.business import (
     CompanyPage,
     CompanyResponse,
     DraftCreate,
+    DraftDelete,
     DraftPage,
     DraftPatch,
     DraftResponse,
@@ -23,6 +24,7 @@ from credit_cabinet.schemas.errors import ErrorResponse
 from credit_cabinet.services.access import client_application, client_company
 from credit_cabinet.services.auth import Principal
 from credit_cabinet.services.drafts import (
+    archive_draft,
     create_draft,
     draft_view,
     financial_profile,
@@ -126,3 +128,15 @@ def events(application_id: UUID, db: Database, principal: Client):
         .order_by(ApplicationEvent.sequence_no)
     )
     return {"items": list(rows)}
+
+
+@router.delete("/applications/{application_id}", status_code=204, tags=["drafts"])
+def delete_application(
+    application_id: UUID,
+    body: DraftDelete,
+    request: Request,
+    db: Database,
+    principal: Client,
+):
+    archive_draft(db, principal, application_id, body.expected_version, request.app.state.auth)
+    return Response(status_code=204)

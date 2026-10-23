@@ -1,0 +1,958 @@
+/* In-browser demo API (VITE_API_MODE=mock).
+   Mirrors the FastAPI contract closely enough to walk the whole flow without a backend:
+   same paths, DTO shapes, error format, versions/409, CSRF, and a simplified demo-policy-0.2.
+   The real credit logic lives in the backend (services/policy.py); this is only a stand-in. */
+import type { TransportResponse } from '../client'
+import type {
+  AdvisorReport,
+  ApplicationStatus,
+  BankAssessment,
+  BankCard,
+  BankDecision,
+  BankEvent,
+  BankInfoRequest,
+  BankQueueItem,
+  Candidate,
+  Draft,
+  FinancialMonth,
+  Provenance,
+  Reason,
+  Revision,
+  RiskBand,
+  Routing,
+} from '../types'
+import { BKI, DEMO_COMPANIES, DEMO_MONTHS, DEMO_PRODUCT, DEMO_USERS, type DemoCompany, type DemoUser } from './data'
+
+/* ---------------- state ---------------- */
+interface AppRec {
+  id: string
+  owner_id: string
+  company_id: string
+  product_id: string
+  status: ApplicationStatus
+  version: number
+  requested_amount: string | null
+  term_months: number | null
+  purpose_code: Draft['purpose_code']
+  purpose_details: string | null
+  financial_months: FinancialMonth[]
+  fin_declared: boolean
+  confirmations: { data_confirmed: boolean; credit_history_check_allowed: boolean }
+  info_response: string | null
+  ui_step: Draft['ui_step']
+  documents: Draft['documents']
+  revisions: Revision[]
+  assessments: BankAssessment[]
+  decision: BankDecision | null
+  info_requests: BankInfoRequest[]
+  events: BankEvent[]
+  advisor: AdvisorReport | null
+  created_at: string
+  updated_at: string
+  archived?: boolean
+}
+
+interface State {
+  apps: AppRec[]
+  session: { user_id: string; csrf: string } | null
+  loginCsrf: string | null
+}
+
+const KEY = 'credit-cabinet-demo-v2'
+const CALC_DATE = '2026-10-01'
+const uid = () =>
+  (crypto as Crypto & { randomUUID?: () => string }).randomUUID?.() ??
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+  })
+const now = () => new Date().toISOString()
+const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v))
+
+// Initialized at the end of the module, after all constants are defined.
+let state: State
+
+function load(): State {
+  try {
+    const raw = localStorage.getItem(KEY)
+    if (raw) return JSON.parse(raw)
+  } catch {
+    /* storage may be unavailable */
+  }
+  const s: State = { apps: [], session: null, loginCsrf: null }
+  seed(s)
+  return s
+}
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state))
+  } catch {
+    /* ignore */
+  }
+}
+export function resetDemo() {
+  try {
+    localStorage.removeItem(KEY)
+  } catch {
+    /* ignore */
+  }
+  state = load()
+}
+
+/* ---------------- helpers ---------------- */
+const ok = (body: unknown, status = 200): TransportResponse => ({ status, body: clone(body) })
+const err = (status: number, code: string, message: string, field_errors: { field: string; message: string }[] = []): TransportResponse => ({
+  status,
+  body: { code, message, field_errors, request_id: uid() },
+})
+
+const allUsers = (): DemoUser[] => DEMO_USERS
+const allCompanies = (): DemoCompany[] => DEMO_COMPANIES
+const companyById = (id: string) => allCompanies().find((c) => c.id === id)
+const userById = (id: string) => allUsers().find((u) => u.id === id)
+const monthsOf = (c: DemoCompany): FinancialMonth[] => DEMO_MONTHS[c.key]
+const bkiOf = (c: DemoCompany) => BKI[c.key]
+const money2 = (n: number) => (Math.round(n * 100) / 100).toFixed(2)
+
+function monthsBetween(from: string, to: string) {
+  const a = new Date(from + 'T00:00:00')
+  const b = new Date(to + 'T00:00:00')
+  return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth())
+}
+
+function annuity(amount: number, term: number, annualPct: number) {
+  const r = annualPct / 100 / 12
+  return (amount * r) / (1 - Math.pow(1 + r, -term))
+}
+
+function hash(v: unknown) {
+  const s = JSON.stringify(v)
+  let h1 = 0x811c9dc5
+  for (let i = 0; i < s.length; i++) h1 = Math.imul(h1 ^ s.charCodeAt(i), 16777619)
+  return (h1 >>> 0).toString(16).padStart(8, '0').repeat(8)
+}
+
+const R = (code: string, message: string): Reason => ({ code, message })
+const REASONS = {
+  PASSED: R('DEMO_POLICY_PASSED', 'Заявка прошла демонстрационные правила продукта.'),
+  LOAD_35_50: R('LOAD_35_50', 'Долговая нагрузка выше 35% и не выше 50%.'),
+  LOAD_50_65: R('LOAD_50_65', 'Долговая нагрузка выше 50% и не выше 65%.'),
+  LOAD_65_80: R('LOAD_65_80', 'Долговая нагрузка выше 65% и не выше 80%.'),
+  AGE_6_11: R('BUSINESS_AGE_6_11', 'Бизнесу от 6 до 11 месяцев.'),
+  AGE_12_23: R('BUSINESS_AGE_12_23', 'Бизнесу от 12 до 23 месяцев.'),
+  TREND_5: R('INFLOW_TREND_DOWN_15', 'Поступления снизились до 15%.'),
+  TREND_15: R('INFLOW_TREND_DOWN_30', 'Поступления снизились на 15–30%.'),
+  TREND_25: R('INFLOW_TREND_DOWN_MORE', 'Поступления снизились более чем на 30%.'),
+  BORDERLINE: R('BORDERLINE_RISK', 'Нужна оценка сотрудника; итогового решения пока нет.'),
+  HIGH: R('RISK_SCORE_TOO_HIGH', 'Совокупная оценка риска выше допустимой для продукта.'),
+  LOAD_LIMIT: R('DEBT_LOAD_LIMIT_EXCEEDED', 'Расчетная долговая нагрузка превышает предел демо-политики.'),
+  NO_CF: R('NON_POSITIVE_CASHFLOW', 'Операционный денежный поток не положительный.'),
+  INCOMPLETE: R('FINANCIAL_DATA_INCOMPLETE', 'Не хватает финансовых показателей за часть месяцев.'),
+  NO_HISTORY: R('CREDIT_HISTORY_ABSENT', 'Кредитная история отсутствует.'),
+  BKI_CONFIRM: R(
+    'CREDIT_HISTORY_CONFIRMATION_REQUIRED',
+    'Для полной предварительной оценки подтвердите демонстрационную проверку истории. Расчет платежа доступен.',
+  ),
+}
+
+interface PolicyResult {
+  routing: Routing
+  risk_score: number | null
+  reasons: Reason[]
+  missing: string[]
+  details: Record<string, unknown>
+  payment: number
+}
+
+function runPolicy(company: DemoCompany, amount: number, term: number, months: FinancialMonth[]): PolicyResult {
+  const payment = annuity(amount, term, Number(DEMO_PRODUCT.annual_rate_percent))
+  const total = payment * term
+  const base = {
+    monthly_payment: money2(payment),
+    estimated_total_payment: money2(total),
+    estimated_overpayment: money2(total - amount),
+  }
+  const missing: string[] = []
+  for (const m of months)
+    for (const k of ['cash_inflow', 'operating_outflow', 'existing_debt_payment'] as const)
+      if (m[k] === null) missing.push(`draft_data.financial_months.${m.month}.${k}`)
+  if (missing.length || months.length < 6) {
+    return { routing: 'NEEDS_INFO', risk_score: null, reasons: [REASONS.INCOMPLETE], missing, details: base, payment }
+  }
+  const cf = months.map((m) => Number(m.cash_inflow) - Number(m.operating_outflow))
+  const avgCf = cf.reduce((a, b) => a + b, 0) / cf.length
+  const declared = Number(months[months.length - 1].existing_debt_payment)
+  const confirmed = Number(bkiOf(company).current_monthly_payment)
+  const existing = Math.max(declared, confirmed)
+  const age = monthsBetween(company.registered_on, CALC_DATE)
+  const inflowFirst = months.slice(0, 3).reduce((a, m) => a + Number(m.cash_inflow), 0)
+  const inflowLast = months.slice(3).reduce((a, m) => a + Number(m.cash_inflow), 0)
+  const trend = inflowFirst > 0 ? inflowLast / inflowFirst - 1 : 0
+  const details: Record<string, unknown> = {
+    ...base,
+    existing_payment: money2(existing),
+    declared_current_payment: money2(declared),
+    confirmed_current_payment: money2(confirmed),
+    business_age_months: age,
+    average_operating_cashflow: money2(avgCf),
+    inflow_trend: trend.toFixed(4),
+  }
+  if (avgCf <= 0) return { routing: 'REJECT', risk_score: null, reasons: [REASONS.NO_CF], missing, details, payment }
+  const load = (payment + existing) / avgCf
+  details.load_ratio = load.toFixed(10)
+  if (load > 0.8) return { routing: 'REJECT', risk_score: null, reasons: [REASONS.LOAD_LIMIT], missing, details, payment }
+
+  const factors: { factor_id: string; points: number; value: string }[] = []
+  const factorReasons: Reason[] = []
+  const add = (r: Reason, points: number, value: string) => {
+    if (!points) return
+    factors.push({ factor_id: r.code, points, value })
+    factorReasons.push(r)
+  }
+  if (load > 0.65) add(REASONS.LOAD_65_80, 40, load.toFixed(6))
+  else if (load > 0.5) add(REASONS.LOAD_50_65, 25, load.toFixed(6))
+  else if (load > 0.35) add(REASONS.LOAD_35_50, 10, load.toFixed(6))
+  if (age >= 6 && age <= 11) add(REASONS.AGE_6_11, 20, String(age))
+  else if (age >= 12 && age <= 23) add(REASONS.AGE_12_23, 10, String(age))
+  if (trend < -0.3) add(REASONS.TREND_25, 25, trend.toFixed(4))
+  else if (trend < -0.15) add(REASONS.TREND_15, 15, trend.toFixed(4))
+  else if (trend < 0) add(REASONS.TREND_5, 5, trend.toFixed(4))
+  if (!bkiOf(company).history_present) add(REASONS.NO_HISTORY, 15, 'false')
+  const score = Math.min(100, factors.reduce((a, f) => a + f.points, 0))
+  details.factors = factors
+  if (score <= 29) return { routing: 'APPROVE', risk_score: score, reasons: [REASONS.PASSED, ...factorReasons], missing, details, payment }
+  if (score <= 59) return { routing: 'MANUAL_REVIEW', risk_score: score, reasons: [REASONS.BORDERLINE, ...factorReasons], missing, details, payment }
+  return { routing: 'REJECT', risk_score: score, reasons: [REASONS.HIGH, ...factorReasons], missing, details, payment }
+}
+
+const bandOf = (score: number | null, routing: Routing): RiskBand =>
+  score === null ? (routing === 'REJECT' ? 'HIGH' : 'UNKNOWN') : score <= 29 ? 'LOW' : score <= 59 ? 'MEDIUM' : 'HIGH'
+
+function provenance(app: AppRec, checked?: string): Provenance {
+  return {
+    company: checked
+      ? { source: 'MOCK_FNS', as_of_date: CALC_DATE, checked_at: checked }
+      : { source: 'DEMO_PROFILE', as_of_date: CALC_DATE, checked_at: null },
+    financial_months: { source: app.fin_declared ? 'CLIENT_DECLARED' : 'DEMO_PROFILE', as_of_date: '2026-09-30', checked_at: null },
+    credit_history: checked ? { source: 'MOCK_BKI', as_of_date: CALC_DATE, checked_at: checked } : null,
+  }
+}
+
+function addEvent(app: AppRec, e: Partial<BankEvent> & Pick<BankEvent, 'event_type' | 'message'>) {
+  app.events.push({
+    id: uid(),
+    sequence_no: app.events.length + 1,
+    from_status: null,
+    to_status: null,
+    created_at: now(),
+    revision_id: null,
+    actor_user_id: null,
+    visibility: 'CLIENT',
+    details: {},
+    ...e,
+  })
+}
+
+function setStatus(app: AppRec, to: ApplicationStatus, e: { event_type: string; message: string; actor?: string | null; visibility?: 'CLIENT' | 'BANK'; details?: Record<string, unknown> }) {
+  const from = app.status
+  app.status = to
+  app.version++
+  app.updated_at = now()
+  addEvent(app, {
+    event_type: e.event_type,
+    message: e.message,
+    from_status: from,
+    to_status: to,
+    actor_user_id: e.actor ?? null,
+    revision_id: app.revisions.at(-1)?.id ?? null,
+    visibility: e.visibility ?? 'CLIENT',
+    details: e.details ?? {},
+  })
+}
+
+/* ---------------- processing ---------------- */
+function processLatest(app: AppRec, actor: string | null = null) {
+  const rev = app.revisions.at(-1)!
+  const company = companyById(app.company_id)!
+  const started = now()
+  const months = (rev.financial_snapshot as { financial_months: FinancialMonth[] }).financial_months
+  const res = runPolicy(company, Number(rev.requested_amount), rev.term_months, months)
+  const checked = now()
+  const fns = {
+    inn: company.inn,
+    legal_form: company.legal_form,
+    registered_on: company.registered_on,
+    registry_status: 'ACTIVE',
+    is_bankrupt: false,
+    provenance: { source: 'MOCK_FNS', as_of_date: CALC_DATE, checked_at: checked },
+  }
+  const bki = { ...bkiOf(company), provenance: { source: 'MOCK_BKI', as_of_date: CALC_DATE, checked_at: checked } }
+  const runNo = app.assessments.filter((a) => a.revision_id === rev.id).length + 1
+  const assessment: BankAssessment = {
+    id: uid(),
+    revision_id: rev.id,
+    run_no: runNo,
+    rules_version: DEMO_PRODUCT.policy_version,
+    risk_score: res.risk_score,
+    risk_band: bandOf(res.risk_score, res.routing),
+    routing: res.routing,
+    reasons: res.reasons,
+    calculation_details: res.details,
+    checks: [
+      {
+        source: 'DATA_QUALITY',
+        status: res.missing.length ? 'NO_DATA' : 'SUCCESS',
+        reasons: res.missing.length ? [REASONS.INCOMPLETE] : [],
+        source_version: 'data-quality-0.2',
+        completed_at: checked,
+        started_at: started,
+        normalized_data: { financial_month_count: months.length, missing_fields: res.missing.length },
+        error_code: null,
+      },
+      { source: 'FNS', status: 'SUCCESS', reasons: [], source_version: 'legal-mock-0.2', completed_at: checked, started_at: started, normalized_data: fns, error_code: null },
+      { source: 'BKI', status: 'SUCCESS', reasons: [], source_version: 'bki-mock-0.2', completed_at: checked, started_at: started, normalized_data: bki, error_code: null },
+    ],
+    provenance: provenance(app, checked),
+    completed_at: checked,
+    started_at: started,
+    input_facts: { company: rev.company_snapshot, fns, bki, financial_months: months, calculation_date: CALC_DATE },
+  }
+  app.assessments.push(assessment)
+  const msg = res.reasons[0]?.message ?? 'Проверки завершены'
+  if (res.routing === 'APPROVE' || res.routing === 'REJECT') {
+    const outcome = res.routing === 'APPROVE' ? 'APPROVED' : 'REJECTED'
+    setStatus(app, outcome, { event_type: 'CHECKS_COMPLETED', message: msg, actor, details: { run_no: runNo, assessment_id: assessment.id } })
+    app.decision = {
+      id: uid(),
+      revision_id: rev.id,
+      assessment_id: assessment.id,
+      outcome,
+      source: 'AUTO',
+      approved_amount: outcome === 'APPROVED' ? rev.requested_amount : null,
+      approved_term_months: outcome === 'APPROVED' ? rev.term_months : null,
+      annual_rate_percent: outcome === 'APPROVED' ? DEMO_PRODUCT.annual_rate_percent : null,
+      monthly_payment: String(res.details.monthly_payment),
+      reasons: res.reasons,
+      public_explanation: msg,
+      policy_version: DEMO_PRODUCT.policy_version,
+      created_at: now(),
+      decided_by_user_id: null,
+      internal_comment: null,
+    }
+    addEvent(app, { event_type: 'DECISION_MADE', message: 'Зафиксирован итог демонстрационной проверки', from_status: outcome, to_status: outcome, revision_id: rev.id })
+  } else if (res.routing === 'NEEDS_INFO') {
+    setStatus(app, 'NEEDS_INFO', { event_type: 'CHECKS_COMPLETED', message: msg, actor, details: { run_no: runNo } })
+    app.info_requests.push({
+      id: uid(),
+      revision_id: rev.id,
+      created_by_user_id: null,
+      requested_fields: res.missing.length ? res.missing : ['draft_data.financial_months'],
+      message_to_client: 'Заполните недостающие финансовые показатели и отправьте заявку повторно.',
+      status: 'OPEN',
+      answer_text: null,
+      answered_revision_id: null,
+      answered_at: null,
+      created_at: now(),
+    })
+  } else {
+    setStatus(app, 'MANUAL_REVIEW', { event_type: 'CHECKS_COMPLETED', message: msg, actor, details: { run_no: runNo, assessment_id: assessment.id } })
+  }
+}
+
+function makeRevision(app: AppRec, key: string, userId: string): Revision {
+  const company = companyById(app.company_id)!
+  const fin = {
+    financial_months: clone(app.financial_months),
+    confirmations: clone(app.confirmations),
+    info_response: app.info_response,
+    purpose_details: app.purpose_details,
+    provenance: provenance(app),
+  }
+  return {
+    id: uid(),
+    application_id: app.id,
+    revision_no: app.revisions.length + 1,
+    source_lock_version: app.version,
+    submission_key: key,
+    input_hash: hash([app.requested_amount, app.term_months, app.purpose_code, fin]),
+    requested_amount: app.requested_amount!,
+    term_months: app.term_months!,
+    purpose_code: app.purpose_code!,
+    company_snapshot: { ...companyPublic(company), provenance: provenance(app).company },
+    financial_snapshot: fin,
+    product_snapshot: { ...DEMO_PRODUCT },
+    document_refs: clone(app.documents),
+    schema_version: 2,
+    submitted_by_user_id: userId,
+    created_at: now(),
+  }
+}
+
+/* ---------------- projections ---------------- */
+function companyPublic(c: DemoCompany) {
+  const { key: _k, ...rest } = c
+  return rest
+}
+
+function latestAssessment(app: AppRec) {
+  const rev = app.revisions.at(-1)
+  return rev ? app.assessments.filter((a) => a.revision_id === rev.id).at(-1) ?? null : null
+}
+
+function clientAssessment(a: BankAssessment | null) {
+  if (!a) return null
+  const { input_facts: _i, started_at: _s, checks, ...rest } = a
+  return { ...rest, checks: checks.map(({ normalized_data: _n, error_code: _e, started_at: _st, ...c }) => c) }
+}
+
+function clientDraft(app: AppRec): Draft {
+  const open = app.info_requests.find((r) => r.status === 'OPEN')
+  const editable = app.status === 'DRAFT' || app.status === 'NEEDS_INFO'
+  const d = app.decision
+  return {
+    documents: app.documents,
+    id: app.id,
+    company_id: app.company_id,
+    product_id: app.product_id,
+    status: app.status,
+    version: app.version,
+    requested_amount: app.requested_amount,
+    term_months: app.term_months,
+    purpose_code: app.purpose_code,
+    purpose_details: app.purpose_details,
+    draft_data: { financial_months: app.financial_months, confirmations: app.confirmations, info_response: app.info_response },
+    ui_step: app.ui_step,
+    calculation_date: CALC_DATE,
+    policy_version: DEMO_PRODUCT.policy_version,
+    provenance: provenance(app),
+    allowed_actions: editable ? ['EDIT_DRAFT', 'SUBMIT'] : [],
+    open_information_request: open ? { id: open.id, message_to_client: open.message_to_client, requested_fields: open.requested_fields } : null,
+    decision: d
+      ? (({ decided_by_user_id: _u, internal_comment: _c, ...pub }) => pub)(d)
+      : null,
+    latest_revision_id: app.revisions.at(-1)?.id ?? null,
+    latest_revision_no: app.revisions.at(-1)?.revision_no ?? null,
+    assessment: clientAssessment(latestAssessment(app)),
+    created_at: app.created_at,
+    updated_at: app.updated_at,
+  }
+}
+
+function bankActions(app: AppRec): BankQueueItem['allowed_actions'] {
+  const a = latestAssessment(app)
+  if (app.status === 'SUBMITTED' || app.status === 'CHECKING') return ['RETRY_PROCESSING']
+  if (app.status !== 'MANUAL_REVIEW' || !a) return []
+  if (a.reasons.some((r) => r.code === 'BORDERLINE_RISK')) return ['REQUEST_INFO', 'APPROVE', 'REJECT']
+  return ['REQUEST_INFO']
+}
+
+function queueItem(app: AppRec): BankQueueItem {
+  const c = companyById(app.company_id)!
+  const rev = app.revisions.at(-1)!
+  const a = latestAssessment(app)
+  return {
+    id: app.id,
+    company_id: c.id,
+    company_name: c.legal_name,
+    inn: c.inn,
+    product_id: DEMO_PRODUCT.id,
+    product_code: DEMO_PRODUCT.code,
+    product_version: DEMO_PRODUCT.version,
+    risk_score: a?.risk_score ?? null,
+    risk_band: a?.risk_band ?? 'UNKNOWN',
+    assessment_reasons: a?.reasons ?? [],
+    status: app.status,
+    version: app.version,
+    latest_revision_id: rev.id,
+    latest_revision_no: rev.revision_no,
+    requested_amount: rev.requested_amount,
+    term_months: rev.term_months,
+    purpose_code: rev.purpose_code,
+    submitted_at: rev.created_at,
+    allowed_actions: bankActions(app),
+  }
+}
+
+function bankCard(app: AppRec): BankCard {
+  const rev = app.revisions.at(-1)!
+  return {
+    ...queueItem(app),
+    revision: rev,
+    assessment: latestAssessment(app),
+    decision: app.decision,
+    open_information_request: app.info_requests.find((r) => r.status === 'OPEN') ?? null,
+    information_requests: app.info_requests,
+    revisions: app.revisions.map((r) => ({ id: r.id, revision_no: r.revision_no, input_hash: r.input_hash, created_at: r.created_at })),
+  }
+}
+
+function scenarioCandidates(app: AppRec, preview: boolean): Candidate[] | TransportResponse {
+  const amount = Number(app.requested_amount)
+  const term = app.term_months
+  if (!app.requested_amount || !term) return err(422, 'SCENARIO_INPUT_INCOMPLETE', 'Укажите сумму и срок, чтобы рассчитать варианты', [{ field: 'requested_amount', message: 'Обязательное поле' }])
+  const p = DEMO_PRODUCT
+  if (amount < Number(p.min_amount) || amount > Number(p.max_amount) || term < p.min_term_months || term > p.max_term_months)
+    return err(422, 'VALIDATION_ERROR', 'Параметры вне границ продукта', [{ field: 'requested_amount', message: 'Сумма или срок вне границ продукта' }])
+  const company = companyById(app.company_id)!
+  const raw: [Candidate['candidate_id'], number, number][] = [
+    ['REQUESTED', amount, term],
+    ['LOWER_AMOUNT', Math.max(Number(p.min_amount), Math.round(amount * 0.8)), term],
+    ['LONGER_TERM', amount, Math.min(p.max_term_months, term + 12)],
+  ]
+  const seen = new Set<string>()
+  const checked = now()
+  return raw
+    .filter(([, a, t]) => {
+      const k = `${a}-${t}`
+      if (seen.has(k)) return false
+      seen.add(k)
+      return true
+    })
+    .map(([id, a, t]) => {
+      const res = runPolicy(company, a, t, app.financial_months)
+      const pay = res.payment
+      return {
+        candidate_id: id,
+        requested_amount: money2(a),
+        term_months: t,
+        annual_rate_percent: p.annual_rate_percent,
+        monthly_payment: money2(pay),
+        estimated_total_payment: money2(pay * t),
+        estimated_overpayment: money2(pay * t - a),
+        load_ratio: preview ? ((res.details.load_ratio as string) ?? null) : null,
+        risk_score: preview ? res.risk_score : null,
+        preliminary_route: preview ? res.routing : null,
+        reason_codes: preview ? res.reasons.map((r) => r.code) : [REASONS.BKI_CONFIRM.code],
+        reasons: preview ? res.reasons : [REASONS.BKI_CONFIRM],
+        provenance: preview ? provenance(app, checked) : provenance(app),
+        policy_version: p.policy_version,
+        input_hash: hash([a, t, app.financial_months]),
+        is_binding: false,
+      }
+    })
+}
+
+function advisorReport(app: AppRec, mode: 'EXPLAIN' | 'COMPARE', cands: Candidate[]): AdvisorReport {
+  const fmt = (v: string) => Number(v).toLocaleString('ru-RU', { minimumFractionDigits: 2 })
+  const factors: AdvisorReport['factors'] = [
+    { factor_id: 'DATA_ORIGIN', candidate_id: null, text: 'Финансы взяты из синтетического демо-профиля; проверки также демонстрационные.' },
+    { factor_id: 'PRELIMINARY_ONLY', candidate_id: null, text: 'Сравнение не является решением банка и не изменяет заявку.' },
+  ]
+  const base = cands[0]
+  for (const c of cands) {
+    const routeText = c.preliminary_route === 'APPROVE' ? 'Проходит предварительные демо-правила.' : c.preliminary_route === 'MANUAL_REVIEW' ? 'Потребуется оценка сотрудника.' : c.preliminary_route === 'REJECT' ? 'Не проходит предварительные демо-правила.' : 'Нужны дополнительные сведения.'
+    factors.push({ factor_id: `${c.candidate_id}_PAYMENT`, candidate_id: c.candidate_id, text: `Сумма ${fmt(c.requested_amount)} RUB, срок ${c.term_months} мес., ставка ${c.annual_rate_percent}% годовых; платеж ${fmt(c.monthly_payment)} RUB в месяц, расчетная переплата ${fmt(c.estimated_overpayment)} RUB.` })
+    factors.push({ factor_id: `${c.candidate_id}_ROUTE`, candidate_id: c.candidate_id, text: `${routeText} ${c.reasons.map((r) => r.message).join(' ')}` })
+    if (c.load_ratio) factors.push({ factor_id: `${c.candidate_id}_LOAD`, candidate_id: c.candidate_id, text: `Демонстрационная долговая нагрузка: ${(Number(c.load_ratio) * 100).toFixed(2)}%. Риск-балл ${c.risk_score ?? '—'}.` })
+    if (c !== base) {
+      const dp = Number(base.monthly_payment) - Number(c.monthly_payment)
+      const dov = Number(c.estimated_overpayment) - Number(base.estimated_overpayment)
+      factors.push({ factor_id: `${c.candidate_id}_TRADEOFF`, candidate_id: c.candidate_id, text: `По сравнению с исходным запросом ежемесячный платеж меньше на ${fmt(money2(dp))} RUB; изменение расчетной переплаты ${dov >= 0 ? '+' : ''}${fmt(money2(dov))} RUB. ${c.candidate_id === 'LOWER_AMOUNT' ? 'Доступная сумма меньше.' : 'Срок возврата длиннее.'}` })
+    }
+  }
+  const t = (id: string) => factors.find((f) => f.factor_id === id)?.text ?? ''
+  return {
+    id: uid(),
+    application_id: app.id,
+    revision_id: null,
+    draft_lock_version: app.version,
+    mode,
+    status: 'FALLBACK',
+    is_current: true,
+    input_hash: hash([app.version]),
+    factors,
+    scenarios: mode === 'COMPARE' ? cands : cands.slice(0, 1),
+    explanation: {
+      summary: { factor_ids: ['DATA_ORIGIN', 'REQUESTED_ROUTE', 'REQUESTED_PAYMENT'], text: `${t('DATA_ORIGIN')} ${t('REQUESTED_ROUTE')} ${t('REQUESTED_PAYMENT')}` },
+      comparisons:
+        mode === 'COMPARE'
+          ? cands.map((c) => ({ candidate_id: c.candidate_id, factor_ids: [`${c.candidate_id}_PAYMENT`], text: `${t(`${c.candidate_id}_PAYMENT`)} ${t(`${c.candidate_id}_TRADEOFF`) || t(`${c.candidate_id}_ROUTE`)}`.trim() }))
+          : [],
+      next_step: { id: 'REVIEW_SUBMISSION', text: 'Проверьте сведения и отдельно отправьте заявку. Разбор сам ее не отправляет.' },
+      notice: 'Демонстрационный разбор. Сравнение предварительное и не гарантирует одобрение или выдачу. Числа и формулировки фактов рассчитаны backend.',
+    },
+    model_id: null,
+    model_digest: null,
+    prompt_version: 'advisor-grounded-0.2.1',
+    generation_config: {},
+    latency_ms: 0,
+    error_code: 'LLM_DISABLED',
+    created_at: now(),
+  }
+}
+
+/* ---------------- seed ---------------- */
+function newApp(ownerId: string, companyId: string): AppRec {
+  const c = companyById(companyId)!
+  const id = uid()
+  const ts = now()
+  const app: AppRec = {
+    id,
+    owner_id: ownerId,
+    company_id: companyId,
+    product_id: DEMO_PRODUCT.id,
+    status: 'DRAFT',
+    version: 1,
+    requested_amount: null,
+    term_months: null,
+    purpose_code: null,
+    purpose_details: null,
+    financial_months: clone(monthsOf(c)),
+    fin_declared: false,
+    confirmations: { data_confirmed: false, credit_history_check_allowed: false },
+    info_response: null,
+    ui_step: 'NEED',
+    documents: [
+      {
+        id: uid(),
+        application_id: id,
+        kind: 'FINANCIAL_STATEMENT',
+        original_filename: `${c.key}.csv`,
+        mime_type: 'text/csv',
+        content_sha256: hash(c.key).slice(0, 64),
+        size_bytes: 377,
+        source: 'DEMO',
+        created_at: ts,
+        download_url: '',
+      },
+    ],
+    revisions: [],
+    assessments: [],
+    decision: null,
+    info_requests: [],
+    events: [],
+    advisor: null,
+    created_at: ts,
+    updated_at: ts,
+  }
+  app.documents = [{ ...app.documents[0], download_url: `/api/documents/${app.documents[0].id}` }]
+  addEvent(app, { event_type: 'DRAFT_CREATED', message: 'Создан черновик заявки', to_status: 'DRAFT', actor_user_id: ownerId })
+  return app
+}
+
+function seed(s: State) {
+  const mk = (userKey: string, compKey: string, amount: string, term: number) => {
+    const u = DEMO_USERS.find((x) => x.key === userKey)!
+    const c = DEMO_COMPANIES.find((x) => x.key === compKey)!
+    const app = newApp(u.id, c.id)
+    Object.assign(app, { requested_amount: amount, term_months: term, purpose_code: 'INVENTORY', ui_step: 'REVIEW', version: 3 })
+    app.confirmations = { data_confirmed: true, credit_history_check_allowed: true }
+    app.revisions.push(makeRevision(app, uid(), u.id))
+    setStatus(app, 'SUBMITTED', { event_type: 'SUBMITTED', message: 'Заявка отправлена на демонстрационную проверку', actor: u.id })
+    processLatest(app)
+    s.apps.push(app)
+  }
+  mk('CLIENT_C01', 'C01', '3000000.00', 18)
+  mk('CLIENT_C02', 'C02', '2000000.00', 12)
+}
+
+/* ---------------- router ---------------- */
+type Handler = (m: RegExpMatchArray, body: any, q: URLSearchParams, user: DemoUser | null) => TransportResponse
+
+const routes: [string, RegExp, Handler, { auth?: 'any' | 'CLIENT' | 'BANK_STAFF' }][] = []
+const on = (method: string, re: RegExp, h: Handler, opts: { auth?: 'any' | 'CLIENT' | 'BANK_STAFF' } = { auth: 'any' }) => routes.push([method, re, h, opts])
+const U = '([0-9a-f-]{36})'
+
+function session(user: DemoUser) {
+  const t = Date.now()
+  return {
+    user: { id: user.id, email: user.email, display_name: user.display_name, role: user.role, ui_context: uiContext(user.id) },
+    absolute_expires_at: new Date(t + 8 * 3600e3).toISOString(),
+    idle_expires_at: new Date(t + 3600e3).toISOString(),
+  }
+}
+function uiContext(userId: string) {
+  const last = state.apps.filter((a) => a.owner_id === userId && !a.archived).sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0]
+  return last ? { section: 'applications', last_application_id: last.id, last_step: last.ui_step } : {}
+}
+
+function ownApp(id: string, user: { id: string }) {
+  const app = state.apps.find((a) => a.id === id && !a.archived)
+  if (!app) return null
+  const company = companyById(app.company_id)
+  return company?.members.includes(user.id) ? app : null
+}
+const notFound = () => err(404, 'APPLICATION_NOT_FOUND', 'Заявка не найдена')
+
+on('GET', /^\/api\/auth\/csrf$/, () => {
+  if (state.session) return ok({ csrf_token: state.session.csrf })
+  state.loginCsrf = uid()
+  save()
+  return ok({ csrf_token: state.loginCsrf })
+}, {})
+on('POST', /^\/api\/auth\/login$/, (_m, body) => {
+  const user = allUsers().find((u) => u.email === String(body?.email ?? '').trim().toLowerCase())
+  if (!user || !body?.password) return err(401, 'INVALID_CREDENTIALS', 'Неверный email или пароль')
+  state.session = { user_id: user.id, csrf: uid() }
+  state.loginCsrf = null
+  save()
+  return ok(session(user))
+}, {})
+on('GET', /^\/api\/auth\/me$/, (_m, _b, _q, user) => ok(session(user!)))
+on('POST', /^\/api\/auth\/activity$/, (_m, _b, _q, user) => ok(session(user!)))
+on('POST', /^\/api\/auth\/logout$/, () => {
+  state.session = null
+  save()
+  return { status: 204, body: null }
+})
+
+on('GET', /^\/api\/companies$/, (_m, _b, _q, user) => {
+  const items = allCompanies().filter((c) => c.members.includes(user!.id)).map(companyPublic)
+  return ok({ items, total: items.length, limit: 100, offset: 0 })
+}, { auth: 'CLIENT' })
+on('GET', new RegExp(`^/api/companies/${U}$`), (m, _b, _q, user) => {
+  const c = companyById(m[1])
+  if (!c || !c.members.includes(user!.id)) return err(404, 'COMPANY_NOT_FOUND', 'Компания не найдена')
+  return ok({ ...companyPublic(c), financial_months: monthsOf(c), provenance: { company: { source: 'DEMO_PROFILE', as_of_date: CALC_DATE, checked_at: null }, financial_months: { source: 'DEMO_PROFILE', as_of_date: '2026-09-30', checked_at: null }, credit_history: null } })
+}, { auth: 'CLIENT' })
+on('GET', /^\/api\/products$/, () => ok({ items: [DEMO_PRODUCT], total: 1, limit: 100, offset: 0 }), { auth: 'CLIENT' })
+
+on('GET', /^\/api\/applications$/, (_m, _b, q, user) => {
+  const comp = q.get('company_id')
+  const items = state.apps
+    .filter((a) => !a.archived && companyById(a.company_id)?.members.includes(user!.id) && (!comp || a.company_id === comp))
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))
+    .map(clientDraft)
+  return ok({ items, total: items.length, limit: 100, offset: 0 })
+}, { auth: 'CLIENT' })
+on('POST', /^\/api\/applications$/, (_m, body, _q, user) => {
+  const c = companyById(body?.company_id)
+  if (!c || !c.members.includes(user!.id)) return err(404, 'COMPANY_NOT_FOUND', 'Компания не найдена')
+  const app = newApp(user!.id, c.id)
+  state.apps.push(app)
+  return ok(clientDraft(app), 201)
+}, { auth: 'CLIENT' })
+on('GET', new RegExp(`^/api/applications/${U}$`), (m, _b, _q, user) => {
+  const app = ownApp(m[1], user!)
+  return app ? ok(clientDraft(app)) : notFound()
+}, { auth: 'CLIENT' })
+on('PATCH', new RegExp(`^/api/applications/${U}$`), (m, body, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  if (app.status !== 'DRAFT' && app.status !== 'NEEDS_INFO') return err(409, 'APPLICATION_NOT_EDITABLE', 'Заявку в этом статусе нельзя изменить')
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Черновик уже изменён. Получите актуальную версию')
+  const fe: { field: string; message: string }[] = []
+  const moneyRe = /^(0|[1-9][0-9]{0,15})\.[0-9]{2}$/
+  if ('requested_amount' in body && body.requested_amount !== null && !moneyRe.test(body.requested_amount)) fe.push({ field: 'requested_amount', message: 'Некорректное значение' })
+  if ('term_months' in body && body.term_months !== null && (!Number.isInteger(body.term_months) || body.term_months < 1)) fe.push({ field: 'term_months', message: 'Некорректное значение' })
+  for (const fm of body.draft_data?.financial_months ?? [])
+    for (const k of ['cash_inflow', 'operating_outflow', 'existing_debt_payment'])
+      if (fm[k] !== null && fm[k] !== undefined && !moneyRe.test(fm[k])) fe.push({ field: `draft_data.financial_months.${fm.month}.${k}`, message: 'Некорректное значение' })
+  if (fe.length) return err(422, 'VALIDATION_ERROR', 'Проверьте поля запроса', fe)
+  for (const k of ['requested_amount', 'term_months', 'purpose_code', 'purpose_details', 'ui_step'] as const) if (k in body) (app as any)[k] = body[k]
+  const dd = body.draft_data
+  if (dd?.financial_months) {
+    const byMonth = new Map<string, FinancialMonth>((dd.financial_months as FinancialMonth[]).map((x) => [x.month, x]))
+    app.financial_months = app.financial_months.map((x) => {
+      const n = byMonth.get(x.month)
+      return n ? { month: x.month, cash_inflow: n.cash_inflow ?? null, operating_outflow: n.operating_outflow ?? null, existing_debt_payment: n.existing_debt_payment ?? null } : { ...x, cash_inflow: null, operating_outflow: null, existing_debt_payment: null }
+    })
+    app.fin_declared = true
+  }
+  if (dd?.confirmations) app.confirmations = { ...app.confirmations, ...dd.confirmations }
+  if (dd && 'info_response' in dd) app.info_response = dd.info_response
+  app.version++
+  app.updated_at = now()
+  return ok(clientDraft(app))
+}, { auth: 'CLIENT' })
+on('DELETE', new RegExp(`^/api/applications/${U}$`), (m, body, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  if (app.status !== 'DRAFT' || app.revisions.length) return err(409, 'APPLICATION_NOT_DELETABLE', 'Отправленную заявку удалить нельзя: она хранится в истории рассмотрения')
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Черновик уже изменён. Получите актуальную версию')
+  app.archived = true
+  return { status: 204, body: null }
+}, { auth: 'CLIENT' })
+on('GET', new RegExp(`^/api/applications/${U}/events$`), (m, _b, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  return ok({ items: app.events.filter((e) => e.visibility === 'CLIENT').map(({ revision_id: _r, actor_user_id: _a, visibility: _v, details: _d, ...e }) => e) })
+}, { auth: 'CLIENT' })
+on('POST', new RegExp(`^/api/applications/${U}/submit$`), (m, body, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  const prev = app.revisions.find((r) => r.submission_key === body.submission_key)
+  if (prev) return ok({ application: clientDraft(app), revision: prev, assessment: clientAssessment(latestAssessment(app)) })
+  if (app.status !== 'DRAFT' && app.status !== 'NEEDS_INFO') return err(409, 'APPLICATION_NOT_EDITABLE', 'Заявка уже отправлена')
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Черновик уже изменён. Получите актуальную версию')
+  const fe: { field: string; message: string }[] = []
+  const p = DEMO_PRODUCT
+  const amt = Number(app.requested_amount)
+  if (!app.purpose_code) fe.push({ field: 'purpose_code', message: 'Выберите цель финансирования' })
+  if (!app.requested_amount) fe.push({ field: 'requested_amount', message: 'Укажите сумму' })
+  else if (amt < Number(p.min_amount) || amt > Number(p.max_amount)) fe.push({ field: 'requested_amount', message: `Сумма от ${Number(p.min_amount).toLocaleString('ru-RU')} до ${Number(p.max_amount).toLocaleString('ru-RU')} ₽` })
+  if (!app.term_months) fe.push({ field: 'term_months', message: 'Укажите срок' })
+  else if (app.term_months < p.min_term_months || app.term_months > p.max_term_months) fe.push({ field: 'term_months', message: `Срок от ${p.min_term_months} до ${p.max_term_months} месяцев` })
+  if (!app.confirmations.data_confirmed) fe.push({ field: 'draft_data.confirmations.data_confirmed', message: 'Подтвердите корректность данных' })
+  if (!app.confirmations.credit_history_check_allowed) fe.push({ field: 'draft_data.confirmations.credit_history_check_allowed', message: 'Подтвердите демонстрационную проверку кредитной истории' })
+  if (fe.length) return err(422, 'VALIDATION_ERROR', 'Проверьте поля заявки', fe)
+  const wasNeedsInfo = app.status === 'NEEDS_INFO'
+  const rev = makeRevision(app, body.submission_key, user!.id)
+  app.revisions.push(rev)
+  for (const r of app.info_requests) if (r.status === 'OPEN') Object.assign(r, { status: 'ANSWERED', answer_text: app.info_response, answered_revision_id: rev.id, answered_at: now() })
+  setStatus(app, 'SUBMITTED', { event_type: wasNeedsInfo ? 'RESUBMITTED' : 'SUBMITTED', message: wasNeedsInfo ? 'Заявка дополнена и отправлена повторно' : 'Заявка отправлена на демонстрационную проверку', actor: user!.id })
+  processLatest(app)
+  save()
+  return ok({ application: clientDraft(app), revision: rev, assessment: clientAssessment(latestAssessment(app)) })
+}, { auth: 'CLIENT' })
+on('GET', new RegExp(`^/api/applications/${U}/revisions/(\\d+)$`), (m, _b, _q, user) => {
+  const app = ownApp(m[1], user!)
+  const rev = app?.revisions.find((r) => r.revision_no === Number(m[2]))
+  return rev ? ok(rev) : err(404, 'REVISION_NOT_FOUND', 'Версия не найдена')
+}, { auth: 'CLIENT' })
+on('GET', new RegExp(`^/api/applications/${U}/decision$`), (m, _b, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  return app.decision ? ok(clientDraft(app).decision) : err(404, 'DECISION_NOT_FOUND', 'Решения пока нет')
+}, { auth: 'CLIENT' })
+on('POST', new RegExp(`^/api/applications/${U}/scenarios$`), (m, body, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Черновик уже изменён. Получите актуальную версию')
+  const preview = app.confirmations.credit_history_check_allowed
+  const c = scenarioCandidates(app, preview)
+  if (!Array.isArray(c)) return c
+  return ok({ mode: preview ? 'PREVIEW' : 'CALCULATION_ONLY', application_version: app.version, candidates: c })
+}, { auth: 'CLIENT' })
+on('POST', new RegExp(`^/api/applications/${U}/advisor$`), (m, body, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Черновик уже изменён. Получите актуальную версию')
+  if (!app.confirmations.credit_history_check_allowed)
+    return err(422, 'CREDIT_HISTORY_CONFIRMATION_REQUIRED', 'Для разбора подтвердите демонстрационную проверку кредитной истории', [{ field: 'draft_data.confirmations.credit_history_check_allowed', message: 'Требуется подтверждение' }])
+  const c = scenarioCandidates(app, true)
+  if (!Array.isArray(c)) return c
+  app.advisor = advisorReport(app, body.mode ?? 'EXPLAIN', c)
+  save()
+  return ok(app.advisor)
+}, { auth: 'CLIENT' })
+on('GET', new RegExp(`^/api/applications/${U}/advisor$`), (m, _b, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app?.advisor) return err(404, 'ADVISOR_REPORT_NOT_FOUND', 'Разбора пока нет')
+  return ok({ ...app.advisor, is_current: app.advisor.draft_lock_version === app.version })
+}, { auth: 'CLIENT' })
+
+on('GET', new RegExp(`^/api/documents/${U}$`), (m, _b, _q, user) => {
+  for (const app of state.apps) {
+    const d = app.documents.find((x) => x.id === m[1])
+    if (!d) continue
+    const can = user!.role === 'BANK_STAFF' ? app.revisions.length > 0 : companyById(app.company_id)?.members.includes(user!.id)
+    if (!can) break
+    const c = companyById(app.company_id)!
+    const lines = ['company_key,month,cash_inflow,operating_outflow,existing_debt_payment,source', ...monthsOf(c).map((x) => `${c.key},${x.month},${x.cash_inflow},${x.operating_outflow},${x.existing_debt_payment},DEMO`)]
+    return { status: 200, body: lines.join('\n') + '\n' }
+  }
+  return err(404, 'DOCUMENT_NOT_FOUND', 'Документ не найден')
+})
+
+/* bank */
+const ACTIVE: ApplicationStatus[] = ['SUBMITTED', 'CHECKING', 'NEEDS_INFO', 'MANUAL_REVIEW']
+on('GET', /^\/api\/bank\/applications$/, (_m, _b, q) => {
+  const statuses = q.getAll('status') as ApplicationStatus[]
+  const want = statuses.length ? statuses : ACTIVE
+  const comp = q.get('company_id')
+  const all = state.apps
+    .filter((a) => a.revisions.length && want.includes(a.status) && (!comp || a.company_id === comp))
+    .map(queueItem)
+    .sort((a, b) => a.submitted_at.localeCompare(b.submitted_at))
+  const limit = Number(q.get('limit') ?? 20)
+  const offset = Number(q.get('offset') ?? 0)
+  return ok({ items: all.slice(offset, offset + limit), total: all.length, limit, offset })
+}, { auth: 'BANK_STAFF' })
+const bankApp = (id: string) => state.apps.find((a) => a.id === id && a.revisions.length)
+on('GET', new RegExp(`^/api/bank/applications/${U}$`), (m) => {
+  const app = bankApp(m[1])
+  return app ? ok(bankCard(app)) : notFound()
+}, { auth: 'BANK_STAFF' })
+on('GET', new RegExp(`^/api/bank/applications/${U}/events$`), (m) => {
+  const app = bankApp(m[1])
+  return app ? ok({ items: app.events }) : notFound()
+}, { auth: 'BANK_STAFF' })
+on('GET', new RegExp(`^/api/bank/applications/${U}/revisions/(\\d+)$`), (m) => {
+  const app = bankApp(m[1])
+  const rev = app?.revisions.find((r) => r.revision_no === Number(m[2]))
+  if (!app || !rev) return err(404, 'REVISION_NOT_FOUND', 'Версия не найдена')
+  return ok({ revision: rev, assessments: app.assessments.filter((a) => a.revision_id === rev.id) })
+}, { auth: 'BANK_STAFF' })
+on('GET', new RegExp(`^/api/bank/applications/${U}/advisor$`), () => err(404, 'ADVISOR_REPORT_NOT_FOUND', 'Для отправленной версии разбора нет'), { auth: 'BANK_STAFF' })
+on('POST', new RegExp(`^/api/bank/applications/${U}/request-info$`), (m, body, _q, user) => {
+  const app = bankApp(m[1])
+  if (!app) return notFound()
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Заявка уже изменилась. Обновите карточку')
+  if (!bankActions(app).includes('REQUEST_INFO')) return err(409, 'ACTION_NOT_ALLOWED', 'Действие недоступно в текущем состоянии')
+  const msg = String(body.message_to_client ?? '')
+  const fe = []
+  if (msg.length < 20 || msg.length > 1000) fe.push({ field: 'message_to_client', message: 'От 20 до 1000 символов' })
+  if (!body.requested_fields?.length) fe.push({ field: 'requested_fields', message: 'Выберите хотя бы одно поле' })
+  if (fe.length) return err(422, 'VALIDATION_ERROR', 'Проверьте поля запроса', fe)
+  app.info_requests.push({ id: uid(), revision_id: app.revisions.at(-1)!.id, created_by_user_id: user!.id, requested_fields: body.requested_fields, message_to_client: msg, status: 'OPEN', answer_text: null, answered_revision_id: null, answered_at: null, created_at: now() })
+  setStatus(app, 'NEEDS_INFO', { event_type: 'INFO_REQUESTED', message: 'Сотрудник запросил уточнение сведений', actor: user!.id })
+  save()
+  return ok(bankCard(app))
+}, { auth: 'BANK_STAFF' })
+on('POST', new RegExp(`^/api/bank/applications/${U}/decision$`), (m, body, _q, user) => {
+  const app = bankApp(m[1])
+  if (!app) return notFound()
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Заявка уже изменилась. Обновите карточку')
+  const outcome = body.outcome as 'APPROVED' | 'REJECTED'
+  if (!bankActions(app).includes(outcome === 'APPROVED' ? 'APPROVE' : 'REJECT')) return err(409, 'ACTION_NOT_ALLOWED', 'Действие недоступно в текущем состоянии')
+  const pe = String(body.public_explanation ?? '')
+  if (pe.length < 20 || pe.length > 1000) return err(422, 'VALIDATION_ERROR', 'Проверьте поля запроса', [{ field: 'public_explanation', message: 'От 20 до 1000 символов' }])
+  const rev = app.revisions.at(-1)!
+  const a = latestAssessment(app)!
+  app.decision = {
+    id: uid(),
+    revision_id: rev.id,
+    assessment_id: a.id,
+    outcome,
+    source: 'MANUAL',
+    approved_amount: outcome === 'APPROVED' ? rev.requested_amount : null,
+    approved_term_months: outcome === 'APPROVED' ? rev.term_months : null,
+    annual_rate_percent: outcome === 'APPROVED' ? DEMO_PRODUCT.annual_rate_percent : null,
+    monthly_payment: outcome === 'APPROVED' ? String(a.calculation_details.monthly_payment) : null,
+    reasons: a.reasons,
+    public_explanation: pe,
+    policy_version: DEMO_PRODUCT.policy_version,
+    created_at: now(),
+    decided_by_user_id: user!.id,
+    internal_comment: body.internal_comment || null,
+  }
+  setStatus(app, outcome, { event_type: 'MANUAL_DECISION', message: outcome === 'APPROVED' ? 'Сотрудник одобрил заявку' : 'Сотрудник отказал по заявке', actor: user!.id })
+  save()
+  return ok(bankCard(app))
+}, { auth: 'BANK_STAFF' })
+on('POST', new RegExp(`^/api/bank/applications/${U}/retry-processing$`), (m, body, _q, user) => {
+  const app = bankApp(m[1])
+  if (!app) return notFound()
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Заявка уже изменилась. Обновите карточку')
+  if (!bankActions(app).includes('RETRY_PROCESSING')) return err(409, 'ACTION_NOT_ALLOWED', 'Повтор обработки недоступен')
+  processLatest(app, user!.id)
+  save()
+  return ok({ application_id: app.id, version: app.version, status: app.status, revision_id: app.revisions.at(-1)!.id, assessment: clientAssessment(latestAssessment(app)), allowed_actions: [] })
+}, { auth: 'BANK_STAFF' })
+
+state = load()
+
+export async function mockTransport(method: string, path: string, body: unknown, headers: Record<string, string>): Promise<TransportResponse> {
+  await new Promise((r) => setTimeout(r, 120 + Math.random() * 180))
+  const [pathname, search = ''] = path.split('?')
+  const q = new URLSearchParams(search)
+  const user = state.session ? userById(state.session.user_id) ?? null : null
+  for (const [m, re, h, opts] of routes) {
+    if (m !== method) continue
+    const match = pathname.match(re)
+    if (!match) continue
+    if (opts.auth) {
+      if (!user) return err(401, 'AUTH_REQUIRED', 'Требуется вход')
+      if (opts.auth !== 'any' && user.role !== opts.auth) return err(403, 'ROLE_FORBIDDEN', 'Недоступно для вашей роли')
+    }
+    if (method !== 'GET') {
+      const expected = state.session?.csrf ?? state.loginCsrf
+      if (!expected || headers['X-CSRF-Token'] !== expected) return err(403, 'CSRF_INVALID', 'CSRF-токен устарел')
+    }
+    const res = h(match, body ?? {}, q, user)
+    if (method !== 'GET') save()
+    return res
+  }
+  return err(404, 'NOT_FOUND', `Неизвестный маршрут ${method} ${pathname}`)
+}

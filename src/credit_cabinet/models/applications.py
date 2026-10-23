@@ -74,6 +74,7 @@ class Application(IdentityMixin, UpdatedMixin, Base):
     calculation_date: Mapped[date]
     submitted_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     closed_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    archived_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     __mapper_args__ = {"version_id_col": lock_version}
     __table_args__ = (
         CheckConstraint(

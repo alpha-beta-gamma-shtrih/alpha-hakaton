@@ -13,6 +13,7 @@ from credit_cabinet.integrations.documents import DocumentStore
 from credit_cabinet.models import (
     Application,
     ApplicationEvent,
+    ApplicationRevision,
     CompanyFinancialMonth,
     CompanyMembership,
     CreditProduct,
@@ -222,7 +223,7 @@ def patch_draft(
 def list_drafts(db: Session, user_id: UUID, limit: int, offset: int, company_id: UUID | None):
     if company_id is not None:
         client_company(db, user_id, company_id)
-    filters = [CompanyMembership.user_id == user_id]
+    filters = [CompanyMembership.user_id == user_id, Application.archived_at.is_(None)]
     if company_id:
         filters.append(Application.company_id == company_id)
     query = (
@@ -251,3 +252,63 @@ def list_drafts(db: Session, user_id: UUID, limit: int, offset: int, company_id:
         "limit": limit,
         "offset": offset,
     }
+
+
+def archive_draft(
+    db: Session,
+    principal: Principal,
+    application_id: UUID,
+    expected_version: int,
+    auth: AuthService,
+):
+    application = client_application(db, principal.user.id, application_id, lock=True)
+    has_revision = db.scalar(
+        select(ApplicationRevision.id)
+        .where(ApplicationRevision.application_id == application.id)
+        .limit(1)
+    )
+    if (
+        application.status != ApplicationStatus.DRAFT
+        or application.submitted_at is not None
+        or has_revision is not None
+    ):
+        raise APIError(409, "APPLICATION_NOT_DELETABLE", "Отправленную заявку удалить нельзя")
+    if application.lock_version != expected_version:
+        raise APIError(409, "VERSION_CONFLICT", "Черновик уже изменён. Получите актуальную версию")
+    application.archived_at = application.updated_at = utc_now()
+    application.lock_version += 1
+    sequence = (
+        db.scalar(
+            select(func.max(ApplicationEvent.sequence_no)).where(
+                ApplicationEvent.application_id == application.id
+            )
+        )
+        or 0
+    )
+    db.add(
+        ApplicationEvent(
+            application_id=application.id,
+            sequence_no=sequence + 1,
+            actor_user_id=principal.user.id,
+            event_type="DRAFT_ARCHIVED",
+            from_status="DRAFT",
+            to_status="DRAFT",
+            visibility="CLIENT",
+            message="Черновик удалён из кабинета",
+            details={},
+        )
+    )
+    if principal.user.ui_context.get("last_application_id") == str(application.id):
+        principal.user.ui_context = {"section": "applications"}
+    try:
+        auth.activity(db, principal, commit=False)
+        db.commit()
+    except StaleDataError:
+        db.rollback()
+        raise APIError(
+            409, "VERSION_CONFLICT", "Черновик уже изменён. Получите актуальную версию"
+        ) from None
+    logger.info(
+        "application.draft_archived",
+        extra={"application_id": str(application.id), "user_id": str(principal.user.id)},
+    )

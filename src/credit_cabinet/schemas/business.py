@@ -95,6 +95,10 @@ class ConfirmationPatch(StrictModel):
     credit_history_check_allowed: bool = Field(default=False, strict=True)
 
 
+class DraftDelete(StrictModel):
+    expected_version: PositiveInteger
+
+
 class DraftDataPatch(StrictModel):
     financial_months: list[FinancialMonthInput] = Field(default_factory=list, max_length=6)
     confirmations: ConfirmationPatch = Field(default_factory=ConfirmationPatch)
