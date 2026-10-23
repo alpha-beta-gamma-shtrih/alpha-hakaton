@@ -1,0 +1,54 @@
+// Friendly aliases over the generated OpenAPI types (npm run gen:api regenerates schema.d.ts).
+import type { components } from './schema'
+
+type S = components['schemas']
+
+export type Role = S['Role']
+export type ApplicationStatus = S['ApplicationStatus']
+export type Purpose = S['Purpose']
+export type FormStep = S['FormStep']
+export type RiskBand = S['RiskBand']
+export type Routing = S['Routing']
+export type CheckSource = S['CheckSource']
+export type CheckStatus = S['CheckStatus']
+
+export type ApiErrorBody = S['ErrorResponse']
+export type SessionResponse = S['SessionResponse']
+export type User = S['UserResponse']
+
+export type Company = S['CompanyResponse']
+export type CompanyDetail = S['CompanyDetail']
+export type Product = S['ProductResponse']
+export type Page<T> = { items: T[]; total: number; limit: number; offset: number }
+
+export type Draft = S['DraftResponse']
+export type DraftPatch = S['DraftPatch']
+export type FinancialMonth = S['FinancialMonthResponse']
+export type FinancialMonthInput = S['FinancialMonthInput']
+export type DocumentInfo = S['DocumentResponse']
+export type Provenance = S['ProvenanceResponse']
+export type ProvenanceItem = S['ProvenanceItem']
+export type Reason = S['ReasonResponse']
+export type Assessment = S['AssessmentResponse']
+export type Decision = S['DecisionResponse']
+export type EventItem = S['EventResponse']
+export type Revision = S['RevisionResponse']
+export type Submission = S['SubmissionResponse']
+export type Scenarios = S['ScenariosResponse']
+export type Candidate = S['CandidateResponse']
+export type AdvisorReport = S['AdvisorResponse']
+export type AdvisorMode = NonNullable<S['AdvisorRequest']['mode']>
+
+export type BankQueueItem = S['BankQueueItem']
+export type BankCard = S['BankCard']
+export type BankAssessment = S['BankAssessmentResponse']
+export type BankCheck = S['BankCheckResponse']
+export type BankDecision = S['BankDecisionResponse']
+export type BankEvent = S['BankEventResponse']
+export type BankInfoRequest = S['BankInformationRequest']
+export type BankRevisionDetail = S['BankRevisionDetail']
+export type BankAction = BankQueueItem['allowed_actions'][number]
+export type ManualDecision = S['ManualDecision']
+export type ManualInfoRequest = S['ManualInformationRequest']
+export type RequestableField = ManualInfoRequest['requested_fields'][number]
+export type RetryResponse = S['RetryResponse']
