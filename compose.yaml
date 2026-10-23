@@ -1,0 +1,85 @@
+name: credit-cabinet
+
+x-app: &app
+  image: credit-cabinet-app:local
+  build:
+    context: .
+    dockerfile: Dockerfile
+
+x-backend-environment: &backend-environment
+  DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:-credit}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-credit_cabinet}"
+  PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8000}
+  ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-["http://localhost:8000"]}
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  CSRF_SIGNING_KEY: ${CSRF_SIGNING_KEY:?Set CSRF_SIGNING_KEY in .env}
+  LLM_ENABLED: ${LLM_ENABLED:-false}
+  LLM_BASE_URL: ${DOCKER_LLM_BASE_URL:-http://host.docker.internal:11434}
+
+services:
+  postgres:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-credit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-credit_cabinet}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  postgres-test:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_USER: credit_test
+      POSTGRES_PASSWORD: isolated-test-password
+      POSTGRES_DB: credit_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U credit_test -d credit_test]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  tests:
+    <<: *app
+    command: [python, -m, pytest, -q, -p, "no:cacheprovider"]
+    environment:
+      TEST_DATABASE_URL: postgresql+psycopg://credit_test:isolated-test-password@postgres-test:5432/credit_test
+      LLM_ENABLED: "false"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+
+  init:
+    <<: *app
+    environment:
+      <<: *backend-environment
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:?Set DEMO_USER_PASSWORD (12+ characters) in .env}
+    command: [sh, -ec, 'alembic upgrade head && python -m credit_cabinet.seed']
+    depends_on:
+      postgres:
+        condition: service_healthy
+      tests:
+        condition: service_completed_successfully
+
+  backend:
+    <<: *app
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment: *backend-environment
+    volumes:
+      - documents-data:/app/.data/documents
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+
+volumes:
+  postgres-data:
+  documents-data:
