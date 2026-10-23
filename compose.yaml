@@ -20,7 +20,7 @@ services:
   ollama:
     image: ollama/ollama:0.40.5
     environment:
-      OLLAMA_HOST: 127.0.0.1:11434
+      OLLAMA_HOST: 0.0.0.0:11434
     volumes:
       - ollama-data:/root/.ollama
     healthcheck:
@@ -28,6 +28,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
+    depends_on:
+      tests:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   ollama-model:
@@ -52,6 +55,9 @@ services:
       interval: 3s
       timeout: 3s
       retries: 30
+    depends_on:
+      tests:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   postgres-test:
