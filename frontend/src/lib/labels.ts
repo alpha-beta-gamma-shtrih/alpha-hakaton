@@ -93,6 +93,7 @@ export function requestedFieldLabel(path: string): string {
 
 export const EVENT_LABELS: Record<string, string> = {
   DRAFT_CREATED: 'Черновик создан',
+  DRAFT_ARCHIVED: 'Черновик удалён из кабинета',
   SUBMITTED: 'Заявка отправлена',
   RESUBMITTED: 'Заявка отправлена повторно',
   PROCESSING_STARTED: 'Начата обработка',

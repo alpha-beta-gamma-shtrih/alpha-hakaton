@@ -39,7 +39,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
   const stepIdx = STEPS.findIndex((s) => s.id === step)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<ApiError | null>(null)
-  const submitKey = useRef<string | null>(null)
+  const submitAttempt = useRef<{ key: string; version: number } | null>(null)
   const topRef = useRef<HTMLDivElement>(null)
 
   const gate = useStepConfirm(ed.server)
@@ -51,7 +51,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
   const [confirming, setConfirming] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
   const confirmStep = async () => {
-    if (missing.length || confirming) return
+    if (missing.length || confirming || submitting || submitAttempt.current) return
     setConfirming(true)
     try {
       await ed.flush()
@@ -68,6 +68,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
 
   /** Opens a step; with an anchor, scrolls to that field, flashes it and puts the cursor in it. */
   const go = (s: FormStep, anchor?: string) => {
+    if (submitting || submitAttempt.current) return
     if (s !== ed.form.step) ed.update({ step: s }, ['step'], true)
     if (!anchor) {
       topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -98,15 +99,19 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
     setSubmitting(true)
     setSubmitError(null)
     try {
-      await ed.flush()
-      submitKey.current ??= uuid() // reused if the outcome of a previous attempt is unknown
-      const res = await applications.submit(ed.server.id, ed.versionRef.current, submitKey.current)
-      submitKey.current = null
+      if (!submitAttempt.current) {
+        await ed.flush()
+        submitAttempt.current = { key: uuid(), version: ed.versionRef.current }
+      }
+      const attempt = submitAttempt.current
+      const res = await applications.submit(ed.server.id, attempt.version, attempt.key)
+      submitAttempt.current = null
       ed.adopt(res.application)
       onSubmitted(res.application)
     } catch (e) {
       const err = e instanceof ApiError ? e : new ApiError(0, null, 'Не удалось отправить')
-      if (err.status !== 0) submitKey.current = null // definite answer: a new attempt gets a new key
+      // A network error or 5xx can arrive after the transaction committed.
+      if (err.status >= 400 && err.status < 500) submitAttempt.current = null
       setSubmitError(err)
       if (err.fieldErrors.length) gate.unlock(FIELD_STEP(err.fieldErrors[0].field))
       if (err.fieldErrors.length) go(FIELD_STEP(err.fieldErrors[0].field), FIELD_ANCHOR(err.fieldErrors[0].field.replace('draft_data.confirmations.data_confirmed', 'confirm').replace('draft_data.confirmations.credit_history_check_allowed', 'bki')))
@@ -206,12 +211,12 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
                 <b>Шаг «{STEPS[stepIdx].title}» подтверждён</b>
                 <span>Данные зафиксированы. Чтобы что-то поменять, нажмите «Редактировать».</span>
               </div>
-              <Button size="sm" variant="white" onClick={() => gate.unlock(step)}>
+              <Button size="sm" variant="white" disabled={submitting || !!submitAttempt.current} onClick={() => gate.unlock(step)}>
                 Редактировать
               </Button>
             </div>
           )}
-          <fieldset className={`step-fieldset rise ${locked ? 'locked' : ''}`} disabled={locked}>
+          <fieldset className={`step-fieldset rise ${locked ? 'locked' : ''}`} disabled={locked || submitting || !!submitAttempt.current}>
             {step === 'NEED' && <StepNeed ed={ed} product={product} highlight={highlight} />}
             {step === 'COMPANY' && <StepCompany company={company.data} draft={ed.server} />}
             {step === 'FINANCES' && <StepFinances ed={ed} highlight={highlight} />}
@@ -224,7 +229,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
                 {submitError.fieldErrors.map((f) => (
                   <div key={f.field}>{f.message}</div>
                 ))}
-                {submitError.status === 0 && 'Ответ не получен. Повторите отправку — повтор безопасен, дубль не создастся.'}
+                {(submitError.status === 0 || submitError.status >= 500) && 'Исход отправки пока не подтверждён. Повторите отправку с теми же данными — дубль не создастся.'}
               </Notice>
             </div>
           )}
@@ -271,7 +276,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
                   Далее: {STEPS[stepIdx + 1].title} <Arrow />
                 </Button>
               ) : (
-                <Button variant="red" size="lg" loading={submitting} disabled={!allConfirmed || !ready.canSubmit || ed.state === 'conflict'} onClick={submit}>
+                <Button variant="red" size="lg" loading={submitting} disabled={!allConfirmed || !ready.canSubmit || Object.keys(ed.fieldErrors).length > 0 || ed.state === 'conflict'} onClick={submit}>
                   {ed.server.status === 'NEEDS_INFO' ? 'Отправить повторно' : 'Отправить заявку'} <Arrow />
                 </Button>
               )}

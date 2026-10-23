@@ -196,10 +196,10 @@ function ChecksCard({ a, animate }: { a: Assessment | null | undefined; animate:
           const tone = c ? CHECK_STATUS[c.status].tone : 'wait'
           return (
             <div key={src} className={`check-card ${visible ? `t-${tone}` : 't-wait'}`}>
-              <span className="check-ic">{visible ? (tone === 'ok' ? '✓' : tone === 'warn' ? '!' : '×') : <i className="dots3" />}</span>
+              <span className="check-ic">{visible ? (tone === 'ok' ? '✓' : tone === 'warn' ? '!' : '×') : a && !c ? '—' : <i className="dots3" />}</span>
               <div>
                 <b>{CHECK_SOURCE[src].label}</b>
-                <span>{visible ? CHECK_STATUS[c!.status].label : a ? 'проверяем…' : 'ожидает'}</span>
+                <span>{visible ? CHECK_STATUS[c!.status].label : a && !c ? 'Не выполнялась' : a ? 'проверяем…' : 'ожидает'}</span>
               </div>
             </div>
           )

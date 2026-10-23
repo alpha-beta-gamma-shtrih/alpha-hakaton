@@ -9,7 +9,7 @@ export interface Missing {
 }
 
 /** What still has to be filled on a step before it can be confirmed. */
-export function stepMissing(step: FormStep, form: FormState, product: Product | undefined, _localErrors: Record<string, string>): Missing[] {
+export function stepMissing(step: FormStep, form: FormState, product: Product | undefined, localErrors: Record<string, string>): Missing[] {
   const out: Missing[] = []
   if (step === 'NEED') {
     const min = Number(product?.min_amount ?? 100000)
@@ -26,6 +26,12 @@ export function stepMissing(step: FormStep, form: FormState, product: Product | 
     if (!form.dataConfirmed) out.push({ label: 'Подтверждение, что сведения верны', anchor: 'confirm' })
     if (!form.bkiAllowed) out.push({ label: 'Согласие на проверку кредитной истории', anchor: 'bki' })
   }
+  if (step === 'NEED') {
+    for (const [field, message] of Object.entries(localErrors)) {
+      const anchor = ({ requested_amount: 'amount', term_months: 'term', purpose_code: 'purpose', purpose_details: 'details' } as Record<string, string>)[field]
+      if (anchor && !out.some((item) => item.anchor === anchor)) out.push({ label: message, anchor })
+    }
+  }
   return out
 }
 
@@ -37,22 +43,29 @@ export function useStepConfirm(app: Draft) {
   const key = `cc-steps:${app.id}:${app.latest_revision_no ?? 0}`
   const read = (): Confirmed => {
     try {
-      return JSON.parse(localStorage.getItem(key) || '{}')
+      const value = JSON.parse(localStorage.getItem(key) || '{}')
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+      return Object.fromEntries(['NEED', 'REVIEW'].filter((s) => value[s] === true).map((s) => [s, true]))
     } catch {
       return {}
     }
   }
-  const [confirmed, setConfirmed] = useState<Confirmed>(read)
+  const [state, setState] = useState(() => ({ key, confirmed: read() }))
+  const confirmed = state.key === key ? state.confirmed : read()
   useEffect(() => {
+    if (state.key !== key) setState({ key, confirmed: read() })
+  }, [key, state.key])
+  useEffect(() => {
+    if (state.key !== key) return
     try {
       localStorage.setItem(key, JSON.stringify(confirmed))
     } catch {
       /* storage unavailable: confirmations live for this visit only */
     }
-  }, [key, confirmed])
+  }, [key, confirmed, state.key])
 
-  const confirm = useCallback((s: FormStep) => setConfirmed((c) => ({ ...c, [s]: true })), [])
+  const confirm = useCallback((s: FormStep) => setState((c) => ({ key, confirmed: { ...(c.key === key ? c.confirmed : {}), [s]: true } })), [key])
   /** Editing any earlier step also reopens the final review. */
-  const unlock = useCallback((s: FormStep) => setConfirmed((c) => ({ ...c, [s]: false, REVIEW: false })), [])
+  const unlock = useCallback((s: FormStep) => setState((c) => ({ key, confirmed: { ...(c.key === key ? c.confirmed : {}), [s]: false, REVIEW: false } })), [key])
   return { confirmed, confirm, unlock }
 }

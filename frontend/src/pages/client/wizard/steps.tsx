@@ -80,8 +80,7 @@ export function StepNeed({ ed, product, highlight }: { ed: Editor; product?: Pro
     const v = raw.replace(/\D/g, '').slice(0, 3)
     setTermText(v)
     const n = Number(v)
-    if (v && n >= tmin && n <= tmax) update({ term: n }, ['term'])
-    else if (!v) update({ term: null }, ['term'])
+    update({ term: v && n >= tmin && n <= tmax ? n : null }, ['term'])
   }
 
   return (
@@ -471,7 +470,7 @@ export function StepReview({ ed, company, product, ready, highlight }: { ed: Edi
 
       {!ready.items.find((i) => i.id === 'months')!.ok && (
         <Notice tone="warn" title="Финансы заполнены не полностью">
-          Вернитесь на шаг «Финансы», заполните все месяцы и подтвердите страницу.
+          Заявку можно отправить. Банк запросит недостающие показатели; после дозапроса они станут доступны для заполнения на шаге «Финансы».
         </Notice>
       )}
       <DocumentsCard docs={server.documents} title="Документы к отправке" n="08" />

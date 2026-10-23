@@ -27,17 +27,26 @@ export interface FormState {
 
 export type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error' | 'conflict'
 
+const draftMonths = (d: Draft): MonthRow[] => {
+  const date = new Date(`${d.calculation_date}T00:00:00Z`)
+  return Array.from({ length: 6 }, (_, i) => {
+    const month = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - 6 + i, 1)).toISOString().slice(0, 10)
+    const row = d.draft_data.financial_months.find((m) => m.month === month)
+    return {
+      month,
+      cash_inflow: moneyToInput(row?.cash_inflow),
+      operating_outflow: moneyToInput(row?.operating_outflow),
+      existing_debt_payment: moneyToInput(row?.existing_debt_payment),
+    }
+  })
+}
+
 const fromDraft = (d: Draft): FormState => ({
   amount: moneyToInput(d.requested_amount),
   term: d.term_months,
   purpose: d.purpose_code,
   details: d.purpose_details ?? '',
-  months: d.draft_data.financial_months.map((m) => ({
-    month: m.month,
-    cash_inflow: moneyToInput(m.cash_inflow),
-    operating_outflow: moneyToInput(m.operating_outflow),
-    existing_debt_payment: moneyToInput(m.existing_debt_payment),
-  })),
+  months: draftMonths(d),
   dataConfirmed: d.draft_data.confirmations.data_confirmed,
   bkiAllowed: d.draft_data.confirmations.credit_history_check_allowed,
   infoResponse: d.draft_data.info_response ?? '',
@@ -212,6 +221,7 @@ export function useDraftEditor(initial: Draft) {
     }
     if (!dirty.current.size && !inflight.current) {
       if (Object.keys(localErrorsRef.current).length) throw new ApiError(422, { code: 'VALIDATION_ERROR', message: 'Исправьте выделенные поля' }, '')
+      if (lastFailed.current) throw lastFailed.current
       return
     }
     await new Promise<void>((resolve) => {
@@ -287,7 +297,7 @@ export function readiness(form: FormState, product?: Product) {
     { id: 'purpose', label: 'Цель финансирования', ok: !!form.purpose, step: 'NEED' as FormStep, blocking: true },
     { id: 'amount', label: 'Сумма в границах продукта', ok: amountOk, step: 'NEED' as FormStep, blocking: true },
     { id: 'term', label: 'Срок в границах продукта', ok: termOk, step: 'NEED' as FormStep, blocking: true },
-    { id: 'months', label: `Финансы за 6 месяцев (${filled}/${form.months.length || 6})`, ok: filled === form.months.length && filled > 0, step: 'FINANCES' as FormStep, blocking: true },
+    { id: 'months', label: `Финансы за 6 месяцев (${filled}/6)`, ok: filled === 6, step: 'FINANCES' as FormStep, blocking: false },
     { id: 'confirm', label: 'Подтверждение данных', ok: form.dataConfirmed, step: 'REVIEW' as FormStep, blocking: true },
     { id: 'bki', label: 'Согласие на проверку истории', ok: form.bkiAllowed, step: 'REVIEW' as FormStep, blocking: true },
   ]
