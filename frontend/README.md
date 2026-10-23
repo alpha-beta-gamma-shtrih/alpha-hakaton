@@ -14,6 +14,8 @@ npm run dev        # http://localhost:5173, /api и /health проксируют
 
 Backend запускается как в корневом README. Origin `http://localhost:5173` уже есть в `ALLOWED_ORIGINS` из `.env.example`. Proxy не переписывает Origin; не смешивайте localhost и 127.0.0.1.
 
+В Windows Vite явно слушает 127.0.0.1, чтобы не остаться доступным только через IPv6 ::1. Proxy по умолчанию идет на 127.0.0.1:8000; в браузере использовать http://localhost:5173 для согласованного Origin/cookie.
+
 Демо-режим без backend — API работает в браузере на синтетических данных C01/C02 (подходит любой пароль, состояние в localStorage, сброс кнопкой в бегущей строке):
 
 ```bash
