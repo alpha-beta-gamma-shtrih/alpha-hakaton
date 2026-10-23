@@ -18,7 +18,7 @@ const fmtRub = (n: number) => `${Math.round(n).toLocaleString('ru-RU')} ₽`
 /** Preliminary calculation via POST /scenarios. Recomputed for every saved version of the draft. */
 export function useScenarios(ed: Editor, ready: Ready) {
   const v = ed.server.version
-  const enabled = ready.items[0].ok && ready.items[1].ok && ready.items[2].ok && !ed.busy && ed.state !== 'conflict' && ed.server.version === ed.versionRef.current
+  const enabled = ready.items[0].ok && ready.items[1].ok && ready.items[2].ok && !ed.busy && ed.state !== 'conflict' && ed.state !== 'error' && ed.server.version === ed.versionRef.current
   return useQuery({
     queryKey: ['scenarios', ed.server.id, v],
     queryFn: () => applications.scenarios(ed.server.id, v),
@@ -32,7 +32,7 @@ export function useScenarios(ed: Editor, ready: Ready) {
 export function CalcPanel({ ed, ready, scen, locked }: { ed: Editor; ready: Ready; scen: ReturnType<typeof useScenarios>; locked?: boolean }) {
   const base = scen.data?.candidates.find((c) => c.candidate_id === 'REQUESTED')
   const canCalc = ready.items[1].ok && ready.items[2].ok
-  const stale = ed.busy || ed.state === 'conflict' || scen.isPlaceholderData || (scen.data && scen.data.application_version !== ed.server.version)
+  const stale = ed.busy || ed.state === 'conflict' || ed.state === 'error' || scen.isPlaceholderData || (scen.data && scen.data.application_version !== ed.server.version)
   const preview = !stale && ed.form.bkiAllowed && scen.data?.mode === 'PREVIEW'
   const load = base?.load_ratio ? Number(base.load_ratio) : null
 
@@ -103,7 +103,7 @@ export function CalcPanel({ ed, ready, scen, locked }: { ed: Editor; ready: Read
 }
 
 export function Variants({ ed, scen, locked, onAskAi }: { ed: Editor; scen: ReturnType<typeof useScenarios>; locked?: boolean; onAskAi?: () => void }) {
-  const cands = !ed.busy && ed.state !== 'conflict' && !scen.isPlaceholderData && scen.data?.application_version === ed.server.version ? scen.data.candidates : []
+  const cands = !ed.busy && ed.state !== 'conflict' && ed.state !== 'error' && !scen.isPlaceholderData && scen.data?.application_version === ed.server.version && (ed.form.bkiAllowed || scen.data.mode === 'CALCULATION_ONLY') ? scen.data.candidates : []
   if (cands.length < 2) return null
   const base = cands[0]
   const pick = (c: Candidate) => ed.update({ amount: groupDigits(String(Number(c.requested_amount))), term: c.term_months }, ['amount', 'term'], true)
@@ -215,7 +215,7 @@ export function AdvisorPanel({ ed }: { ed: Editor }) {
           <span>Собираю факторы…</span>
         </div>
       )}
-      {report && !blocked && !run.isPending && <AdvisorReportView report={{ ...report, is_current: report.is_current && !ed.busy && !last.isPlaceholderData && report.draft_lock_version === ed.server.version }} />}
+      {report && !blocked && !run.isPending && <AdvisorReportView report={{ ...report, is_current: report.is_current && !ed.busy && ed.state !== 'error' && ed.state !== 'conflict' && !last.isPlaceholderData }} />}
     </section>
   )
 }
