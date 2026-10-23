@@ -4,3 +4,4 @@ dist-demo
 .env
 .env.local
 *.tsbuildinfo
+!.env.mock

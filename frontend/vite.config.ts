@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const target = env.VITE_PROXY_TARGET || 'http://localhost:8000'
   return {
+    define: { 'import.meta.env.VITE_API_MODE': JSON.stringify(env.VITE_API_MODE === 'mock' ? 'mock' : 'real') },
     plugins: [react()],
     base: mode === 'mock' ? './' : '/',
     server: {

@@ -56,8 +56,10 @@ async function httpTransport(method: Method, path: string, body: unknown, header
 }
 
 // The demo server is loaded lazily, so the real build never downloads it.
-const mockTransport = (method: Method, path: string, body: unknown, headers: Record<string, string>) =>
-  import('./mock/server').then((m) => m.mockTransport(method, path, body, headers))
+const mockTransport = import.meta.env.VITE_API_MODE === 'mock'
+  ? (method: Method, path: string, body: unknown, headers: Record<string, string>) =>
+      import('./mock/server').then((m) => m.mockTransport(method, path, body, headers))
+  : httpTransport
 
 // Inline env check so the production build drops the demo server entirely.
 const transport = import.meta.env.VITE_API_MODE === 'mock' ? mockTransport : httpTransport
@@ -137,7 +139,7 @@ export function qs(params: Record<string, string | number | string[] | undefined
 
 /** Downloads a protected document via fetch so errors can be shown before saving a Blob. */
 export async function downloadDocument(url: string, filename: string) {
-  if (API_MODE === 'mock') {
+  if (import.meta.env.VITE_API_MODE === 'mock') {
     const r = await mockTransport('GET', url, undefined, {})
     if (r.status !== 200) throw new ApiError(r.status, r.body as ApiErrorBody, 'Документ недоступен')
     saveBlob(new Blob([String(r.body)], { type: 'text/csv' }), filename)

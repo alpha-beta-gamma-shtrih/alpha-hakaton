@@ -38,8 +38,8 @@ export function ApplicationsPage() {
     },
     onError: (e) => {
       qc.invalidateQueries({ queryKey: ['applications'] })
-      if (e instanceof ApiError && e.status === 405) {
-        toast.push({ tone: 'info', title: 'Удаление пока не поддерживается сервером', message: 'Нужное изменение backend описано в BACKEND_REQUEST.md.' })
+      if (e instanceof ApiError && e.status === 404) {
+        toast.push({ tone: 'info', title: 'Черновик уже удалён или недоступен' })
         setConfirmId(null)
         return
       }
@@ -154,7 +154,7 @@ export function ApplicationsPage() {
                                 {deletable ? (
                                   <>
                                     <b>Удалить черновик № {shortId(a.id)}?</b>
-                                    <span>Заявка исчезнет из списка, введённые данные пропадут. Отменить удаление будет нельзя.</span>
+                                    <span>Черновик исчезнет из кабинета. Восстановление через интерфейс не предусмотрено.</span>
                                   </>
                                 ) : (
                                   <>
