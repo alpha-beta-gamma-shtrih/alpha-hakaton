@@ -12,10 +12,33 @@ x-backend-environment: &backend-environment
   ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-["http://localhost:8000"]}
   COOKIE_SECURE: ${COOKIE_SECURE:-false}
   CSRF_SIGNING_KEY: ${CSRF_SIGNING_KEY:?Set CSRF_SIGNING_KEY in .env}
-  LLM_ENABLED: ${LLM_ENABLED:-false}
-  LLM_BASE_URL: ${DOCKER_LLM_BASE_URL:-http://host.docker.internal:11434}
+  LLM_ENABLED: "true"
+  LLM_BASE_URL: http://ollama:11434
+  LLM_MODEL: ${LLM_MODEL:-qwen3:4b}
 
 services:
+  ollama:
+    image: ollama/ollama:0.40.5
+    environment:
+      OLLAMA_HOST: 127.0.0.1:11434
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: [CMD-SHELL, "OLLAMA_HOST=http://127.0.0.1:11434 ollama list > /dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  ollama-model:
+    image: ollama/ollama:0.40.5
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    command: [pull, "${LLM_MODEL:-qwen3:4b}"]
+    depends_on:
+      ollama:
+        condition: service_healthy
+
   postgres:
     image: postgres:17-bookworm
     environment:
@@ -77,9 +100,12 @@ services:
     depends_on:
       init:
         condition: service_completed_successfully
+      ollama-model:
+        condition: service_completed_successfully
     restart: unless-stopped
 
 
 volumes:
   postgres-data:
   documents-data:
+  ollama-data:
