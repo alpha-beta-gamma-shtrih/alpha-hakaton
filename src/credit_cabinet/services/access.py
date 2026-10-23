@@ -26,7 +26,11 @@ def find_client_application(db: Session, user_id: UUID, application_id: UUID, *,
             CompanyMembership,
             CompanyMembership.company_id == Application.company_id,
         )
-        .where(CompanyMembership.user_id == user_id, Application.id == application_id)
+        .where(
+            CompanyMembership.user_id == user_id,
+            Application.id == application_id,
+            Application.archived_at.is_(None),
+        )
     )
     if lock:
         query = query.with_for_update(of=Application).execution_options(populate_existing=True)
@@ -82,7 +86,10 @@ def submitted_query():
             (ApplicationRevision.application_id == Application.id)
             & (ApplicationRevision.revision_no == last_no),
         )
-        .where(Application.status != ApplicationStatus.DRAFT)
+        .where(
+            Application.status != ApplicationStatus.DRAFT,
+            Application.archived_at.is_(None),
+        )
     )
 
 
