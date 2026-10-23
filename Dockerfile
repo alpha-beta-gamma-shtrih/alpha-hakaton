@@ -6,17 +6,18 @@ COPY --from=uv /uv /usr/local/bin/uv
 ENV UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
-RUN uv sync --locked --no-dev --no-install-project
+RUN uv sync --locked --no-install-project
 COPY src ./src
-RUN uv sync --locked --no-dev --no-editable
+RUN uv sync --locked --no-editable
 
-FROM python:3.12-slim-bookworm AS backend
+FROM python:3.12-slim-bookworm AS runtime
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 WORKDIR /app
 RUN mkdir -p /app/.data/documents
 COPY --from=builder /app/.venv /app/.venv
-COPY alembic.ini ./
+COPY pyproject.toml alembic.ini ./
 COPY migrations ./migrations
 COPY demo_data ./demo_data
+COPY tests ./tests
 CMD ["python", "-m", "credit_cabinet"]
