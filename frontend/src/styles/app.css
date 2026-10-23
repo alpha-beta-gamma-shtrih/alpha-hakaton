@@ -271,6 +271,8 @@
 .glass h2 { font-size: 36px; margin-top: 6px; }
 .glass-sub { opacity: 0.85; }
 .glass .field > label { color: #fff; opacity: 0.9; }
+/* Match the email-to-password input gap: one 13px label line plus the 8px field gap. */
+.auth-form > .field + .btn { margin-top: calc(13px * 1.45 + 8px); }
 .glass-input {
   width: 100%;
   padding: 14px 16px;
