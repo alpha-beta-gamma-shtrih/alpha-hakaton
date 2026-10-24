@@ -15,7 +15,7 @@ x-backend-environment: &backend-environment
   CSRF_SIGNING_KEY: ${CSRF_SIGNING_KEY:?Set CSRF_SIGNING_KEY in .env}
   LOG_LEVEL: ${LOG_LEVEL:-INFO}
   DEMO_DATASET_DIR: ${DEMO_DATASET_DIR:-/app/demo_data/demo_0_2}
-  DOCUMENTS_DIR: ${DOCUMENTS_DIR:-/app/.data/documents}
+  DOCUMENTS_DIR: /app/.data/documents
   LLM_ENABLED: ${LLM_ENABLED:-true}
   LLM_BASE_URL: http://ollama:11434
   LLM_MODEL: ${LLM_MODEL:-qwen3:4b}
@@ -101,7 +101,7 @@ services:
     environment:
       <<: *backend-environment
       DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:?Set DEMO_USER_PASSWORD (12+ characters) in .env}
-    command: [sh, -ec, 'alembic upgrade head && python -m credit_cabinet.seed']
+    command: [sh, -ec, 'alembic upgrade head && python -m credit_cabinet.seed --dataset "$${DEMO_DATASET_DIR}"']
     depends_on:
       postgres:
         condition: service_healthy
@@ -115,6 +115,12 @@ services:
     environment: *backend-environment
     volumes:
       - documents-data:/app/.data/documents
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
+      interval: 5s
+      timeout: 6s
+      retries: 20
+      start_period: 10s
     depends_on:
       init:
         condition: service_completed_successfully
@@ -130,7 +136,7 @@ services:
       - "${FRONTEND_PORT:-8080}:80"
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
         restart: true
     restart: unless-stopped
 
