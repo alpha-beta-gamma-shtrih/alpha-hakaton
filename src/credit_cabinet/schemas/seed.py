@@ -12,7 +12,7 @@ CompanyKey = str
 
 
 class CompanySeed(StrictModel):
-    company_key: str = Field(pattern=r"^C[0-9]{2}$")
+    company_key: str = Field(pattern=r"^C(?:[0-9]{2}|[1-9][0-9]{2})$")
     legal_name: str = Field(min_length=1, max_length=200)
     legal_form: LegalForm
     inn: str = Field(pattern=r"^[0-9]{10}([0-9]{2})?$")
@@ -110,7 +110,7 @@ class Manifest(StrictModel):
     financial_months: list[date]
     uuid_namespace: UUID
     source_versions: dict[str, str]
-    company_keys: list[str] = Field(min_length=1, max_length=100)
+    company_keys: list[str] = Field(min_length=1, max_length=1000)
     files: dict[str, str]
     document_templates: list[DocumentTemplate]
 

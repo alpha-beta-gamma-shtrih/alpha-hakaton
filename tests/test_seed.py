@@ -9,11 +9,27 @@ import pytest
 from sqlalchemy import func, select
 
 from credit_cabinet.models import Application, Company, CompanyFinancialMonth, CreditProduct, User
+from credit_cabinet.schemas.seed import CompanySeed, Manifest
 from credit_cabinet.services.seed import DatasetError, import_bundle, load_bundle
 from tests.conftest import ROOT
 from tests.test_drafts import SEED_PASSWORD
 
 DATA = ROOT / "demo_data/demo_0_2"
+
+
+def test_expanded_company_keys_keep_existing_ids_and_allow_three_digits():
+    bundle = load_bundle(DATA)
+    company = bundle.companies[0].model_dump(mode="json")
+    for key in ("C01", "C99", "C100", "C140", "C999"):
+        assert CompanySeed.model_validate({**company, "company_key": key}).company_key == key
+    from pydantic import ValidationError
+
+    for key in ("C1", "C001", "C1000", "../C01"):
+        with pytest.raises(ValidationError):
+            CompanySeed.model_validate({**company, "company_key": key})
+    manifest = bundle.manifest.model_dump(mode="json")
+    keys = [f"C{number:02d}" for number in range(1, 145)]
+    assert Manifest.model_validate({**manifest, "company_keys": keys}).company_keys == keys
 
 
 def rewrite(root, name, data):
