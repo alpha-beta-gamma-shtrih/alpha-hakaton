@@ -32,5 +32,2432 @@
       "as_of_date": "2026-10-01",
       "checked_at": null
     }
+  },
+  {
+    "company_key": "C03",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "50000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C04",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "30000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C05",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "30000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 75
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C06",
+    "status": "ERROR",
+    "error_code": "BKI_TIMEOUT",
+    "source_version": "bki-mock-0.2",
+    "normalized_data": null,
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C07",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": false,
+      "current_monthly_payment": "0.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C08",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "20000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C09",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "0.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C10",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "200000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C11",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "40000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C12",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "15000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C13",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "80000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C14",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "10000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C15",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "50000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C16",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "25000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C17",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "20000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C18",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "12000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C19",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "35000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C20",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "60000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C21",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "22000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C22",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "18000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C23",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "14000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C24",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "40000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C25",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "45000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C26",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "8000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C27",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "32000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C28",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "55000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C29",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "90000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C30",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "11000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C31",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "28000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C32",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "21000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C33",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "70000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C34",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "13000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C35",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "24000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C36",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "50000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C37",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "85000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C38",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "9000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C39",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "38000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C40",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "48000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C41",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "16000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C42",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "12500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C43",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "23000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C44",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "65000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C45",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "42000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C46",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "11500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C47",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "46000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C48",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "31000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C49",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "120000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C50",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "14500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C51",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "36000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C52",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "27000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C53",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "47000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C54",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "17000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C55",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "75000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C56",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "43000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C57",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "52000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C58",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "13500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C59",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "58000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C60",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "33000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C61",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "29000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C62",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "10500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C63",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "49000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C64",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "41000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C65",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "44000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C66",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "12800.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C67",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "62000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C68",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "34000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C69",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "48500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C70",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "16500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C71",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "56000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C72",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "24500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C73",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "44500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C74",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "12200.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C75",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "32500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C76",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "72000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C77",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "26500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C78",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "9500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C79",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "51000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C80",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "22500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C81",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "68000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C82",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "11800.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C83",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "37000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C84",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "46500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C85",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "42500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C86",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "15500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C87",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "73000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C88",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "45500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C89",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "53000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C90",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "17500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C91",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "36500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C92",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "49500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C93",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "82000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C94",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "14000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C95",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "41500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C96",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "60000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C97",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "30500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C98",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "54000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C99",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "18000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C100",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "44000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C101",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "28500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C102",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "39500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C103",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "23500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C104",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "35500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C105",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "29500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C106",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "45000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C107",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "16800.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C108",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "63000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C109",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "47500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C110",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "40000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C111",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "31500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C112",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "50500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C113",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "43500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C114",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "37500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C115",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "25500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C116",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "48000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C117",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "42000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C118",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "34500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C119",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "23000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C120",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "44500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C121",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "54500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C122",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "38500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C123",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "25000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C124",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "46000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C125",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "40500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C126",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "33500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C127",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "24000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C128",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "47000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C129",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "43000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C130",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "36000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C131",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "27500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C132",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "48500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C133",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "42500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C134",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "35000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C135",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "26000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C136",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "45500.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C137",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "41000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C138",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "33000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C139",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "27000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C140",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "45000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C141",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "50000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 30
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C142",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "50000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C143",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "30000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C144",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "30000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C06",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "bki-mock-0.2",
+    "normalized_data": {
+      "history_present": true,
+      "current_monthly_payment": "30000.00",
+      "current_overdue_amount": "0.00",
+      "max_overdue_days_12m": 0
+    },
+    "provenance": {
+      "source": "MOCK_BKI",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    },
+    "run_no": 2
   }
 ]

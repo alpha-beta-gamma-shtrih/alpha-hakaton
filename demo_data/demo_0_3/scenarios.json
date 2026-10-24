@@ -466,5 +466,648 @@
         "purpose_code": "OTHER"
       }
     }
+  },
+  {
+    "scenario_key": "C03_BORDERLINE",
+    "company_key": "C03",
+    "requested_amount": "1500000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "MANUAL_REVIEW",
+      "routing": "MANUAL_REVIEW",
+      "risk_score": 35,
+      "reason_codes": [
+        "BORDERLINE_RISK",
+        "BUSINESS_AGE_12_23",
+        "LOAD_50_65"
+      ],
+      "monthly_payment": "139310.96",
+      "annual_rate_percent": "20.500",
+      "pricing": {
+        "status": "PERSONALIZED",
+        "pricing_version": "demo-pricing-0.3",
+        "base_rate_percent": "20.000",
+        "minimum_rate_percent": "20.000",
+        "rate_before_discounts": "21.000",
+        "requested_discount_pp": "0.500",
+        "applied_discount_pp": "0.500",
+        "floor_adjustment_pp": "0.000",
+        "annual_rate_percent": "20.500",
+        "additions": [
+          {
+            "code": "BUSINESS_AGE",
+            "label": "Возраст бизнеса",
+            "percentage_points": "1.000"
+          },
+          {
+            "code": "CREDIT_HISTORY",
+            "label": "Кредитная история",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "INFLOW_TREND",
+            "label": "Динамика поступлений",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "TERM",
+            "label": "Срок кредита",
+            "percentage_points": "0.000"
+          }
+        ],
+        "discounts": [
+          {
+            "code": "PURPOSE",
+            "label": "Целевая программа",
+            "percentage_points": "0.500"
+          },
+          {
+            "code": "BANK_CUSTOMER",
+            "label": "Исправный заёмщик нашего банка · DEMO",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "PARTNER",
+            "label": "Покупка у партнёра · заявлено клиентом · DEMO",
+            "percentage_points": "0.000"
+          }
+        ],
+        "bank_relationship_source": "DEMO_BANK_PROFILE",
+        "has_active_loan_in_our_bank": false,
+        "purchase_from_bank_partner": false,
+        "purpose_code": "INVENTORY"
+      }
+    }
+  },
+  {
+    "scenario_key": "C03_ALT_APPROVE",
+    "company_key": "C03",
+    "requested_amount": "500000.00",
+    "term_months": 18,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "APPROVED",
+      "routing": "APPROVE",
+      "risk_score": 10,
+      "reason_codes": [
+        "DEMO_POLICY_PASSED",
+        "BUSINESS_AGE_12_23"
+      ],
+      "monthly_payment": "32743.27",
+      "annual_rate_percent": "21.500",
+      "pricing": {
+        "status": "PERSONALIZED",
+        "pricing_version": "demo-pricing-0.3",
+        "base_rate_percent": "20.000",
+        "minimum_rate_percent": "20.000",
+        "rate_before_discounts": "22.000",
+        "requested_discount_pp": "0.500",
+        "applied_discount_pp": "0.500",
+        "floor_adjustment_pp": "0.000",
+        "annual_rate_percent": "21.500",
+        "additions": [
+          {
+            "code": "BUSINESS_AGE",
+            "label": "Возраст бизнеса",
+            "percentage_points": "1.000"
+          },
+          {
+            "code": "CREDIT_HISTORY",
+            "label": "Кредитная история",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "INFLOW_TREND",
+            "label": "Динамика поступлений",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "TERM",
+            "label": "Срок кредита",
+            "percentage_points": "1.000"
+          }
+        ],
+        "discounts": [
+          {
+            "code": "PURPOSE",
+            "label": "Целевая программа",
+            "percentage_points": "0.500"
+          },
+          {
+            "code": "BANK_CUSTOMER",
+            "label": "Исправный заёмщик нашего банка · DEMO",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "PARTNER",
+            "label": "Покупка у партнёра · заявлено клиентом · DEMO",
+            "percentage_points": "0.000"
+          }
+        ],
+        "bank_relationship_source": "DEMO_BANK_PROFILE",
+        "has_active_loan_in_our_bank": false,
+        "purchase_from_bank_partner": false,
+        "purpose_code": "INVENTORY"
+      }
+    }
+  },
+  {
+    "scenario_key": "C03_SCORE_LIMIT_OVERDUE",
+    "company_key": "C141",
+    "requested_amount": "1500000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "REJECTED",
+      "routing": "REJECT",
+      "risk_score": 60,
+      "reason_codes": [
+        "RISK_SCORE_LIMIT_EXCEEDED",
+        "BUSINESS_AGE_12_23",
+        "LOAD_50_65",
+        "OVERDUE_30_59"
+      ],
+      "monthly_payment": "142202.60",
+      "annual_rate_percent": "24.500",
+      "pricing": {
+        "status": "PERSONALIZED",
+        "pricing_version": "demo-pricing-0.3",
+        "base_rate_percent": "20.000",
+        "minimum_rate_percent": "20.000",
+        "rate_before_discounts": "25.000",
+        "requested_discount_pp": "0.500",
+        "applied_discount_pp": "0.500",
+        "floor_adjustment_pp": "0.000",
+        "annual_rate_percent": "24.500",
+        "additions": [
+          {
+            "code": "BUSINESS_AGE",
+            "label": "Возраст бизнеса",
+            "percentage_points": "1.000"
+          },
+          {
+            "code": "CREDIT_HISTORY",
+            "label": "Кредитная история",
+            "percentage_points": "4.000"
+          },
+          {
+            "code": "INFLOW_TREND",
+            "label": "Динамика поступлений",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "TERM",
+            "label": "Срок кредита",
+            "percentage_points": "0.000"
+          }
+        ],
+        "discounts": [
+          {
+            "code": "PURPOSE",
+            "label": "Целевая программа",
+            "percentage_points": "0.500"
+          },
+          {
+            "code": "BANK_CUSTOMER",
+            "label": "Исправный заёмщик нашего банка · DEMO",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "PARTNER",
+            "label": "Покупка у партнёра · заявлено клиентом · DEMO",
+            "percentage_points": "0.000"
+          }
+        ],
+        "bank_relationship_source": "DEMO_BANK_PROFILE",
+        "has_active_loan_in_our_bank": false,
+        "purchase_from_bank_partner": false,
+        "purpose_code": "INVENTORY"
+      }
+    }
+  },
+  {
+    "scenario_key": "C03_TREND_DROP",
+    "company_key": "C142",
+    "requested_amount": "1500000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "REJECTED",
+      "routing": "REJECT",
+      "risk_score": 60,
+      "reason_codes": [
+        "RISK_SCORE_LIMIT_EXCEEDED",
+        "BUSINESS_AGE_12_23",
+        "LOAD_50_65",
+        "INFLOW_DROP_OVER_30"
+      ],
+      "monthly_payment": "140752.78",
+      "annual_rate_percent": "22.500",
+      "pricing": {
+        "status": "PERSONALIZED",
+        "pricing_version": "demo-pricing-0.3",
+        "base_rate_percent": "20.000",
+        "minimum_rate_percent": "20.000",
+        "rate_before_discounts": "23.000",
+        "requested_discount_pp": "0.500",
+        "applied_discount_pp": "0.500",
+        "floor_adjustment_pp": "0.000",
+        "annual_rate_percent": "22.500",
+        "additions": [
+          {
+            "code": "BUSINESS_AGE",
+            "label": "Возраст бизнеса",
+            "percentage_points": "1.000"
+          },
+          {
+            "code": "CREDIT_HISTORY",
+            "label": "Кредитная история",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "INFLOW_TREND",
+            "label": "Динамика поступлений",
+            "percentage_points": "2.000"
+          },
+          {
+            "code": "TERM",
+            "label": "Срок кредита",
+            "percentage_points": "0.000"
+          }
+        ],
+        "discounts": [
+          {
+            "code": "PURPOSE",
+            "label": "Целевая программа",
+            "percentage_points": "0.500"
+          },
+          {
+            "code": "BANK_CUSTOMER",
+            "label": "Исправный заёмщик нашего банка · DEMO",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "PARTNER",
+            "label": "Покупка у партнёра · заявлено клиентом · DEMO",
+            "percentage_points": "0.000"
+          }
+        ],
+        "bank_relationship_source": "DEMO_BANK_PROFILE",
+        "has_active_loan_in_our_bank": false,
+        "purchase_from_bank_partner": false,
+        "purpose_code": "INVENTORY"
+      }
+    }
+  },
+  {
+    "scenario_key": "C04_INCOMPLETE_FINANCE",
+    "company_key": "C04",
+    "requested_amount": "1000000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "NEEDS_INFO",
+      "routing": "NEEDS_INFO",
+      "risk_score": null,
+      "reason_codes": [
+        "FINANCIAL_HISTORY_INCOMPLETE"
+      ],
+      "monthly_payment": null,
+      "annual_rate_percent": null,
+      "pricing": {
+        "status": "INDICATIVE",
+        "annual_rate_percent": "20.000",
+        "reason_code": "FINANCIAL_HISTORY_INCOMPLETE"
+      }
+    }
+  },
+  {
+    "scenario_key": "C05_SEVERE_OVERDUE",
+    "company_key": "C05",
+    "requested_amount": "1000000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "REJECTED",
+      "routing": "REJECT",
+      "risk_score": null,
+      "reason_codes": [
+        "SEVERE_OVERDUE_HISTORY"
+      ],
+      "monthly_payment": null,
+      "annual_rate_percent": null,
+      "pricing": {
+        "status": "INDICATIVE",
+        "annual_rate_percent": "20.000",
+        "reason_code": "SEVERE_OVERDUE_HISTORY"
+      }
+    }
+  },
+  {
+    "scenario_key": "C06_BKI_RETRY",
+    "company_key": "C06",
+    "requested_amount": "1000000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT",
+      "RETRY_PROCESSING"
+    ],
+    "expected_result": {
+      "status": "APPROVED",
+      "routing": "APPROVE",
+      "risk_score": 10,
+      "reason_codes": [
+        "DEMO_POLICY_PASSED",
+        "LOAD_35_50"
+      ],
+      "monthly_payment": "92634.51",
+      "annual_rate_percent": "20.000",
+      "pricing": {
+        "status": "PERSONALIZED",
+        "pricing_version": "demo-pricing-0.3",
+        "base_rate_percent": "20.000",
+        "minimum_rate_percent": "20.000",
+        "rate_before_discounts": "20.000",
+        "requested_discount_pp": "0.500",
+        "applied_discount_pp": "0.000",
+        "floor_adjustment_pp": "0.500",
+        "annual_rate_percent": "20.000",
+        "additions": [
+          {
+            "code": "BUSINESS_AGE",
+            "label": "Возраст бизнеса",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "CREDIT_HISTORY",
+            "label": "Кредитная история",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "INFLOW_TREND",
+            "label": "Динамика поступлений",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "TERM",
+            "label": "Срок кредита",
+            "percentage_points": "0.000"
+          }
+        ],
+        "discounts": [
+          {
+            "code": "PURPOSE",
+            "label": "Целевая программа",
+            "percentage_points": "0.500"
+          },
+          {
+            "code": "BANK_CUSTOMER",
+            "label": "Исправный заёмщик нашего банка · DEMO",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "PARTNER",
+            "label": "Покупка у партнёра · заявлено клиентом · DEMO",
+            "percentage_points": "0.000"
+          }
+        ],
+        "bank_relationship_source": "DEMO_BANK_PROFILE",
+        "has_active_loan_in_our_bank": false,
+        "purchase_from_bank_partner": false,
+        "purpose_code": "INVENTORY"
+      }
+    }
+  },
+  {
+    "scenario_key": "C07_NO_CREDIT_HISTORY",
+    "company_key": "C07",
+    "requested_amount": "1000000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "MANUAL_REVIEW",
+      "routing": "MANUAL_REVIEW",
+      "risk_score": 35,
+      "reason_codes": [
+        "BORDERLINE_RISK",
+        "BUSINESS_AGE_6_11",
+        "CREDIT_HISTORY_ABSENT"
+      ],
+      "monthly_payment": "94317.79",
+      "annual_rate_percent": "23.500",
+      "pricing": {
+        "status": "PERSONALIZED",
+        "pricing_version": "demo-pricing-0.3",
+        "base_rate_percent": "20.000",
+        "minimum_rate_percent": "20.000",
+        "rate_before_discounts": "24.000",
+        "requested_discount_pp": "0.500",
+        "applied_discount_pp": "0.500",
+        "floor_adjustment_pp": "0.000",
+        "annual_rate_percent": "23.500",
+        "additions": [
+          {
+            "code": "BUSINESS_AGE",
+            "label": "Возраст бизнеса",
+            "percentage_points": "2.000"
+          },
+          {
+            "code": "CREDIT_HISTORY",
+            "label": "Кредитная история",
+            "percentage_points": "2.000"
+          },
+          {
+            "code": "INFLOW_TREND",
+            "label": "Динамика поступлений",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "TERM",
+            "label": "Срок кредита",
+            "percentage_points": "0.000"
+          }
+        ],
+        "discounts": [
+          {
+            "code": "PURPOSE",
+            "label": "Целевая программа",
+            "percentage_points": "0.500"
+          },
+          {
+            "code": "BANK_CUSTOMER",
+            "label": "Исправный заёмщик нашего банка · DEMO",
+            "percentage_points": "0.000"
+          },
+          {
+            "code": "PARTNER",
+            "label": "Покупка у партнёра · заявлено клиентом · DEMO",
+            "percentage_points": "0.000"
+          }
+        ],
+        "bank_relationship_source": "DEMO_BANK_PROFILE",
+        "has_active_loan_in_our_bank": false,
+        "purchase_from_bank_partner": false,
+        "purpose_code": "INVENTORY"
+      }
+    }
+  },
+  {
+    "scenario_key": "C08_NEGATIVE_CASHFLOW",
+    "company_key": "C08",
+    "requested_amount": "500000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "REJECTED",
+      "routing": "REJECT",
+      "risk_score": null,
+      "reason_codes": [
+        "NON_POSITIVE_CASHFLOW"
+      ],
+      "monthly_payment": null,
+      "annual_rate_percent": null,
+      "pricing": {
+        "status": "INDICATIVE",
+        "annual_rate_percent": "20.000",
+        "reason_code": "NON_POSITIVE_CASHFLOW"
+      }
+    }
+  },
+  {
+    "scenario_key": "LEGAL_BANKRUPTCY",
+    "company_key": "C143",
+    "requested_amount": "1000000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "REJECTED",
+      "routing": "REJECT",
+      "risk_score": null,
+      "reason_codes": [
+        "COMPANY_BANKRUPTCY"
+      ],
+      "monthly_payment": null,
+      "annual_rate_percent": null,
+      "pricing": {
+        "status": "INDICATIVE",
+        "annual_rate_percent": "20.000",
+        "reason_code": "COMPANY_BANKRUPTCY"
+      }
+    }
+  },
+  {
+    "scenario_key": "LEGAL_UNKNOWN",
+    "company_key": "C144",
+    "requested_amount": "1000000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "MANUAL_REVIEW",
+      "routing": "MANUAL_REVIEW",
+      "risk_score": null,
+      "reason_codes": [
+        "LEGAL_STATUS_UNCONFIRMED"
+      ],
+      "monthly_payment": null,
+      "annual_rate_percent": null,
+      "pricing": {
+        "status": "INDICATIVE",
+        "annual_rate_percent": "20.000",
+        "reason_code": "LEGAL_STATUS_UNCONFIRMED"
+      }
+    }
+  },
+  {
+    "scenario_key": "C09_BUSINESS_TOO_YOUNG",
+    "company_key": "C09",
+    "requested_amount": "500000.00",
+    "term_months": 12,
+    "purpose_code": "OTHER",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "REJECTED",
+      "routing": "REJECT",
+      "risk_score": null,
+      "reason_codes": [
+        "BUSINESS_TOO_YOUNG"
+      ],
+      "monthly_payment": null,
+      "annual_rate_percent": null,
+      "pricing": {
+        "status": "INDICATIVE",
+        "annual_rate_percent": "20.000",
+        "reason_code": "BUSINESS_TOO_YOUNG"
+      }
+    }
   }
 ]

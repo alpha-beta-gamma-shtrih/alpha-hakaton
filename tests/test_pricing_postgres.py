@@ -5,8 +5,8 @@ from alembic.config import Config
 from sqlalchemy import select
 
 from credit_cabinet.models import User
-from credit_cabinet.services.seed import import_bundle, load_bundle
-from tests.conftest import ROOT, migrate
+from credit_cabinet.services.seed import import_bundle
+from tests.conftest import ROOT, migrate, personal_bootstrap_bundle
 from tests.test_drafts import patch
 from tests.test_drafts_postgres import create
 from tests.test_drafts_postgres import postgres_app as postgres_app
@@ -38,7 +38,7 @@ def test_upgrade_filled_database_preserves_old_submission_and_adds_new_pricing(p
             command.downgrade(config, "0004_draft_archive")
         migrate(engine)
         with client.app.state.session_factory() as db:
-            import_bundle(db, load_bundle(ROOT / "demo_data/demo_0_3"))
+            import_bundle(db, personal_bootstrap_bundle())
             assert dict(db.execute(select(User.email, User.password_hash)).all()) == before
         assert client.get(f"/api/applications/{draft['id']}/revisions/1").json() == snapshot
         assert (

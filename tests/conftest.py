@@ -17,6 +17,23 @@ PASSWORD = "Test-password-only-29!"
 SEED_PASSWORD = "New-demo-password-only-26!"
 
 
+def personal_bootstrap_bundle():
+    """Pricing regression tests use stable C01/C02; full import has its own coverage."""
+    from credit_cabinet.services.seed import load_bundle
+
+    bundle = load_bundle(ROOT / "demo_data/demo_0_3")
+    keys = {"C01", "C02"}
+    bundle.companies = [row for row in bundle.companies if row.company_key in keys]
+    bundle.financials = [row for row in bundle.financials if row.company_key in keys]
+    bundle.memberships = [row for row in bundle.memberships if row.company_key in keys]
+    users = {row.user_key for row in bundle.memberships} | {"BANK_01", "BANK_02"}
+    bundle.users = [row for row in bundle.users if row.user_key in users]
+    bundle.bank_relationships = [
+        row for row in bundle.bank_relationships if row.company_key in keys
+    ]
+    return bundle
+
+
 def migrate(engine, revision="head"):
     config = Config(str(ROOT / "alembic.ini"))
     with engine.begin() as connection:

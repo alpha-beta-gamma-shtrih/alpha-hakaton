@@ -34,5 +34,2561 @@
       "as_of_date": "2026-10-01",
       "checked_at": null
     }
+  },
+  {
+    "company_key": "C03",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000003",
+      "legal_form": "OOO",
+      "registered_on": "2025-04-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C04",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000004",
+      "legal_form": "OOO",
+      "registered_on": "2023-10-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C05",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000005",
+      "legal_form": "OOO",
+      "registered_on": "2023-10-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C06",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000006",
+      "legal_form": "OOO",
+      "registered_on": "2022-10-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C07",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000007",
+      "legal_form": "IP",
+      "registered_on": "2026-02-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C08",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000008",
+      "legal_form": "OOO",
+      "registered_on": "2023-10-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C09",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000009",
+      "legal_form": "OOO",
+      "registered_on": "2026-05-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C10",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000010",
+      "legal_form": "OOO",
+      "registered_on": "2020-01-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C11",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000011",
+      "legal_form": "IP",
+      "registered_on": "2024-03-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C12",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000012",
+      "legal_form": "OOO",
+      "registered_on": "2021-06-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C13",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000013",
+      "legal_form": "OOO",
+      "registered_on": "2019-11-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C14",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000014",
+      "legal_form": "IP",
+      "registered_on": "2025-01-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C15",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000015",
+      "legal_form": "OOO",
+      "registered_on": "2018-05-20",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C16",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000016",
+      "legal_form": "OOO",
+      "registered_on": "2023-01-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C17",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000017",
+      "legal_form": "OOO",
+      "registered_on": "2022-06-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C18",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000018",
+      "legal_form": "IP",
+      "registered_on": "2024-02-20",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C19",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000019",
+      "legal_form": "OOO",
+      "registered_on": "2021-09-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C20",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000020",
+      "legal_form": "OOO",
+      "registered_on": "2020-11-12",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C21",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000021",
+      "legal_form": "OOO",
+      "registered_on": "2023-03-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C22",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000022",
+      "legal_form": "IP",
+      "registered_on": "2022-08-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C23",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000023",
+      "legal_form": "OOO",
+      "registered_on": "2024-01-30",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C24",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000024",
+      "legal_form": "OOO",
+      "registered_on": "2019-07-14",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C25",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000025",
+      "legal_form": "OOO",
+      "registered_on": "2021-12-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C26",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000026",
+      "legal_form": "IP",
+      "registered_on": "2023-05-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C27",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000027",
+      "legal_form": "OOO",
+      "registered_on": "2020-04-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C28",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000028",
+      "legal_form": "OOO",
+      "registered_on": "2022-02-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C29",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000029",
+      "legal_form": "OOO",
+      "registered_on": "2018-09-20",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C30",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000030",
+      "legal_form": "IP",
+      "registered_on": "2024-06-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C31",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000031",
+      "legal_form": "OOO",
+      "registered_on": "2021-03-12",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C32",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000032",
+      "legal_form": "OOO",
+      "registered_on": "2023-07-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C33",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000033",
+      "legal_form": "OOO",
+      "registered_on": "2020-10-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C34",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000034",
+      "legal_form": "IP",
+      "registered_on": "2022-11-30",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C35",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000035",
+      "legal_form": "OOO",
+      "registered_on": "2024-04-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C36",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000036",
+      "legal_form": "OOO",
+      "registered_on": "2019-01-20",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C37",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000037",
+      "legal_form": "OOO",
+      "registered_on": "2021-08-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C38",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000038",
+      "legal_form": "IP",
+      "registered_on": "2023-02-28",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C39",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000039",
+      "legal_form": "OOO",
+      "registered_on": "2020-05-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C40",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000040",
+      "legal_form": "OOO",
+      "registered_on": "2022-09-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C41",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000041",
+      "legal_form": "OOO",
+      "registered_on": "2024-03-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C42",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000042",
+      "legal_form": "IP",
+      "registered_on": "2021-06-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C43",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000043",
+      "legal_form": "OOO",
+      "registered_on": "2023-10-12",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C44",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000044",
+      "legal_form": "OOO",
+      "registered_on": "2020-02-28",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C45",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000045",
+      "legal_form": "OOO",
+      "registered_on": "2022-07-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C46",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000046",
+      "legal_form": "IP",
+      "registered_on": "2024-01-20",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C47",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000047",
+      "legal_form": "OOO",
+      "registered_on": "2021-04-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C48",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000048",
+      "legal_form": "OOO",
+      "registered_on": "2023-08-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C49",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000049",
+      "legal_form": "OOO",
+      "registered_on": "2020-12-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C50",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000050",
+      "legal_form": "IP",
+      "registered_on": "2022-03-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C51",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000051",
+      "legal_form": "OOO",
+      "registered_on": "2024-07-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C52",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000052",
+      "legal_form": "OOO",
+      "registered_on": "2021-01-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C53",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000053",
+      "legal_form": "OOO",
+      "registered_on": "2023-05-30",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C54",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000054",
+      "legal_form": "IP",
+      "registered_on": "2020-09-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C55",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000055",
+      "legal_form": "OOO",
+      "registered_on": "2022-04-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C56",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000056",
+      "legal_form": "OOO",
+      "registered_on": "2024-02-12",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C57",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000057",
+      "legal_form": "OOO",
+      "registered_on": "2021-07-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C58",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000058",
+      "legal_form": "IP",
+      "registered_on": "2023-11-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C59",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000059",
+      "legal_form": "OOO",
+      "registered_on": "2020-06-20",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C60",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000060",
+      "legal_form": "OOO",
+      "registered_on": "2022-10-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C61",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000061",
+      "legal_form": "OOO",
+      "registered_on": "2024-05-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C62",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000062",
+      "legal_form": "IP",
+      "registered_on": "2021-02-28",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C63",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000063",
+      "legal_form": "OOO",
+      "registered_on": "2023-09-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C64",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000064",
+      "legal_form": "OOO",
+      "registered_on": "2020-03-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C65",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000065",
+      "legal_form": "OOO",
+      "registered_on": "2022-08-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C66",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000066",
+      "legal_form": "IP",
+      "registered_on": "2024-01-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C67",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000067",
+      "legal_form": "OOO",
+      "registered_on": "2021-05-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C68",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000068",
+      "legal_form": "OOO",
+      "registered_on": "2023-02-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C69",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000069",
+      "legal_form": "OOO",
+      "registered_on": "2020-07-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C70",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000070",
+      "legal_form": "IP",
+      "registered_on": "2022-12-20",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C71",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000071",
+      "legal_form": "OOO",
+      "registered_on": "2024-04-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C72",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000072",
+      "legal_form": "OOO",
+      "registered_on": "2021-09-12",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C73",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000073",
+      "legal_form": "OOO",
+      "registered_on": "2023-06-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C74",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000074",
+      "legal_form": "IP",
+      "registered_on": "2020-11-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C75",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000075",
+      "legal_form": "OOO",
+      "registered_on": "2022-05-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C76",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000076",
+      "legal_form": "OOO",
+      "registered_on": "2024-08-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C77",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000077",
+      "legal_form": "OOO",
+      "registered_on": "2021-03-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C78",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000078",
+      "legal_form": "IP",
+      "registered_on": "2023-10-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C79",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000079",
+      "legal_form": "OOO",
+      "registered_on": "2020-04-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C80",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000080",
+      "legal_form": "OOO",
+      "registered_on": "2022-09-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C81",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000081",
+      "legal_form": "OOO",
+      "registered_on": "2024-06-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C82",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000082",
+      "legal_form": "IP",
+      "registered_on": "2021-01-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C83",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000083",
+      "legal_form": "OOO",
+      "registered_on": "2023-07-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C84",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000084",
+      "legal_form": "OOO",
+      "registered_on": "2020-02-28",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C85",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000085",
+      "legal_form": "OOO",
+      "registered_on": "2022-06-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C86",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000086",
+      "legal_form": "IP",
+      "registered_on": "2024-03-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C87",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000087",
+      "legal_form": "OOO",
+      "registered_on": "2021-08-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C88",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000088",
+      "legal_form": "OOO",
+      "registered_on": "2023-04-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C89",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000089",
+      "legal_form": "OOO",
+      "registered_on": "2020-10-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C90",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000090",
+      "legal_form": "IP",
+      "registered_on": "2022-03-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C91",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000091",
+      "legal_form": "OOO",
+      "registered_on": "2024-07-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C92",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000092",
+      "legal_form": "OOO",
+      "registered_on": "2021-05-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C93",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000093",
+      "legal_form": "OOO",
+      "registered_on": "2023-12-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C94",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000094",
+      "legal_form": "IP",
+      "registered_on": "2020-09-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C95",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000095",
+      "legal_form": "OOO",
+      "registered_on": "2022-04-12",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C96",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000096",
+      "legal_form": "OOO",
+      "registered_on": "2024-01-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C97",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000097",
+      "legal_form": "OOO",
+      "registered_on": "2021-07-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C98",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000098",
+      "legal_form": "OOO",
+      "registered_on": "2023-03-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C99",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000099",
+      "legal_form": "IP",
+      "registered_on": "2020-06-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C100",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000100",
+      "legal_form": "OOO",
+      "registered_on": "2022-11-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C101",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000101",
+      "legal_form": "OOO",
+      "registered_on": "2024-05-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C102",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000102",
+      "legal_form": "OOO",
+      "registered_on": "2021-02-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C103",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000103",
+      "legal_form": "IP",
+      "registered_on": "2023-08-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C104",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000104",
+      "legal_form": "OOO",
+      "registered_on": "2020-04-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C105",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000105",
+      "legal_form": "OOO",
+      "registered_on": "2022-09-12",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C106",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000106",
+      "legal_form": "OOO",
+      "registered_on": "2024-06-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C107",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000107",
+      "legal_form": "IP",
+      "registered_on": "2021-03-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C108",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000108",
+      "legal_form": "OOO",
+      "registered_on": "2023-10-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C109",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000109",
+      "legal_form": "OOO",
+      "registered_on": "2020-07-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C110",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000110",
+      "legal_form": "OOO",
+      "registered_on": "2022-04-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C111",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000111",
+      "legal_form": "IP",
+      "registered_on": "2024-01-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C112",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000112",
+      "legal_form": "OOO",
+      "registered_on": "2021-08-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C113",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000113",
+      "legal_form": "OOO",
+      "registered_on": "2023-05-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C114",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000114",
+      "legal_form": "OOO",
+      "registered_on": "2020-12-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C115",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000115",
+      "legal_form": "IP",
+      "registered_on": "2022-07-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C116",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000116",
+      "legal_form": "OOO",
+      "registered_on": "2024-04-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C117",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000117",
+      "legal_form": "OOO",
+      "registered_on": "2021-01-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C118",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000118",
+      "legal_form": "OOO",
+      "registered_on": "2023-09-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C119",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000119",
+      "legal_form": "IP",
+      "registered_on": "2020-06-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C120",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000120",
+      "legal_form": "OOO",
+      "registered_on": "2022-03-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C121",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000121",
+      "legal_form": "OOO",
+      "registered_on": "2024-08-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C122",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000122",
+      "legal_form": "OOO",
+      "registered_on": "2021-05-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C123",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000123",
+      "legal_form": "IP",
+      "registered_on": "2023-02-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C124",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000124",
+      "legal_form": "OOO",
+      "registered_on": "2020-10-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C125",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000125",
+      "legal_form": "OOO",
+      "registered_on": "2022-07-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C126",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000126",
+      "legal_form": "OOO",
+      "registered_on": "2024-04-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C127",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000127",
+      "legal_form": "IP",
+      "registered_on": "2021-01-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C128",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000128",
+      "legal_form": "OOO",
+      "registered_on": "2023-08-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C129",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000129",
+      "legal_form": "OOO",
+      "registered_on": "2020-05-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C130",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000130",
+      "legal_form": "OOO",
+      "registered_on": "2022-02-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C131",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000131",
+      "legal_form": "IP",
+      "registered_on": "2024-09-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C132",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000132",
+      "legal_form": "OOO",
+      "registered_on": "2021-06-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C133",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000133",
+      "legal_form": "OOO",
+      "registered_on": "2023-03-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C134",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000134",
+      "legal_form": "OOO",
+      "registered_on": "2020-11-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C135",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000135",
+      "legal_form": "IP",
+      "registered_on": "2022-08-22",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C136",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000136",
+      "legal_form": "OOO",
+      "registered_on": "2024-05-05",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C137",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000137",
+      "legal_form": "OOO",
+      "registered_on": "2021-02-18",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C138",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000138",
+      "legal_form": "OOO",
+      "registered_on": "2023-09-25",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C139",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "000000000139",
+      "legal_form": "IP",
+      "registered_on": "2020-06-10",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C140",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000140",
+      "legal_form": "OOO",
+      "registered_on": "2022-03-15",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C141",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000141",
+      "legal_form": "OOO",
+      "registered_on": "2025-04-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C142",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000142",
+      "legal_form": "OOO",
+      "registered_on": "2025-04-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C143",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000143",
+      "legal_form": "OOO",
+      "registered_on": "2022-10-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": true
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C144",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000144",
+      "legal_form": "OOO",
+      "registered_on": "2022-10-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": null
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
   }
 ]

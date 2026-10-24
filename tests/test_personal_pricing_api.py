@@ -8,8 +8,8 @@ from sqlalchemy import select
 from credit_cabinet.integrations.fixtures import FixtureSources
 from credit_cabinet.models import Company, User
 from credit_cabinet.services.policy import annuity
-from credit_cabinet.services.seed import import_bundle, load_bundle
-from tests.conftest import ROOT, csrf_headers, login
+from credit_cabinet.services.seed import import_bundle
+from tests.conftest import ROOT, csrf_headers, login, personal_bootstrap_bundle
 from tests.test_drafts import new_draft, patch
 from tests.test_submissions import send
 
@@ -19,7 +19,7 @@ def personal(seeded):
     directory = ROOT / "demo_data/demo_0_3"
     with seeded.state.session_factory() as db:
         before = dict(db.execute(select(User.email, User.password_hash)).all())
-        import_bundle(db, load_bundle(directory))
+        import_bundle(db, personal_bootstrap_bundle())
         assert dict(db.execute(select(User.email, User.password_hash)).all()) == before
     seeded.state.settings.demo_dataset_dir = directory
     seeded.state.sources = FixtureSources(directory)
@@ -167,7 +167,7 @@ def test_legacy_submission_stays_fixed_and_legacy_draft_can_finish(seeded, clien
     # OTHER is outside the legacy product: draft storage is allowed, submit must validate.
     old_draft = patch(client, old_draft, purpose_code="INVENTORY").json()
     with seeded.state.session_factory() as db:
-        import_bundle(db, load_bundle(ROOT / "demo_data/demo_0_3"))
+        import_bundle(db, personal_bootstrap_bundle())
     assert (
         send(client, old_draft).json()["application"]["decision"]["annual_rate_percent"] == "24.000"
     )
