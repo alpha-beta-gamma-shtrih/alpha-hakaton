@@ -1,4 +1,4 @@
-SCHEMA_REVISION = "0004_draft_archive"
+SCHEMA_REVISION = "0005_personal_pricing"
 SESSION_COOKIE = "credit_session"
 LOGIN_COOKIE = "credit_login"
 CSRF_HEADER = "X-CSRF-Token"

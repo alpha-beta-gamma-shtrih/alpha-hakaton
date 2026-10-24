@@ -1,7 +1,16 @@
 from datetime import date, datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text, UniqueConstraint, extract
+from sqlalchemy import (
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    String,
+    Text,
+    UniqueConstraint,
+    extract,
+    false,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from credit_cabinet.db.base import Base, IdentityMixin, UpdatedMixin, UTCDateTime
@@ -48,6 +57,7 @@ class Company(IdentityMixin, UpdatedMixin, Base):
     okved_code: Mapped[str] = mapped_column(String(16))
     region_code: Mapped[str] = mapped_column(String(8))
     business_description: Mapped[str | None] = mapped_column(Text)
+    has_active_loan_in_our_bank: Mapped[bool] = mapped_column(default=False, server_default=false())
     __table_args__ = (
         CheckConstraint(
             "(legal_form = 'IP' AND length(inn) = 12) OR (legal_form = 'OOO' AND length(inn) = 10)",

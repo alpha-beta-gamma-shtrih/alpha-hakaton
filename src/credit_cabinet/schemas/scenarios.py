@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from credit_cabinet.models.enums import Routing
 from credit_cabinet.schemas.business import (
@@ -18,6 +18,7 @@ class ScenariosRequest(StrictModel):
 
 
 class CandidateResponse(BaseModel):
+    pricing: dict = Field(default_factory=dict)
     candidate_id: Literal["REQUESTED", "LOWER_AMOUNT", "LONGER_TERM"]
     requested_amount: MoneyOutput
     term_months: int
