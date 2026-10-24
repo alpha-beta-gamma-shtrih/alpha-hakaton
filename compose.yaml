@@ -104,8 +104,6 @@ services:
 
   backend:
     image: credit-cabinet-app:local
-    ports:
-      - "${BACKEND_PORT:-8000}:8000"
     environment: *backend-environment
     volumes:
       - documents-data:/app/.data/documents
