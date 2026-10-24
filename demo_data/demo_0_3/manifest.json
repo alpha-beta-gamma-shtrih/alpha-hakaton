@@ -2,7 +2,7 @@
   "schema_version": 2,
   "dataset_version": "demo-0.3",
   "policy_version": "demo-policy-0.3",
-  "subset": "C01_C02_BOOTSTRAP",
+  "subset": "FULL",
   "seed": 42,
   "calculation_date": "2026-10-01",
   "financial_months": [
@@ -20,20 +20,304 @@
   },
   "company_keys": [
     "C01",
-    "C02"
+    "C02",
+    "C03",
+    "C04",
+    "C05",
+    "C06",
+    "C07",
+    "C08",
+    "C09",
+    "C10",
+    "C11",
+    "C12",
+    "C13",
+    "C14",
+    "C15",
+    "C16",
+    "C17",
+    "C18",
+    "C19",
+    "C20",
+    "C21",
+    "C22",
+    "C23",
+    "C24",
+    "C25",
+    "C26",
+    "C27",
+    "C28",
+    "C29",
+    "C30",
+    "C31",
+    "C32",
+    "C33",
+    "C34",
+    "C35",
+    "C36",
+    "C37",
+    "C38",
+    "C39",
+    "C40",
+    "C41",
+    "C42",
+    "C43",
+    "C44",
+    "C45",
+    "C46",
+    "C47",
+    "C48",
+    "C49",
+    "C50",
+    "C51",
+    "C52",
+    "C53",
+    "C54",
+    "C55",
+    "C56",
+    "C57",
+    "C58",
+    "C59",
+    "C60",
+    "C61",
+    "C62",
+    "C63",
+    "C64",
+    "C65",
+    "C66",
+    "C67",
+    "C68",
+    "C69",
+    "C70",
+    "C71",
+    "C72",
+    "C73",
+    "C74",
+    "C75",
+    "C76",
+    "C77",
+    "C78",
+    "C79",
+    "C80",
+    "C81",
+    "C82",
+    "C83",
+    "C84",
+    "C85",
+    "C86",
+    "C87",
+    "C88",
+    "C89",
+    "C90",
+    "C91",
+    "C92",
+    "C93",
+    "C94",
+    "C95",
+    "C96",
+    "C97",
+    "C98",
+    "C99",
+    "C100",
+    "C101",
+    "C102",
+    "C103",
+    "C104",
+    "C105",
+    "C106",
+    "C107",
+    "C108",
+    "C109",
+    "C110",
+    "C111",
+    "C112",
+    "C113",
+    "C114",
+    "C115",
+    "C116",
+    "C117",
+    "C118",
+    "C119",
+    "C120",
+    "C121",
+    "C122",
+    "C123",
+    "C124",
+    "C125",
+    "C126",
+    "C127",
+    "C128",
+    "C129",
+    "C130",
+    "C131",
+    "C132",
+    "C133",
+    "C134",
+    "C135",
+    "C136",
+    "C137",
+    "C138",
+    "C139",
+    "C140",
+    "C141",
+    "C142",
+    "C143",
+    "C144"
   ],
   "files": {
-    "companies.csv": "82b16f79f506472e91ebc782c6eed43c4aaf7d0c38635ebb99b52b729487d6a0",
-    "financial_months.csv": "d02d0e09c05e2988c0c2e01438cc0df44bc020d16b679abd4710ac80adc0bcdc",
-    "memberships.csv": "7818ffdb4b2061ec626b3d13d83efda4504080ad80313dfb86b26c6c6d9e61a9",
-    "demo_users.json": "ab1b2aaae6f84f521a4b5e781d8773d32334fe140d020e73c11022ff5ecd7ab6",
+    "bank_relationships.json": "1194eeab8734c5be1abebb0e0db2ee41c8c187720527810e8c07401819831203",
+    "bki_responses.json": "2d5a9f511e9cfd09c881353292732ad40c0d6f8dc29bbcdc411babf8a534a97a",
+    "companies.csv": "e28aa1ab1fa3588f8791ee29636527e90cafa42ad68806267eab80b74bc3500c",
     "credit_products.json": "b7f5862a5010e639732b13f37a3924a9fe72526e5a08c036afcd08ec09462d57",
-    "fns_responses.json": "09b7c5e7ac54b7292aef67335388e8188075c5bfff78a8f4f34eeef65840e5a8",
-    "bki_responses.json": "1e2d2973725296789db9463285dd4d3f9af1aea7b77463fc4ea0a8e9f28eb912",
-    "scenarios.json": "079556ab9b9a4f14696114c21081c8f45230c770df4dfdd505c648ae0227baa0",
+    "demo_users.json": "e4f5d666e3e45095d549898087e31251ad3fcdb2d48f984d57350c1f9e3519d0",
     "documents/C01.csv": "ad4fb6bb15bf36c1003978f11a1c9b7c06f25c79b2c95b3157023e40b83b3d20",
     "documents/C02.csv": "948672fff2b8a94b02bf7102d3788295192f8764f2396bdbb1f1b93a7de6c263",
-    "bank_relationships.json": "69499787147ce5c1cce86f60f090a51f7c322e2bdab973c2e3dac62724f6264c"
+    "documents/C03.csv": "2a6296471b6caa6b8e89eed606cc238a3355f02d1ef46274c8048ed453ec9c39",
+    "documents/C04.csv": "e23f7b63b4d72f0e8373fd8685ba5a500090abb8308b30534217d9aacf0859db",
+    "documents/C05.csv": "a0ba5b157022b22a1712b60d6cae10ee80843f857ec3bdc7d6aed1862137ff02",
+    "documents/C06.csv": "e38a7a4cc7f35dd5f4f49838c5bb025383bb7c98b0b96ca728a6e0459ff6f84c",
+    "documents/C07.csv": "86fbd1f4b1723f6209c8e6b394507a76faecd516c844904e777005556cf20c2d",
+    "documents/C08.csv": "68c348a450805be9963d8a575570d20367377ee643e14391db56af26a1ab7275",
+    "documents/C09.csv": "a908a8a9a2119639316bad8bdcb2738268b8e454e45c1d05061be74e702fe935",
+    "documents/C10.csv": "fb656f4879eae4d40c7fd8014ec7f1a5d8933d8cc61bf5c92c1b40d5216c083d",
+    "documents/C100.csv": "f9fa6f235726e96d9c35abff8e9f5a491cde71590bba1ebde73580ad11abbdb3",
+    "documents/C101.csv": "82e1a436ad865a8f1de436d04fb691d959a14f6a25954f62f6689f627cb2aa67",
+    "documents/C102.csv": "d15919f1863dcd0bae73de8d681b5d7c5375bb346a2f83263b0fce54454e0258",
+    "documents/C103.csv": "591c9e72ac1f4fcbfc9f537e423fd576fabb7a4f304a6d3267d7732b83e4ab5a",
+    "documents/C104.csv": "4e6aeb1b9ba5c57e4c45414f5588d0d4799a0cffe2036b9104c902b3e6a0fd7c",
+    "documents/C105.csv": "aa084f4c06e0d6b3cbb8b95cdcc2ba5bebaa7b7ec74c94ba9744db5c735dee69",
+    "documents/C106.csv": "1fa474bcce1bd4cdc17884f34559cc64f5ddae7acd7b49a53478007a169bc462",
+    "documents/C107.csv": "74c2ff4abca9b8823e422c83a740982f0cdab935dc1c4da5cd2f0d3f5bd42c9c",
+    "documents/C108.csv": "9b4381f52c35787865cbdfe965191b96e6565ffbf56038a96d21b0e140ca2cca",
+    "documents/C109.csv": "567677b87bb3920a1763ce95868f4d5a49b10359bdeb420a801df712933e6d8c",
+    "documents/C11.csv": "d232afad58f5d0d834ec2ad700500302fff618a19c9d91594192bdc647f7a9cf",
+    "documents/C110.csv": "1afc465ae21d4d42269f7e875f521ee1445d934bf2fbb0a05aef331140eb18a8",
+    "documents/C111.csv": "0ef7d5d42c19d3045d39337543d275d0c5517a11ba963af45bfc4953def0c9a8",
+    "documents/C112.csv": "4cd60b93789de645fcee5f383581aea1cc62f837b041e074bdb4c4181f0fb237",
+    "documents/C113.csv": "9b740a9889e743cc64627d21df1cc06193aa2524eb0ed452c22aea4c3496ad9f",
+    "documents/C114.csv": "9defd2f4fee326032ff5d846be8840ca7399f58353bf500897f9d83d5fd23642",
+    "documents/C115.csv": "4d20d843dc9a604e18f39dc085ebdd4bd2b6b23d36424853326832dcb38592bb",
+    "documents/C116.csv": "8b14acd654ec026e8b5f5d1cbc2090bebcca65f0dd38ca34bec0c4dd30268f4c",
+    "documents/C117.csv": "5816e1c3bdf40d3a90a7727e0f2851e2c0acbac976f38ef2a71a1f141f2c9b67",
+    "documents/C118.csv": "aa00facfd63e013d318bc5e113d348fdf41be65259795d5efd4767101d312c57",
+    "documents/C119.csv": "96a36e065dddf4d2dcc65219d5a92b90e3998208c8be98439a98d6eda1b2a78b",
+    "documents/C12.csv": "54a1fea773958242e38fb64ff2ccbfdb53ba0fb55af98148170d3673b572a6ce",
+    "documents/C120.csv": "537bda2597fcc356cc6c0914087d9bf5e87c603ece102a8c1b6f98c0d7596342",
+    "documents/C121.csv": "fff50a5c24a8709f67a551c1c4f6c87834c58b9d81f1f4851ee670a5e9a1b0e2",
+    "documents/C122.csv": "ac6a0299906c6e74194bfecc26f2abe4c124ecdcba138a189928502f1bd9dcd4",
+    "documents/C123.csv": "392307e7666f1000cb7e3d244b2153e65e3cee73c5508df62bd9dc95acb29327",
+    "documents/C124.csv": "146bc59e1ae5749443cb7153a08c226a535693bff1b110cd873b18006431d955",
+    "documents/C125.csv": "5d754a7b796d342f6c5fff39f9050b766c5e693e8efaaba3c720cfc63b9848cd",
+    "documents/C126.csv": "db6af1f799fe34cd127b767e035504e79ddfc2229ba990695d2391ea7f1c0414",
+    "documents/C127.csv": "89e14a390694f8d5da194e04850440e4f20e79a5649dade2b826fa21a58b710d",
+    "documents/C128.csv": "1cc37546e26569dbd30f3778068ff5100f566cde938edfde9aaf1a334907ca5b",
+    "documents/C129.csv": "855381dd712fc27a05eacf5ed512421ca2f2dcd870cd774dc294d6f1b3eddd30",
+    "documents/C13.csv": "dfc851f4875033fd45e5144d94238c1e48123388b58e55c3f30fde803400aa30",
+    "documents/C130.csv": "ce6a1f172ac568d13157b80154e1944ff2e5ba748b2fadff9beeb28f7d66f45e",
+    "documents/C131.csv": "9cb4e0f71b43be83dd3760f5aa91dc2c99021ff1ce263228059b1084fcefbb9d",
+    "documents/C132.csv": "c3e4f840b38a96e05ccb3ef1e4ba5f43b5b5c9a218761e880a07e252919cc7bb",
+    "documents/C133.csv": "bde05bb94528648790fe9bbe7338a252b39eb32e67f765bc441e416d0b03b9c4",
+    "documents/C134.csv": "3ee2d25138144e2d04e32e79b0ced1578d7416b72a81a89908c101ed6b246219",
+    "documents/C135.csv": "93b75875314779b5fdd77b6067961afff721d0b87abcd681cb2790238a9f8c6c",
+    "documents/C136.csv": "46e76b9292e01e41b75a1646eb4e58e017d381cd5b37cb56d388580395d94e50",
+    "documents/C137.csv": "4547b25434dba5ff6050a2c73d59eb6c72d9084876d0767445920e47f7406d64",
+    "documents/C138.csv": "e80ffabcbf3061bffe4bf952609de81da71b1e62a4356b1fcea225d81974b198",
+    "documents/C139.csv": "77019a8c702bf512a692263be4c069adf6b20c504bfc4079e2131755609ff3b3",
+    "documents/C14.csv": "ddea5849453cf53dbb97624ebfcc3a8377dbcc132fec2e5ee60c1a08d32fbd55",
+    "documents/C140.csv": "61bff37f960b89ad01b10992bbd186038d19373650efff5f60c90db1d86928c5",
+    "documents/C141.csv": "3be8bc444de3f146bc62413d49cc2d0662938414265294e8d13a0dcec147b811",
+    "documents/C142.csv": "d6926e33571bc80bcb215c230f0a945fefbbe6c98ff63c8f261c4f69e006c9c1",
+    "documents/C143.csv": "f700395b5570cc83987ec880bd85783978f6a3dd643d2ff1875c842ff6240f45",
+    "documents/C144.csv": "7e9b47710442af9c5941b742e71a3d9760baf8986ce0f75a05f225efd813f978",
+    "documents/C15.csv": "249f43d2657c9abae163a644a613f97a6fc264eba6d385b348e5f56fead69e9c",
+    "documents/C16.csv": "a17c5c9ed073838bbffd050eebfbf8100e35b1aaeac15c1abb09a279dc9aaa60",
+    "documents/C17.csv": "c9e1a81296ffb8b4013c235b55904f588bb81a21ee06fc83609b9c4a13579ce9",
+    "documents/C18.csv": "9e2bf1143c410266429594bf0a1a45f558e3d1ed9b4a3a0dafe65b37816b7b88",
+    "documents/C19.csv": "35326395fb896850244aaf5878315b0941a14d39cfc7edaf35fed484aef427f8",
+    "documents/C20.csv": "e0a85fec05f9440928432de0eb29fcb1e4697bf6c9f4f8f4e9d016227e6f459c",
+    "documents/C21.csv": "a036ee86c65b2bbbce40307037a95f1e6ed553b03948d30bd02cb4b7c50c70e6",
+    "documents/C22.csv": "d59b2fbb36b50a12163ee54a1efd29fcbe280981c1b4251cc37ce676d67c27fc",
+    "documents/C23.csv": "40a5b4963861ddb7726b04374eeb76036dc97b19d4d6f223f4b498db4b48eb86",
+    "documents/C24.csv": "ca5602eb61dea78362cffd40dffe8e1bcd6ddd8380df9247822f198e024c807d",
+    "documents/C25.csv": "861d6e47296f2b5aa7e3d6d6bad132edf06f310b7c8886c9813772452ec1b27a",
+    "documents/C26.csv": "9649e9bd18c9f9e357a61ff219544abc47c841f8f6b4c6ec93f9435cfbbcf019",
+    "documents/C27.csv": "588653a0d51cc44ab0d97a3d28cd22012b0a85d0a203a9206ca62f7346b9bbdd",
+    "documents/C28.csv": "472df13b89fb76bb00db2d1666bca777fe4440b2eda5d3691f9cf72e99836f49",
+    "documents/C29.csv": "062feffda34b559b3ca6800464502968ec658e6edc85574a2766abe24d43dcbb",
+    "documents/C30.csv": "c9c7bea15f4b4df86b6ae32ba3cada011d2fffd797bade58fbb40bf41d5cab0f",
+    "documents/C31.csv": "60454087a8f6caabe8b24a18503c5c0fb93ed5c06283508161ab3cd98823a04c",
+    "documents/C32.csv": "106093de19603aa93318057934f1413935303ee9bfa9262ba1908ca623a7fa6a",
+    "documents/C33.csv": "97b1a0ad3bfb283de2a050951de69bcad7acc4a4b933e162017b9a21d2b14b39",
+    "documents/C34.csv": "03064be4158bbc7d86f8fa9bdab0b1dc36a15dd30efee861e242bd293125e0b8",
+    "documents/C35.csv": "748f3ead505de2ffe20a0cb120864fe19e97a094b3d6e2c2eed83a642ca89503",
+    "documents/C36.csv": "f255c9e1106685222a7012e09e20d7f4e1abecbcf8f70adb01eb364b5fcfdd91",
+    "documents/C37.csv": "a0820ab113a85d12ccc60ee3ef3a8458303e8ab23f99cf95b63b39b8b826008c",
+    "documents/C38.csv": "ba592a9695af4d0d78148e1c472161bdea8e58999d9f8e132d5073f22046e0fc",
+    "documents/C39.csv": "3104f4dbd4371ccf9ada2648cbabdc0d2a52fd0205d7492e5fc95bec59d28835",
+    "documents/C40.csv": "af7d8fddf81b3468a469301b6b2a231eea9641ee27587ae0ed01419fb62e131e",
+    "documents/C41.csv": "4a0ac603c805f189c6650562ba4040a13610f82d5769834a0405cb5e67a02437",
+    "documents/C42.csv": "0ea8d128853e3d337c74d427a935cc0bb4be6d53d7408be42f7782ef21ccbb20",
+    "documents/C43.csv": "a18e4219bff2eb93f67ff2baa8487131258c00c28bd267a2cddda4052b01dcc8",
+    "documents/C44.csv": "dd35000bb2a07afb26898db12cc3b905c9495cdb411c277a9ab77f31f10934f9",
+    "documents/C45.csv": "c599b112c545be8975f550199455fe1eb13ea8cab8b1fd4cf115e14da153787e",
+    "documents/C46.csv": "14f5c4effd99f8686fe18ea18f99008f9deb9e3a47d7a751b1c77e0dd85eed1b",
+    "documents/C47.csv": "f3878cc0f731d1a00a302ac1d80d9a3fa4543493474624a62a62bda0778ad266",
+    "documents/C48.csv": "57126039c72279537c703b30714429cabc13608863fb7dac23c6af8e46a94390",
+    "documents/C49.csv": "8bcdb407b9f1bdec600cc4f2391d452e45dfaba987bbcb80edb9f421a749fc59",
+    "documents/C50.csv": "773ce1a2410f92a8db485cf634410a908a9ef1e86ebd7e47c3c990ab1ebd01b5",
+    "documents/C51.csv": "8d1ee292c903410bf90092eefa85864fd5a0bb28e0bd68b104a66bf4a72a0174",
+    "documents/C52.csv": "a62625124c5686041a396f94d4974d563ba6f319fa2ed0406dbf92bb07c47605",
+    "documents/C53.csv": "36d0834a54a19b29694515cf6db5eaed7a4561c3d9efe8685d2e38532c602d18",
+    "documents/C54.csv": "c9c76d1e795e47d9750cea5239e995d99775805fc5db9af8cdd900b1af8be8c8",
+    "documents/C55.csv": "cb53fc1700c485acfd059ae4fbff500706dd0e118d886390d10eb6f92ba607e8",
+    "documents/C56.csv": "d3858a71fad3b5bd1ff6392b4dc94c143bb9475ce0dc435328b180e88445bf80",
+    "documents/C57.csv": "8854deafe94f84e496ca0097cc4242f65ba17e5cd0017771f0fa1bd376bb5a03",
+    "documents/C58.csv": "8fa20e06a5819e8846105f5b560c71590e69f8aa072e6070f563420175ff1980",
+    "documents/C59.csv": "8160d7c5f700e2ef72ddc744e0e77cbd433d523045431d3e429f268fde009b30",
+    "documents/C60.csv": "1caf20caac422e3ffc4c67e87020d90a907fe611d93ae743f7e5906b145e76cd",
+    "documents/C61.csv": "69fa49a5afe3cd0880b37cf4ca41dbb07d475aebe4a02862ba2ba6bd02728420",
+    "documents/C62.csv": "20268f0b37f73fec7a98a25997374222c3ddfcce50b16b5e7242f59c8ec7fba9",
+    "documents/C63.csv": "d19dbb988a4291013dd9e288018eee55c6d7864ce3ec72f8a445f93be01a95ce",
+    "documents/C64.csv": "4c7b0b92b7eab7c6493817fa3c122c2e1f8197a21569828baba115ddda8db7f5",
+    "documents/C65.csv": "2322e21c3029c62b45077f5ed15f7b0481db23c4880c53a9f08bda28dbf194bd",
+    "documents/C66.csv": "f1a6189877d35573539c7f2ea3221fe5eb9355d75af5dd432b8d54f24a6e5e12",
+    "documents/C67.csv": "04bad700dcfcb254f22e94753c5316df218d4883f2edfdcaab987a1d547d2871",
+    "documents/C68.csv": "53242195d420ed3caf563b67339daa66a9fb02ba80b11f928f3abdab325d09f4",
+    "documents/C69.csv": "0b8ff1c64701c3e8a7e73032f53225e5a37a077056dd50ec74d32b825fb98ba3",
+    "documents/C70.csv": "6a228776a5475e3e5c2cfaee7b9aea6bd4008c2c28c6f8b0afb834e8154b048c",
+    "documents/C71.csv": "eaa691d631c62d6a530afda7afa92d471631d03c913fec97ab99dfd0679a0ab8",
+    "documents/C72.csv": "1dc5e5e15cdb7a22947dc3bcff112f211b95b04fdb99ae8d52b7cb71eb372d53",
+    "documents/C73.csv": "4f35b093ecdc67a59f0364cd180a853afb5528b420074205b2e0a545aefc00ac",
+    "documents/C74.csv": "8b0d9f12b8f4ddd54bfadbb24c3dce965499d74ce98c85b951a62a0654e11634",
+    "documents/C75.csv": "f9206c2f511656d50742e2e97d31de488aa55636f7c15c43705c19923c6af82f",
+    "documents/C76.csv": "a71720094a023423ff6eeb4435e39afda7df020d10cdecbfc76d18f664ff2d22",
+    "documents/C77.csv": "385f72b03672c153d6cfebfb6f7bd8e771f45d91a7c8247fe1cc20eabc9c8262",
+    "documents/C78.csv": "09af1cd71b4fe64b1afd38240dfd8f20f2505a154d78ac0c66368243faddcb9d",
+    "documents/C79.csv": "7f53d768930f2cc48a47a592be840f5aeb4548c2ac278c2eb77f9e554e9616a9",
+    "documents/C80.csv": "a053739128e00f623a455729f51a31ffab2c74061a85664a5525dbf29a633bf4",
+    "documents/C81.csv": "3776f10d843a8240390e1644a3c0087ef486856d013bcb3d3abddd80d9560adc",
+    "documents/C82.csv": "464714ccef7b9036640f7353ba91b719de3b8d3f09235f819415372926edbf8d",
+    "documents/C83.csv": "cba8537afd53c7810c864595b4effc6a4b816f6766fb419debb60c3d41d66292",
+    "documents/C84.csv": "484cadc58629a026fb7242f55d4f983d6d88448e64116b48b77ae15dc8266edd",
+    "documents/C85.csv": "14555c2e7125e901d7fed1fdefe10f0d6e35770d7709524d7913c26efa975bc0",
+    "documents/C86.csv": "822e76341800b7bac62808c851f09a0eb125c05f7e92ebfca9fc1ed62b4e1807",
+    "documents/C87.csv": "833c2a62a96e3860b11188d129b7a5b7549fc9b9f40fa0ba08919ede0cabd96d",
+    "documents/C88.csv": "7cc914f31097abc49a859e469db4004d4242684265afe31100cd63eddd41fc4a",
+    "documents/C89.csv": "ce64b5c1786eaf1cfd4d31b6f526c5a0c0bfcddd8c7aaff81150669b0ee3b45b",
+    "documents/C90.csv": "c0b570ec9e2d2d85084b7eb04e39b118bc2b727b239485355193098adc8bb2d8",
+    "documents/C91.csv": "8656cf184d52c1e7615c78788b49678af9ecd4bc1ce5528d24cb9a1e4d467658",
+    "documents/C92.csv": "8f9db0ac8d6c544fe7e0cb788903850f7bdfc88841556e1d9e3e85b26218a32c",
+    "documents/C93.csv": "fadf845fb14928a45409c8eb1237a87c0ff75ae456cb381303a4aa6396e450f1",
+    "documents/C94.csv": "b959a92279a915b702f3842443a46223712cd3ae09ce779e9079fd35c17cdeb7",
+    "documents/C95.csv": "dc4b2b8ef0142863be2bee4290e42fdcdca4ebd759dd4e7c7d88bce8760e0f9b",
+    "documents/C96.csv": "2ff7fe297ed4b36d6b917daa83d3771271926e2a345bcd6c2db1af0620163934",
+    "documents/C97.csv": "fbe5a1a45d24e6e8b99eb4ded7034ade577e7c05821f81038f32e39c5f63a4c9",
+    "documents/C98.csv": "7b34d1dfdf7d888de61b33c3245577f163e497df3bf317912856014dcc48d195",
+    "documents/C99.csv": "a68c2b0bc984449c9c41dfcf158a12743cab89592239ac0d9e41f919e819cb59",
+    "financial_months.csv": "56bad8e86823304761f8b993d36e3b4ec2f6128e222c2ad16c46c3295146d1b5",
+    "fns_responses.json": "60dcc480f84118d697236caf711c6cda886f04797a961051e16bf66830531e70",
+    "memberships.csv": "abffef7518116c4ef5839eae0e22e51803c41aca4fae2fa1e9a5f842a0e04a1a",
+    "scenarios.json": "dc91b5fd8c64538a265ec8f8d674921c775da7f9554ca1e4a6d2fda93b9f0b17"
   },
   "document_templates": [
     {
@@ -47,6 +331,858 @@
       "kind": "FINANCIAL_STATEMENT",
       "path": "documents/C02.csv",
       "content_sha256": "948672fff2b8a94b02bf7102d3788295192f8764f2396bdbb1f1b93a7de6c263"
+    },
+    {
+      "company_key": "C03",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C03.csv",
+      "content_sha256": "2a6296471b6caa6b8e89eed606cc238a3355f02d1ef46274c8048ed453ec9c39"
+    },
+    {
+      "company_key": "C04",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C04.csv",
+      "content_sha256": "e23f7b63b4d72f0e8373fd8685ba5a500090abb8308b30534217d9aacf0859db"
+    },
+    {
+      "company_key": "C05",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C05.csv",
+      "content_sha256": "a0ba5b157022b22a1712b60d6cae10ee80843f857ec3bdc7d6aed1862137ff02"
+    },
+    {
+      "company_key": "C06",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C06.csv",
+      "content_sha256": "e38a7a4cc7f35dd5f4f49838c5bb025383bb7c98b0b96ca728a6e0459ff6f84c"
+    },
+    {
+      "company_key": "C07",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C07.csv",
+      "content_sha256": "86fbd1f4b1723f6209c8e6b394507a76faecd516c844904e777005556cf20c2d"
+    },
+    {
+      "company_key": "C08",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C08.csv",
+      "content_sha256": "68c348a450805be9963d8a575570d20367377ee643e14391db56af26a1ab7275"
+    },
+    {
+      "company_key": "C09",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C09.csv",
+      "content_sha256": "a908a8a9a2119639316bad8bdcb2738268b8e454e45c1d05061be74e702fe935"
+    },
+    {
+      "company_key": "C10",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C10.csv",
+      "content_sha256": "fb656f4879eae4d40c7fd8014ec7f1a5d8933d8cc61bf5c92c1b40d5216c083d"
+    },
+    {
+      "company_key": "C11",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C11.csv",
+      "content_sha256": "d232afad58f5d0d834ec2ad700500302fff618a19c9d91594192bdc647f7a9cf"
+    },
+    {
+      "company_key": "C12",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C12.csv",
+      "content_sha256": "54a1fea773958242e38fb64ff2ccbfdb53ba0fb55af98148170d3673b572a6ce"
+    },
+    {
+      "company_key": "C13",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C13.csv",
+      "content_sha256": "dfc851f4875033fd45e5144d94238c1e48123388b58e55c3f30fde803400aa30"
+    },
+    {
+      "company_key": "C14",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C14.csv",
+      "content_sha256": "ddea5849453cf53dbb97624ebfcc3a8377dbcc132fec2e5ee60c1a08d32fbd55"
+    },
+    {
+      "company_key": "C15",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C15.csv",
+      "content_sha256": "249f43d2657c9abae163a644a613f97a6fc264eba6d385b348e5f56fead69e9c"
+    },
+    {
+      "company_key": "C16",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C16.csv",
+      "content_sha256": "a17c5c9ed073838bbffd050eebfbf8100e35b1aaeac15c1abb09a279dc9aaa60"
+    },
+    {
+      "company_key": "C17",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C17.csv",
+      "content_sha256": "c9e1a81296ffb8b4013c235b55904f588bb81a21ee06fc83609b9c4a13579ce9"
+    },
+    {
+      "company_key": "C18",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C18.csv",
+      "content_sha256": "9e2bf1143c410266429594bf0a1a45f558e3d1ed9b4a3a0dafe65b37816b7b88"
+    },
+    {
+      "company_key": "C19",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C19.csv",
+      "content_sha256": "35326395fb896850244aaf5878315b0941a14d39cfc7edaf35fed484aef427f8"
+    },
+    {
+      "company_key": "C20",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C20.csv",
+      "content_sha256": "e0a85fec05f9440928432de0eb29fcb1e4697bf6c9f4f8f4e9d016227e6f459c"
+    },
+    {
+      "company_key": "C21",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C21.csv",
+      "content_sha256": "a036ee86c65b2bbbce40307037a95f1e6ed553b03948d30bd02cb4b7c50c70e6"
+    },
+    {
+      "company_key": "C22",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C22.csv",
+      "content_sha256": "d59b2fbb36b50a12163ee54a1efd29fcbe280981c1b4251cc37ce676d67c27fc"
+    },
+    {
+      "company_key": "C23",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C23.csv",
+      "content_sha256": "40a5b4963861ddb7726b04374eeb76036dc97b19d4d6f223f4b498db4b48eb86"
+    },
+    {
+      "company_key": "C24",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C24.csv",
+      "content_sha256": "ca5602eb61dea78362cffd40dffe8e1bcd6ddd8380df9247822f198e024c807d"
+    },
+    {
+      "company_key": "C25",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C25.csv",
+      "content_sha256": "861d6e47296f2b5aa7e3d6d6bad132edf06f310b7c8886c9813772452ec1b27a"
+    },
+    {
+      "company_key": "C26",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C26.csv",
+      "content_sha256": "9649e9bd18c9f9e357a61ff219544abc47c841f8f6b4c6ec93f9435cfbbcf019"
+    },
+    {
+      "company_key": "C27",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C27.csv",
+      "content_sha256": "588653a0d51cc44ab0d97a3d28cd22012b0a85d0a203a9206ca62f7346b9bbdd"
+    },
+    {
+      "company_key": "C28",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C28.csv",
+      "content_sha256": "472df13b89fb76bb00db2d1666bca777fe4440b2eda5d3691f9cf72e99836f49"
+    },
+    {
+      "company_key": "C29",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C29.csv",
+      "content_sha256": "062feffda34b559b3ca6800464502968ec658e6edc85574a2766abe24d43dcbb"
+    },
+    {
+      "company_key": "C30",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C30.csv",
+      "content_sha256": "c9c7bea15f4b4df86b6ae32ba3cada011d2fffd797bade58fbb40bf41d5cab0f"
+    },
+    {
+      "company_key": "C31",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C31.csv",
+      "content_sha256": "60454087a8f6caabe8b24a18503c5c0fb93ed5c06283508161ab3cd98823a04c"
+    },
+    {
+      "company_key": "C32",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C32.csv",
+      "content_sha256": "106093de19603aa93318057934f1413935303ee9bfa9262ba1908ca623a7fa6a"
+    },
+    {
+      "company_key": "C33",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C33.csv",
+      "content_sha256": "97b1a0ad3bfb283de2a050951de69bcad7acc4a4b933e162017b9a21d2b14b39"
+    },
+    {
+      "company_key": "C34",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C34.csv",
+      "content_sha256": "03064be4158bbc7d86f8fa9bdab0b1dc36a15dd30efee861e242bd293125e0b8"
+    },
+    {
+      "company_key": "C35",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C35.csv",
+      "content_sha256": "748f3ead505de2ffe20a0cb120864fe19e97a094b3d6e2c2eed83a642ca89503"
+    },
+    {
+      "company_key": "C36",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C36.csv",
+      "content_sha256": "f255c9e1106685222a7012e09e20d7f4e1abecbcf8f70adb01eb364b5fcfdd91"
+    },
+    {
+      "company_key": "C37",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C37.csv",
+      "content_sha256": "a0820ab113a85d12ccc60ee3ef3a8458303e8ab23f99cf95b63b39b8b826008c"
+    },
+    {
+      "company_key": "C38",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C38.csv",
+      "content_sha256": "ba592a9695af4d0d78148e1c472161bdea8e58999d9f8e132d5073f22046e0fc"
+    },
+    {
+      "company_key": "C39",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C39.csv",
+      "content_sha256": "3104f4dbd4371ccf9ada2648cbabdc0d2a52fd0205d7492e5fc95bec59d28835"
+    },
+    {
+      "company_key": "C40",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C40.csv",
+      "content_sha256": "af7d8fddf81b3468a469301b6b2a231eea9641ee27587ae0ed01419fb62e131e"
+    },
+    {
+      "company_key": "C41",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C41.csv",
+      "content_sha256": "4a0ac603c805f189c6650562ba4040a13610f82d5769834a0405cb5e67a02437"
+    },
+    {
+      "company_key": "C42",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C42.csv",
+      "content_sha256": "0ea8d128853e3d337c74d427a935cc0bb4be6d53d7408be42f7782ef21ccbb20"
+    },
+    {
+      "company_key": "C43",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C43.csv",
+      "content_sha256": "a18e4219bff2eb93f67ff2baa8487131258c00c28bd267a2cddda4052b01dcc8"
+    },
+    {
+      "company_key": "C44",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C44.csv",
+      "content_sha256": "dd35000bb2a07afb26898db12cc3b905c9495cdb411c277a9ab77f31f10934f9"
+    },
+    {
+      "company_key": "C45",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C45.csv",
+      "content_sha256": "c599b112c545be8975f550199455fe1eb13ea8cab8b1fd4cf115e14da153787e"
+    },
+    {
+      "company_key": "C46",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C46.csv",
+      "content_sha256": "14f5c4effd99f8686fe18ea18f99008f9deb9e3a47d7a751b1c77e0dd85eed1b"
+    },
+    {
+      "company_key": "C47",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C47.csv",
+      "content_sha256": "f3878cc0f731d1a00a302ac1d80d9a3fa4543493474624a62a62bda0778ad266"
+    },
+    {
+      "company_key": "C48",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C48.csv",
+      "content_sha256": "57126039c72279537c703b30714429cabc13608863fb7dac23c6af8e46a94390"
+    },
+    {
+      "company_key": "C49",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C49.csv",
+      "content_sha256": "8bcdb407b9f1bdec600cc4f2391d452e45dfaba987bbcb80edb9f421a749fc59"
+    },
+    {
+      "company_key": "C50",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C50.csv",
+      "content_sha256": "773ce1a2410f92a8db485cf634410a908a9ef1e86ebd7e47c3c990ab1ebd01b5"
+    },
+    {
+      "company_key": "C51",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C51.csv",
+      "content_sha256": "8d1ee292c903410bf90092eefa85864fd5a0bb28e0bd68b104a66bf4a72a0174"
+    },
+    {
+      "company_key": "C52",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C52.csv",
+      "content_sha256": "a62625124c5686041a396f94d4974d563ba6f319fa2ed0406dbf92bb07c47605"
+    },
+    {
+      "company_key": "C53",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C53.csv",
+      "content_sha256": "36d0834a54a19b29694515cf6db5eaed7a4561c3d9efe8685d2e38532c602d18"
+    },
+    {
+      "company_key": "C54",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C54.csv",
+      "content_sha256": "c9c76d1e795e47d9750cea5239e995d99775805fc5db9af8cdd900b1af8be8c8"
+    },
+    {
+      "company_key": "C55",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C55.csv",
+      "content_sha256": "cb53fc1700c485acfd059ae4fbff500706dd0e118d886390d10eb6f92ba607e8"
+    },
+    {
+      "company_key": "C56",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C56.csv",
+      "content_sha256": "d3858a71fad3b5bd1ff6392b4dc94c143bb9475ce0dc435328b180e88445bf80"
+    },
+    {
+      "company_key": "C57",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C57.csv",
+      "content_sha256": "8854deafe94f84e496ca0097cc4242f65ba17e5cd0017771f0fa1bd376bb5a03"
+    },
+    {
+      "company_key": "C58",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C58.csv",
+      "content_sha256": "8fa20e06a5819e8846105f5b560c71590e69f8aa072e6070f563420175ff1980"
+    },
+    {
+      "company_key": "C59",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C59.csv",
+      "content_sha256": "8160d7c5f700e2ef72ddc744e0e77cbd433d523045431d3e429f268fde009b30"
+    },
+    {
+      "company_key": "C60",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C60.csv",
+      "content_sha256": "1caf20caac422e3ffc4c67e87020d90a907fe611d93ae743f7e5906b145e76cd"
+    },
+    {
+      "company_key": "C61",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C61.csv",
+      "content_sha256": "69fa49a5afe3cd0880b37cf4ca41dbb07d475aebe4a02862ba2ba6bd02728420"
+    },
+    {
+      "company_key": "C62",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C62.csv",
+      "content_sha256": "20268f0b37f73fec7a98a25997374222c3ddfcce50b16b5e7242f59c8ec7fba9"
+    },
+    {
+      "company_key": "C63",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C63.csv",
+      "content_sha256": "d19dbb988a4291013dd9e288018eee55c6d7864ce3ec72f8a445f93be01a95ce"
+    },
+    {
+      "company_key": "C64",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C64.csv",
+      "content_sha256": "4c7b0b92b7eab7c6493817fa3c122c2e1f8197a21569828baba115ddda8db7f5"
+    },
+    {
+      "company_key": "C65",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C65.csv",
+      "content_sha256": "2322e21c3029c62b45077f5ed15f7b0481db23c4880c53a9f08bda28dbf194bd"
+    },
+    {
+      "company_key": "C66",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C66.csv",
+      "content_sha256": "f1a6189877d35573539c7f2ea3221fe5eb9355d75af5dd432b8d54f24a6e5e12"
+    },
+    {
+      "company_key": "C67",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C67.csv",
+      "content_sha256": "04bad700dcfcb254f22e94753c5316df218d4883f2edfdcaab987a1d547d2871"
+    },
+    {
+      "company_key": "C68",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C68.csv",
+      "content_sha256": "53242195d420ed3caf563b67339daa66a9fb02ba80b11f928f3abdab325d09f4"
+    },
+    {
+      "company_key": "C69",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C69.csv",
+      "content_sha256": "0b8ff1c64701c3e8a7e73032f53225e5a37a077056dd50ec74d32b825fb98ba3"
+    },
+    {
+      "company_key": "C70",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C70.csv",
+      "content_sha256": "6a228776a5475e3e5c2cfaee7b9aea6bd4008c2c28c6f8b0afb834e8154b048c"
+    },
+    {
+      "company_key": "C71",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C71.csv",
+      "content_sha256": "eaa691d631c62d6a530afda7afa92d471631d03c913fec97ab99dfd0679a0ab8"
+    },
+    {
+      "company_key": "C72",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C72.csv",
+      "content_sha256": "1dc5e5e15cdb7a22947dc3bcff112f211b95b04fdb99ae8d52b7cb71eb372d53"
+    },
+    {
+      "company_key": "C73",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C73.csv",
+      "content_sha256": "4f35b093ecdc67a59f0364cd180a853afb5528b420074205b2e0a545aefc00ac"
+    },
+    {
+      "company_key": "C74",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C74.csv",
+      "content_sha256": "8b0d9f12b8f4ddd54bfadbb24c3dce965499d74ce98c85b951a62a0654e11634"
+    },
+    {
+      "company_key": "C75",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C75.csv",
+      "content_sha256": "f9206c2f511656d50742e2e97d31de488aa55636f7c15c43705c19923c6af82f"
+    },
+    {
+      "company_key": "C76",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C76.csv",
+      "content_sha256": "a71720094a023423ff6eeb4435e39afda7df020d10cdecbfc76d18f664ff2d22"
+    },
+    {
+      "company_key": "C77",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C77.csv",
+      "content_sha256": "385f72b03672c153d6cfebfb6f7bd8e771f45d91a7c8247fe1cc20eabc9c8262"
+    },
+    {
+      "company_key": "C78",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C78.csv",
+      "content_sha256": "09af1cd71b4fe64b1afd38240dfd8f20f2505a154d78ac0c66368243faddcb9d"
+    },
+    {
+      "company_key": "C79",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C79.csv",
+      "content_sha256": "7f53d768930f2cc48a47a592be840f5aeb4548c2ac278c2eb77f9e554e9616a9"
+    },
+    {
+      "company_key": "C80",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C80.csv",
+      "content_sha256": "a053739128e00f623a455729f51a31ffab2c74061a85664a5525dbf29a633bf4"
+    },
+    {
+      "company_key": "C81",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C81.csv",
+      "content_sha256": "3776f10d843a8240390e1644a3c0087ef486856d013bcb3d3abddd80d9560adc"
+    },
+    {
+      "company_key": "C82",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C82.csv",
+      "content_sha256": "464714ccef7b9036640f7353ba91b719de3b8d3f09235f819415372926edbf8d"
+    },
+    {
+      "company_key": "C83",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C83.csv",
+      "content_sha256": "cba8537afd53c7810c864595b4effc6a4b816f6766fb419debb60c3d41d66292"
+    },
+    {
+      "company_key": "C84",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C84.csv",
+      "content_sha256": "484cadc58629a026fb7242f55d4f983d6d88448e64116b48b77ae15dc8266edd"
+    },
+    {
+      "company_key": "C85",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C85.csv",
+      "content_sha256": "14555c2e7125e901d7fed1fdefe10f0d6e35770d7709524d7913c26efa975bc0"
+    },
+    {
+      "company_key": "C86",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C86.csv",
+      "content_sha256": "822e76341800b7bac62808c851f09a0eb125c05f7e92ebfca9fc1ed62b4e1807"
+    },
+    {
+      "company_key": "C87",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C87.csv",
+      "content_sha256": "833c2a62a96e3860b11188d129b7a5b7549fc9b9f40fa0ba08919ede0cabd96d"
+    },
+    {
+      "company_key": "C88",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C88.csv",
+      "content_sha256": "7cc914f31097abc49a859e469db4004d4242684265afe31100cd63eddd41fc4a"
+    },
+    {
+      "company_key": "C89",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C89.csv",
+      "content_sha256": "ce64b5c1786eaf1cfd4d31b6f526c5a0c0bfcddd8c7aaff81150669b0ee3b45b"
+    },
+    {
+      "company_key": "C90",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C90.csv",
+      "content_sha256": "c0b570ec9e2d2d85084b7eb04e39b118bc2b727b239485355193098adc8bb2d8"
+    },
+    {
+      "company_key": "C91",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C91.csv",
+      "content_sha256": "8656cf184d52c1e7615c78788b49678af9ecd4bc1ce5528d24cb9a1e4d467658"
+    },
+    {
+      "company_key": "C92",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C92.csv",
+      "content_sha256": "8f9db0ac8d6c544fe7e0cb788903850f7bdfc88841556e1d9e3e85b26218a32c"
+    },
+    {
+      "company_key": "C93",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C93.csv",
+      "content_sha256": "fadf845fb14928a45409c8eb1237a87c0ff75ae456cb381303a4aa6396e450f1"
+    },
+    {
+      "company_key": "C94",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C94.csv",
+      "content_sha256": "b959a92279a915b702f3842443a46223712cd3ae09ce779e9079fd35c17cdeb7"
+    },
+    {
+      "company_key": "C95",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C95.csv",
+      "content_sha256": "dc4b2b8ef0142863be2bee4290e42fdcdca4ebd759dd4e7c7d88bce8760e0f9b"
+    },
+    {
+      "company_key": "C96",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C96.csv",
+      "content_sha256": "2ff7fe297ed4b36d6b917daa83d3771271926e2a345bcd6c2db1af0620163934"
+    },
+    {
+      "company_key": "C97",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C97.csv",
+      "content_sha256": "fbe5a1a45d24e6e8b99eb4ded7034ade577e7c05821f81038f32e39c5f63a4c9"
+    },
+    {
+      "company_key": "C98",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C98.csv",
+      "content_sha256": "7b34d1dfdf7d888de61b33c3245577f163e497df3bf317912856014dcc48d195"
+    },
+    {
+      "company_key": "C99",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C99.csv",
+      "content_sha256": "a68c2b0bc984449c9c41dfcf158a12743cab89592239ac0d9e41f919e819cb59"
+    },
+    {
+      "company_key": "C100",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C100.csv",
+      "content_sha256": "f9fa6f235726e96d9c35abff8e9f5a491cde71590bba1ebde73580ad11abbdb3"
+    },
+    {
+      "company_key": "C101",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C101.csv",
+      "content_sha256": "82e1a436ad865a8f1de436d04fb691d959a14f6a25954f62f6689f627cb2aa67"
+    },
+    {
+      "company_key": "C102",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C102.csv",
+      "content_sha256": "d15919f1863dcd0bae73de8d681b5d7c5375bb346a2f83263b0fce54454e0258"
+    },
+    {
+      "company_key": "C103",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C103.csv",
+      "content_sha256": "591c9e72ac1f4fcbfc9f537e423fd576fabb7a4f304a6d3267d7732b83e4ab5a"
+    },
+    {
+      "company_key": "C104",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C104.csv",
+      "content_sha256": "4e6aeb1b9ba5c57e4c45414f5588d0d4799a0cffe2036b9104c902b3e6a0fd7c"
+    },
+    {
+      "company_key": "C105",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C105.csv",
+      "content_sha256": "aa084f4c06e0d6b3cbb8b95cdcc2ba5bebaa7b7ec74c94ba9744db5c735dee69"
+    },
+    {
+      "company_key": "C106",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C106.csv",
+      "content_sha256": "1fa474bcce1bd4cdc17884f34559cc64f5ddae7acd7b49a53478007a169bc462"
+    },
+    {
+      "company_key": "C107",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C107.csv",
+      "content_sha256": "74c2ff4abca9b8823e422c83a740982f0cdab935dc1c4da5cd2f0d3f5bd42c9c"
+    },
+    {
+      "company_key": "C108",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C108.csv",
+      "content_sha256": "9b4381f52c35787865cbdfe965191b96e6565ffbf56038a96d21b0e140ca2cca"
+    },
+    {
+      "company_key": "C109",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C109.csv",
+      "content_sha256": "567677b87bb3920a1763ce95868f4d5a49b10359bdeb420a801df712933e6d8c"
+    },
+    {
+      "company_key": "C110",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C110.csv",
+      "content_sha256": "1afc465ae21d4d42269f7e875f521ee1445d934bf2fbb0a05aef331140eb18a8"
+    },
+    {
+      "company_key": "C111",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C111.csv",
+      "content_sha256": "0ef7d5d42c19d3045d39337543d275d0c5517a11ba963af45bfc4953def0c9a8"
+    },
+    {
+      "company_key": "C112",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C112.csv",
+      "content_sha256": "4cd60b93789de645fcee5f383581aea1cc62f837b041e074bdb4c4181f0fb237"
+    },
+    {
+      "company_key": "C113",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C113.csv",
+      "content_sha256": "9b740a9889e743cc64627d21df1cc06193aa2524eb0ed452c22aea4c3496ad9f"
+    },
+    {
+      "company_key": "C114",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C114.csv",
+      "content_sha256": "9defd2f4fee326032ff5d846be8840ca7399f58353bf500897f9d83d5fd23642"
+    },
+    {
+      "company_key": "C115",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C115.csv",
+      "content_sha256": "4d20d843dc9a604e18f39dc085ebdd4bd2b6b23d36424853326832dcb38592bb"
+    },
+    {
+      "company_key": "C116",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C116.csv",
+      "content_sha256": "8b14acd654ec026e8b5f5d1cbc2090bebcca65f0dd38ca34bec0c4dd30268f4c"
+    },
+    {
+      "company_key": "C117",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C117.csv",
+      "content_sha256": "5816e1c3bdf40d3a90a7727e0f2851e2c0acbac976f38ef2a71a1f141f2c9b67"
+    },
+    {
+      "company_key": "C118",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C118.csv",
+      "content_sha256": "aa00facfd63e013d318bc5e113d348fdf41be65259795d5efd4767101d312c57"
+    },
+    {
+      "company_key": "C119",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C119.csv",
+      "content_sha256": "96a36e065dddf4d2dcc65219d5a92b90e3998208c8be98439a98d6eda1b2a78b"
+    },
+    {
+      "company_key": "C120",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C120.csv",
+      "content_sha256": "537bda2597fcc356cc6c0914087d9bf5e87c603ece102a8c1b6f98c0d7596342"
+    },
+    {
+      "company_key": "C121",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C121.csv",
+      "content_sha256": "fff50a5c24a8709f67a551c1c4f6c87834c58b9d81f1f4851ee670a5e9a1b0e2"
+    },
+    {
+      "company_key": "C122",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C122.csv",
+      "content_sha256": "ac6a0299906c6e74194bfecc26f2abe4c124ecdcba138a189928502f1bd9dcd4"
+    },
+    {
+      "company_key": "C123",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C123.csv",
+      "content_sha256": "392307e7666f1000cb7e3d244b2153e65e3cee73c5508df62bd9dc95acb29327"
+    },
+    {
+      "company_key": "C124",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C124.csv",
+      "content_sha256": "146bc59e1ae5749443cb7153a08c226a535693bff1b110cd873b18006431d955"
+    },
+    {
+      "company_key": "C125",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C125.csv",
+      "content_sha256": "5d754a7b796d342f6c5fff39f9050b766c5e693e8efaaba3c720cfc63b9848cd"
+    },
+    {
+      "company_key": "C126",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C126.csv",
+      "content_sha256": "db6af1f799fe34cd127b767e035504e79ddfc2229ba990695d2391ea7f1c0414"
+    },
+    {
+      "company_key": "C127",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C127.csv",
+      "content_sha256": "89e14a390694f8d5da194e04850440e4f20e79a5649dade2b826fa21a58b710d"
+    },
+    {
+      "company_key": "C128",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C128.csv",
+      "content_sha256": "1cc37546e26569dbd30f3778068ff5100f566cde938edfde9aaf1a334907ca5b"
+    },
+    {
+      "company_key": "C129",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C129.csv",
+      "content_sha256": "855381dd712fc27a05eacf5ed512421ca2f2dcd870cd774dc294d6f1b3eddd30"
+    },
+    {
+      "company_key": "C130",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C130.csv",
+      "content_sha256": "ce6a1f172ac568d13157b80154e1944ff2e5ba748b2fadff9beeb28f7d66f45e"
+    },
+    {
+      "company_key": "C131",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C131.csv",
+      "content_sha256": "9cb4e0f71b43be83dd3760f5aa91dc2c99021ff1ce263228059b1084fcefbb9d"
+    },
+    {
+      "company_key": "C132",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C132.csv",
+      "content_sha256": "c3e4f840b38a96e05ccb3ef1e4ba5f43b5b5c9a218761e880a07e252919cc7bb"
+    },
+    {
+      "company_key": "C133",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C133.csv",
+      "content_sha256": "bde05bb94528648790fe9bbe7338a252b39eb32e67f765bc441e416d0b03b9c4"
+    },
+    {
+      "company_key": "C134",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C134.csv",
+      "content_sha256": "3ee2d25138144e2d04e32e79b0ced1578d7416b72a81a89908c101ed6b246219"
+    },
+    {
+      "company_key": "C135",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C135.csv",
+      "content_sha256": "93b75875314779b5fdd77b6067961afff721d0b87abcd681cb2790238a9f8c6c"
+    },
+    {
+      "company_key": "C136",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C136.csv",
+      "content_sha256": "46e76b9292e01e41b75a1646eb4e58e017d381cd5b37cb56d388580395d94e50"
+    },
+    {
+      "company_key": "C137",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C137.csv",
+      "content_sha256": "4547b25434dba5ff6050a2c73d59eb6c72d9084876d0767445920e47f7406d64"
+    },
+    {
+      "company_key": "C138",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C138.csv",
+      "content_sha256": "e80ffabcbf3061bffe4bf952609de81da71b1e62a4356b1fcea225d81974b198"
+    },
+    {
+      "company_key": "C139",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C139.csv",
+      "content_sha256": "77019a8c702bf512a692263be4c069adf6b20c504bfc4079e2131755609ff3b3"
+    },
+    {
+      "company_key": "C140",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C140.csv",
+      "content_sha256": "61bff37f960b89ad01b10992bbd186038d19373650efff5f60c90db1d86928c5"
+    },
+    {
+      "company_key": "C141",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C141.csv",
+      "content_sha256": "3be8bc444de3f146bc62413d49cc2d0662938414265294e8d13a0dcec147b811"
+    },
+    {
+      "company_key": "C142",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C142.csv",
+      "content_sha256": "d6926e33571bc80bcb215c230f0a945fefbbe6c98ff63c8f261c4f69e006c9c1"
+    },
+    {
+      "company_key": "C143",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C143.csv",
+      "content_sha256": "f700395b5570cc83987ec880bd85783978f6a3dd643d2ff1875c842ff6240f45"
+    },
+    {
+      "company_key": "C144",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C144.csv",
+      "content_sha256": "7e9b47710442af9c5941b742e71a3d9760baf8986ce0f75a05f225efd813f978"
     }
   ]
 }

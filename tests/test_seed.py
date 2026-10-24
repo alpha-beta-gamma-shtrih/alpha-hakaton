@@ -6,14 +6,29 @@ import sys
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
 from sqlalchemy import func, select
 
 from credit_cabinet.models import Application, Company, CompanyFinancialMonth, CreditProduct, User
+from credit_cabinet.schemas.seed import CompanySeed, Manifest
 from credit_cabinet.services.seed import DatasetError, import_bundle, load_bundle
 from tests.conftest import ROOT
 from tests.test_drafts import SEED_PASSWORD
 
 DATA = ROOT / "demo_data/demo_0_2"
+
+
+def test_expanded_company_keys_keep_existing_ids_and_allow_three_digits():
+    bundle = load_bundle(DATA)
+    company = bundle.companies[0].model_dump(mode="json")
+    for key in ("C01", "C99", "C100", "C140", "C999"):
+        assert CompanySeed.model_validate({**company, "company_key": key}).company_key == key
+    for key in ("C1", "C001", "C1000", "../C01"):
+        with pytest.raises(ValidationError):
+            CompanySeed.model_validate({**company, "company_key": key})
+    manifest = bundle.manifest.model_dump(mode="json")
+    keys = [f"C{number:02d}" for number in range(1, 145)]
+    assert Manifest.model_validate({**manifest, "company_keys": keys}).company_keys == keys
 
 
 def rewrite(root, name, data):
@@ -109,6 +124,53 @@ def test_bankruptcy_fact_cannot_silently_default_false(tmp_path):
     del data[0]["normalized_data"]["is_bankrupt"]
     rewrite(root, "fns_responses.json", data)
     with pytest.raises(DatasetError):
+        load_bundle(root)
+
+
+def test_seed_rejects_missing_company_document_before_import(tmp_path):
+    root = tmp_path / "dataset"
+    shutil.copytree(DATA, root)
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    template = manifest["document_templates"].pop()
+    manifest["files"].pop(template["path"])
+    (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(DatasetError, match="Each company"):
+        load_bundle(root)
+
+
+def test_seed_rejects_rehashed_document_that_does_not_match_finances(tmp_path):
+    root = tmp_path / "dataset"
+    shutil.copytree(DATA, root)
+    name = "documents/C01.csv"
+    document = root / name
+    document.write_text(
+        document.read_text(encoding="utf-8").replace("1200000.00", "1200001.00", 1),
+        encoding="utf-8",
+        newline="\n",
+    )
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    checksum = hashlib.sha256(document.read_bytes()).hexdigest()
+    manifest["files"][name] = checksum
+    manifest["document_templates"][0]["content_sha256"] = checksum
+    (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(DatasetError, match="differs"):
+        load_bundle(root)
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"requested_amount": "99999.99"},
+        {"purchase_from_bank_partner": True, "purpose_code": "OPERATING_EXPENSES"},
+    ],
+)
+def test_seed_rejects_scenario_outside_product_contract(tmp_path, change):
+    root = tmp_path / "dataset"
+    shutil.copytree(DATA, root)
+    scenarios = json.loads((root / "scenarios.json").read_text(encoding="utf-8"))
+    scenarios[0].update(change)
+    rewrite(root, "scenarios.json", scenarios)
+    with pytest.raises(DatasetError, match="parameters"):
         load_bundle(root)
 
 

@@ -17,7 +17,7 @@ from credit_cabinet.services.seed import DatasetError, import_bundle, load_bundl
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Validate/import synthetic demo-0.2 without resetting data"
+        description="Validate/import versioned synthetic data without resetting working data"
     )
     parser.add_argument("--dataset", type=Path, default=Path("demo_data/demo_0_3"))
     parser.add_argument(
