@@ -1,0 +1,11 @@
+# syntax=docker/dockerfile:1
+FROM node:24-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN VITE_API_MODE=real npm run build
+
+FROM nginx:1.28-alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
