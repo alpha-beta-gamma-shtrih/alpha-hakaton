@@ -8,7 +8,7 @@ x-backend-environment: &backend-environment
   COOKIE_SECURE: ${COOKIE_SECURE:-false}
   CSRF_SIGNING_KEY: ${CSRF_SIGNING_KEY:?Set CSRF_SIGNING_KEY in .env}
   LOG_LEVEL: ${LOG_LEVEL:-INFO}
-  DEMO_DATASET_DIR: ${DEMO_DATASET_DIR:-/app/demo_data/demo_0_2}
+  DEMO_DATASET_DIR: ${DEMO_DATASET_DIR:-/app/demo_data/demo_0_3}
   DOCUMENTS_DIR: ${DOCUMENTS_DIR:-/app/.data/documents}
   LLM_ENABLED: ${LLM_ENABLED:-true}
   LLM_BASE_URL: http://ollama:11434
