@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '../lib/session'
 import { Logo } from './pixel'
+import { GlobalAdvisor } from '../pages/client/GlobalAdvisor'
 
 const CLIENT_NAV = [
   { to: '/overview', label: 'Обзор' },
@@ -67,6 +68,7 @@ export function AppShell() {
       <main key={loc.pathname} className="rise" style={{ animationDuration: '0.45s' }}>
         <Outlet />
       </main>
+      {!isBank && <GlobalAdvisor />}
     </div>
   )
 }

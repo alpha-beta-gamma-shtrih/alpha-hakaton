@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
-import { createPortal } from 'react-dom'
+import { AiDockShell, useClaimAiDock } from '../../../components/AiDock'
 import { ApiError } from '../../../api/client'
 import { PricingBreakdown } from '../../../components/PricingBreakdown'
 import { applications } from '../../../api/endpoints'
@@ -289,36 +288,10 @@ export function ReadinessCard({ ready, onGo }: { ready: Ready; onGo: (s: FormSte
 
 /** Floating entry point for the AI helper: always one click away, opens a side panel over the page. */
 export function AdvisorDock({ ed, open, onOpen, onClose }: { ed: Editor; open: boolean; onOpen: () => void; onClose: () => void }) {
-  useEffect(() => {
-    if (!open) return
-    const h = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    window.addEventListener('keydown', h)
-    return () => window.removeEventListener('keydown', h)
-  }, [open, onClose])
-  return createPortal(
-    <>
-      {!open && (
-        <button type="button" className="ai-fab" onClick={onOpen} aria-label="Открыть ИИ-помощника">
-          <span className="ai-fab-ic">
-            <PixelArt shape="smile" size={3} gap={1} color="var(--lime)" animate={false} />
-          </span>
-          <span className="ai-fab-t">
-            <b>ИИ-помощник</b>
-            <span>{ed.form.bkiAllowed ? 'объяснит и сравнит' : 'нужно согласие на БКИ'}</span>
-          </span>
-        </button>
-      )}
-      {open && (
-        <aside className="ai-drawer" role="dialog" aria-label="ИИ-помощник">
-          <button type="button" className="ai-close" onClick={onClose} aria-label="Закрыть">
-            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M3 3l10 10M13 3 3 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
-          <AdvisorPanel ed={ed} />
-        </aside>
-      )}
-    </>,
-    document.body,
+  useClaimAiDock()
+  return (
+    <AiDockShell open={open} onOpen={onOpen} onClose={onClose} subtitle={ed.form.bkiAllowed ? 'объяснит и сравнит' : 'нужно согласие на БКИ'}>
+      <AdvisorPanel ed={ed} />
+    </AiDockShell>
   )
 }

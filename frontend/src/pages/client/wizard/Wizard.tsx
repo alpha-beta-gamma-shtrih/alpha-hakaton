@@ -49,7 +49,8 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
   const missing = needsConfirm ? stepMissing(step, ed.form, product, ed.fieldErrors) : []
   const allConfirmed = CONFIRMABLE.every((s) => gate.confirmed[s])
   const [confirming, setConfirming] = useState(false)
-  const [aiOpen, setAiOpen] = useState(false)
+  // ?ai=1 comes from the global helper: open the panel right away.
+  const [aiOpen, setAiOpen] = useState(() => new URLSearchParams(window.location.search || window.location.hash.split('?')[1] || '').get('ai') === '1')
   const confirmStep = async () => {
     if (missing.length || confirming || submitting || submitAttempt.current) return
     setConfirming(true)
