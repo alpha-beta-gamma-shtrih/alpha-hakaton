@@ -34,5 +34,4 @@ echo "Starting Compose: tests, database and model initialization, application...
 docker compose -f compose.yaml up -d
 docker compose -f compose.yaml ps
 
-FRONTEND_ADDRESS=$(docker compose -f compose.yaml port frontend 80)
-echo "Frontend URL: http://localhost:${FRONTEND_ADDRESS##*:}"
+echo "Frontend URL: http://localhost:8080"
