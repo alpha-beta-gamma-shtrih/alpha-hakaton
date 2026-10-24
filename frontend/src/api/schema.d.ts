@@ -964,6 +964,10 @@ export interface components {
         };
         /** CandidateResponse */
         CandidateResponse: {
+            /** Pricing */
+            pricing?: {
+                [key: string]: unknown;
+            };
             /**
              * Candidate Id
              * @enum {string}
@@ -1212,6 +1216,11 @@ export interface components {
         };
         /** DraftDataPatch */
         DraftDataPatch: {
+            /**
+             * Purchase From Bank Partner
+             * @default false
+             */
+            purchase_from_bank_partner?: boolean;
             /** Financial Months */
             financial_months?: components["schemas"]["FinancialMonthInput"][];
             confirmations?: components["schemas"]["ConfirmationPatch"];
@@ -1220,6 +1229,11 @@ export interface components {
         };
         /** DraftDataResponse */
         DraftDataResponse: {
+            /**
+             * Purchase From Bank Partner
+             * @default false
+             */
+            purchase_from_bank_partner?: boolean;
             /** Financial Months */
             financial_months: components["schemas"]["FinancialMonthResponse"][];
             confirmations: components["schemas"]["ConfirmationsResponse"];
@@ -1554,7 +1568,7 @@ export interface components {
          * Purpose
          * @enum {string}
          */
-        Purpose: "INVENTORY" | "OPERATING_EXPENSES" | "SEASONAL_PURCHASE";
+        Purpose: "INVENTORY" | "OPERATING_EXPENSES" | "SEASONAL_PURCHASE" | "EQUIPMENT" | "OTHER";
         /** ReasonResponse */
         ReasonResponse: {
             /** Code */

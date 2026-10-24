@@ -29,10 +29,9 @@ export function rate(v: string | null | undefined): string {
 
 export function months(n: number | null | undefined): string {
   if (n === null || n === undefined) return '—'
-  const m10 = n % 10
-  const m100 = n % 100
-  const w = m10 === 1 && m100 !== 11 ? 'месяц' : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? 'месяца' : 'месяцев'
-  return `${n} ${w}`
+  const years = Math.floor(n / 12)
+  const rest = n % 12
+  return [years ? `${years} ${plural(years, 'год', 'года', 'лет')}` : '', rest || !years ? `${rest} ${plural(rest, 'месяц', 'месяца', 'месяцев')}` : ''].filter(Boolean).join(' ')
 }
 
 const dtf = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })

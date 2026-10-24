@@ -5,7 +5,7 @@ import { bank } from '../../api/endpoints'
 import type { ApplicationStatus, BankQueueItem } from '../../api/types'
 import { PixelArt, PixelCursor } from '../../components/pixel'
 import { Arrow, ErrorNotice, RiskMeter, Skeleton, StatusChip } from '../../components/ui'
-import { dateTime, money, relative, shortId } from '../../lib/format'
+import { dateTime, money, months, relative, shortId } from '../../lib/format'
 import { PURPOSE } from '../../lib/labels'
 
 const ACTIVE_FILTERS: { id: string; label: string; statuses: ApplicationStatus[] }[] = [
@@ -126,7 +126,7 @@ function QueueRow({ it, onOpen }: { it: BankQueueItem; onOpen: () => void }) {
       <div className="q-amt">
         <b className="num">{money(it.requested_amount)}</b>
         <span className="hint">
-          {it.term_months} мес · {PURPOSE[it.purpose_code].label.toLowerCase()}
+          {months(it.term_months)} · {PURPOSE[it.purpose_code].label.toLowerCase()}
         </span>
       </div>
       <div className="q-risk">

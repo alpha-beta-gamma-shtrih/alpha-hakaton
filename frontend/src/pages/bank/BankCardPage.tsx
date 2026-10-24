@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { PricingBreakdown } from '../../components/PricingBreakdown'
 import { FinTable } from '../../components/FinTable'
 import { Fragment, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -243,6 +244,7 @@ function AssessmentPanel({ a, productSnapshot }: { a: BankAssessment; productSna
             </Fragment>
           ))}
         </dl>
+        <PricingBreakdown value={cd.pricing} />
       </div>
       <div className="stack-lg">
         <div className="card">
@@ -288,7 +290,7 @@ function AssessmentPanel({ a, productSnapshot }: { a: BankAssessment; productSna
                 Срок <b>{ps.min_term_months}–{ps.max_term_months} мес</b>
               </span>
               <span>
-                Ставка <b>{Number(ps.annual_rate_percent)}%</b>
+                Базовая ставка <b>{Number(ps.annual_rate_percent)}%</b>
               </span>
               <span>
                 Нагрузка ≤ <b>{percent(pc.maximum_load_ratio, 0)}</b>
@@ -379,7 +381,7 @@ function ChecksPanel({ checks }: { checks: BankCheck[] }) {
 
 function DataPanel({ c }: { c: BankCard }) {
   const cs = c.revision.company_snapshot as Record<string, string | null>
-  const fs = c.revision.financial_snapshot as { financial_months?: { month: string; cash_inflow: string | null; operating_outflow: string | null; existing_debt_payment: string | null }[]; confirmations?: { data_confirmed: boolean; credit_history_check_allowed: boolean }; info_response?: string | null; purpose_details?: string | null; provenance?: { financial_months?: { source: 'DEMO_PROFILE'; as_of_date: string; checked_at: string | null } } }
+  const fs = c.revision.financial_snapshot as { purchase_from_bank_partner?: boolean; financial_months?: { month: string; cash_inflow: string | null; operating_outflow: string | null; existing_debt_payment: string | null }[]; confirmations?: { data_confirmed: boolean; credit_history_check_allowed: boolean }; info_response?: string | null; purpose_details?: string | null; provenance?: { financial_months?: { source: 'DEMO_PROFILE'; as_of_date: string; checked_at: string | null } } }
   return (
     <div className="bc-grid">
       <div className="card">
@@ -406,6 +408,7 @@ function DataPanel({ c }: { c: BankCard }) {
         <dl className="kv">
           <dt>Цель</dt>
           <dd>{PURPOSE[c.revision.purpose_code].label}</dd>
+          <dt>Партнёрская покупка · DEMO</dt><dd>{fs.purchase_from_bank_partner ? 'Заявлено клиентом, не проверено' : 'Не заявлена'}</dd>
           <dt>Описание цели</dt>
           <dd>{fs.purpose_details || '—'}</dd>
           <dt>Подтверждение данных</dt>
@@ -746,6 +749,7 @@ function DecisionModal({ outcome, c, onClose, onDone, onFail }: { outcome: 'APPR
       <p className="hint" style={{ marginTop: 10 }}>
         Условия берутся из отправленного снимка — сотрудник их не меняет.
       </p>
+      {approve && <PricingBreakdown value={c.assessment?.calculation_details.pricing} />}
       <div className="field" style={{ marginTop: 16 }}>
         <label htmlFor="d-pub">Обоснование для клиента</label>
         <textarea id="d-pub" className="textarea" maxLength={1000} value={pub} onChange={(e) => setPub(e.target.value)} placeholder={approve ? 'Нагрузка в допустимых пределах, история платежей без просрочек' : 'Причина, понятная клиенту'} />

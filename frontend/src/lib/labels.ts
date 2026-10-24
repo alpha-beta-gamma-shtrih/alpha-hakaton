@@ -19,6 +19,8 @@ export const PURPOSE: Record<Purpose, { label: string; desc: string }> = {
   INVENTORY: { label: 'Закупка товара или материалов', desc: 'Пополнить склад, закупить сырьё и комплектующие' },
   OPERATING_EXPENSES: { label: 'Текущие расходы бизнеса', desc: 'Зарплаты, аренда, налоги и платежи поставщикам' },
   SEASONAL_PURCHASE: { label: 'Закупка к сезону', desc: 'Подготовиться к пиковому спросу заранее' },
+  EQUIPMENT: { label: 'Покупка или замена оборудования', desc: 'Обновить оборудование для работы бизнеса' },
+  OTHER: { label: 'Иное', desc: 'Другая задача бизнеса, без целевой скидки' },
 }
 
 export const STEPS: { id: FormStep; title: string; short: string }[] = [

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { ApiError } from '../../../api/client'
+import { PricingBreakdown } from '../../../components/PricingBreakdown'
 import { applications } from '../../../api/endpoints'
 import type { AdvisorMode, AdvisorReport, Candidate, FormStep } from '../../../api/types'
 import { PixelArt } from '../../../components/pixel'
@@ -73,6 +74,7 @@ export function CalcPanel({ ed, ready, scen, locked }: { ed: Editor; ready: Read
               <b>{base ? `${Number(base.annual_rate_percent)}%` : '—'}</b>
             </div>
           </div>
+          {!stale && base && <PricingBreakdown value={base.pricing} />}
           {preview && base ? (
             <div className="calc-preview">
               <div className="row between">
@@ -134,7 +136,8 @@ export function Variants({ ed, scen, locked, onAskAi }: { ed: Editor; scen: Retu
               <div className="variant-main">
                 <div>
                   <b className="num">{money(c.requested_amount)}</b>
-                  <span> · {c.term_months} мес</span>
+                  <span> · {months(c.term_months)}</span>
+                  <span> · {Number(c.annual_rate_percent)}% годовых</span>
                 </div>
                 <div className="variant-pay num">
                   {money(c.monthly_payment)}
