@@ -192,6 +192,12 @@ def load_bundle(directory: Path) -> SeedBundle:
         unique(scenarios, lambda row: row.scenario_key, "scenario key")
         if any(row.company_key not in company_map for row in scenarios):
             raise DatasetError("Scenario references unknown company")
+        if any(
+            not products[0].min_term_months <= row.term_months <= products[0].max_term_months
+            or row.purpose_code not in products[0].allowed_purposes
+            for row in scenarios
+        ):
+            raise DatasetError("Scenario parameters differ from its product")
         for template in manifest.document_templates:
             if (
                 template.company_key not in company_map

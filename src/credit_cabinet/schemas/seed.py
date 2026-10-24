@@ -167,6 +167,7 @@ class FixtureEntry(StrictModel):
 
 
 class ScenarioSeed(StrictModel):
+    purchase_from_bank_partner: bool = Field(default=False, strict=True)
     scenario_key: str = Field(min_length=1)
     company_key: str
     requested_amount: MoneyInput

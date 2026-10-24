@@ -48,7 +48,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             logger.info("app.stopped")
 
     app = FastAPI(
-        title="Умный кредитный кабинет — demo-0.2",
+        title="Умный кредитный кабинет — demo-0.3",
         version="0.1.0",
         lifespan=lifespan,
     )

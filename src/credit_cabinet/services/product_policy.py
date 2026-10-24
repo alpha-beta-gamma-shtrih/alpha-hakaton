@@ -12,6 +12,13 @@ LEGACY_PURPOSES = {"INVENTORY", "OPERATING_EXPENSES", "SEASONAL_PURCHASE"}
 
 
 def supported(product):
+    try:
+        return _supported(product)
+    except (ValueError, TypeError, ArithmeticError):
+        return False
+
+
+def _supported(product):
     get = product.get if isinstance(product, dict) else lambda key: getattr(product, key, None)
     version = get("version")
     personal = version == 3
