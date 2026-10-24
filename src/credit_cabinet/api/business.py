@@ -73,12 +73,12 @@ def products(db: Database, principal: Client, limit: Limit = 20, offset: Offset 
     query = select(CreditProduct).where(
         CreditProduct.is_active.is_(True),
         CreditProduct.code == "WC_DEMO",
-        CreditProduct.version == 2,
-        CreditProduct.policy_version == "demo-policy-0.2",
+        CreditProduct.version.in_([2, 3]),
+        CreditProduct.policy_version.in_(["demo-policy-0.2", "demo-policy-0.3"]),
     )
     total = db.scalar(select(func.count()).select_from(query.subquery()))
     rows = db.scalars(
-        query.order_by(CreditProduct.code, CreditProduct.version).limit(limit).offset(offset)
+        query.order_by(CreditProduct.code, CreditProduct.version.desc()).limit(limit).offset(offset)
     )
     return {"items": list(rows), "total": total, "limit": limit, "offset": offset}
 

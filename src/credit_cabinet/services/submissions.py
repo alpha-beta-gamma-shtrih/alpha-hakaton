@@ -34,6 +34,7 @@ from credit_cabinet.services.drafts import remember_draft
 from credit_cabinet.services.policy import (
     evaluate,
 )
+from credit_cabinet.services.product_policy import evaluation_options
 from credit_cabinet.services.reasons import MESSAGES
 from credit_cabinet.services.snapshots import application_input, financial_input_hash
 
@@ -237,6 +238,13 @@ def process(db, application, revision, sources):
         source=lambda kind: sources.check(
             revision.company_snapshot["inn"], kind, revision.revision_no, run_no
         ),
+        **evaluation_options(
+            {
+                "product_snapshot": revision.product_snapshot,
+                "financial_snapshot": revision.financial_snapshot,
+                "purpose_code": revision.purpose_code.value,
+            }
+        ),
     )
     completed = utc_now()
     assessment = Assessment(
@@ -308,7 +316,11 @@ def process(db, application, revision, sources):
                 outcome=application.status.value,
                 approved_amount=revision.requested_amount if approved else None,
                 approved_term_months=revision.term_months if approved else None,
-                annual_rate_percent=Decimal(revision.product_snapshot["annual_rate_percent"])
+                annual_rate_percent=Decimal(
+                    result.calculation_details.get(
+                        "annual_rate_percent", revision.product_snapshot["annual_rate_percent"]
+                    )
+                )
                 if approved
                 else None,
                 monthly_payment=Decimal(result.calculation_details["monthly_payment"])

@@ -100,6 +100,7 @@ class DraftDelete(StrictModel):
 
 
 class DraftDataPatch(StrictModel):
+    purchase_from_bank_partner: bool = Field(default=False, strict=True)
     financial_months: list[FinancialMonthInput] = Field(default_factory=list, max_length=6)
     confirmations: ConfirmationPatch = Field(default_factory=ConfirmationPatch)
     info_response: str | None = Field(default=None, max_length=1000)
@@ -221,6 +222,7 @@ class ConfirmationsResponse(BaseModel):
 
 
 class DraftDataResponse(BaseModel):
+    purchase_from_bank_partner: bool = False
     financial_months: list[FinancialMonthResponse]
     confirmations: ConfirmationsResponse
     info_response: str | None = None

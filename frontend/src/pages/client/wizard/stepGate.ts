@@ -15,7 +15,7 @@ export function stepMissing(step: FormStep, form: FormState, product: Product | 
     const min = Number(product?.min_amount ?? 100000)
     const max = Number(product?.max_amount ?? 5000000)
     const tmin = product?.min_term_months ?? 6
-    const tmax = product?.max_term_months ?? 24
+    const tmax = product?.max_term_months ?? 60
     if (!form.purpose) out.push({ label: 'Цель финансирования', anchor: 'purpose' })
     const a = parseMoney(form.amount)
     const n = a && a !== 'invalid' ? Number(a) : null

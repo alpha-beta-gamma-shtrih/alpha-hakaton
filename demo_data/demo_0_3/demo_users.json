@@ -1,0 +1,30 @@
+[
+  {
+    "user_key": "CLIENT_C01",
+    "email": "client@example.com",
+    "display_name": "Демо-клиент C01",
+    "role": "CLIENT",
+    "is_active": true
+  },
+  {
+    "user_key": "CLIENT_C02",
+    "email": "client2@example.com",
+    "display_name": "Демо-клиент C02",
+    "role": "CLIENT",
+    "is_active": true
+  },
+  {
+    "user_key": "BANK_01",
+    "email": "bank@example.com",
+    "display_name": "Демо-сотрудник 1",
+    "role": "BANK_STAFF",
+    "is_active": true
+  },
+  {
+    "user_key": "BANK_02",
+    "email": "bank2@example.com",
+    "display_name": "Демо-сотрудник 2",
+    "role": "BANK_STAFF",
+    "is_active": true
+  }
+]

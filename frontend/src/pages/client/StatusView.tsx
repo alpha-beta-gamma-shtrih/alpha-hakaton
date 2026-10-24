@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { FinTable } from '../../components/FinTable'
 import { useEffect, useState } from 'react'
+import { PricingBreakdown } from '../../components/PricingBreakdown'
 import { Link } from 'react-router-dom'
 import { applications } from '../../api/endpoints'
 import type { Assessment, CheckSource, Draft, EventItem } from '../../api/types'
@@ -97,7 +98,7 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
                 <Button
                   variant="white"
                   loading={start.isPending}
-                  onClick={() => companies.data && products.data && start.mutate({ companyId: app.company_id, productId: app.product_id })}
+                  onClick={() => companies.data && products.data?.items[0] && start.mutate({ companyId: app.company_id, productId: products.data.items[0].id })}
                 >
                   Подобрать другие параметры <Arrow />
                 </Button>
@@ -136,6 +137,7 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
         <div className="stack-lg">
           <ChecksCard a={a} animate={justSubmitted} />
           {a && <AssessmentCard a={a} />}
+          {a?.calculation_details.pricing != null && <div className="card"><PricingBreakdown value={a.calculation_details.pricing} /></div>}
           {rev.data ? (
             <div className="card">
               <SectionTitle n="03" color="violet" aside={<span className="hint">отправка {rev.data.revision_no} · {dateTime(rev.data.created_at)}</span>}>

@@ -20,7 +20,7 @@ const uuid = () =>
   })
 
 const FIELD_STEP = (f: string): FormStep =>
-  f.startsWith('draft_data.financial_months') ? 'FINANCES' : f.startsWith('draft_data.') ? 'REVIEW' : 'NEED'
+  f === 'draft_data.purchase_from_bank_partner' ? 'NEED' : f.startsWith('draft_data.financial_months') ? 'FINANCES' : f.startsWith('draft_data.') ? 'REVIEW' : 'NEED'
 
 const CONFIRMABLE: FormStep[] = ['NEED', 'REVIEW']
 
@@ -220,7 +220,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
             {step === 'NEED' && <StepNeed ed={ed} product={product} highlight={highlight} />}
             {step === 'COMPANY' && <StepCompany company={company.data} draft={ed.server} />}
             {step === 'FINANCES' && <StepFinances ed={ed} highlight={highlight} />}
-            {step === 'REVIEW' && <StepReview ed={ed} company={company.data} product={product} ready={ready} highlight={highlight} />}
+            {step === 'REVIEW' && <StepReview ed={ed} company={company.data} product={product} ready={ready} highlight={highlight} candidate={!ed.busy && ed.state !== 'error' && ed.state !== 'conflict' && !scen.isPlaceholderData && scen.data?.application_version === ed.server.version ? scen.data.candidates[0] : undefined} />}
           </fieldset>
 
           {submitError && step === 'REVIEW' && (

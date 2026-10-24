@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Умный кредитный кабинет — demo-0.2",
+    "title": "Умный кредитный кабинет — demo-0.3",
     "version": "0.1.0"
   },
   "paths": {
@@ -4782,6 +4782,11 @@
       },
       "CandidateResponse": {
         "properties": {
+          "pricing": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Pricing"
+          },
           "candidate_id": {
             "type": "string",
             "enum": [
@@ -5380,6 +5385,11 @@
       },
       "DraftDataPatch": {
         "properties": {
+          "purchase_from_bank_partner": {
+            "type": "boolean",
+            "title": "Purchase From Bank Partner",
+            "default": false
+          },
           "financial_months": {
             "items": {
               "$ref": "#/components/schemas/FinancialMonthInput"
@@ -5410,6 +5420,11 @@
       },
       "DraftDataResponse": {
         "properties": {
+          "purchase_from_bank_partner": {
+            "type": "boolean",
+            "title": "Purchase From Bank Partner",
+            "default": false
+          },
           "financial_months": {
             "items": {
               "$ref": "#/components/schemas/FinancialMonthResponse"
@@ -6419,7 +6434,9 @@
         "enum": [
           "INVENTORY",
           "OPERATING_EXPENSES",
-          "SEASONAL_PURCHASE"
+          "SEASONAL_PURCHASE",
+          "EQUIPMENT",
+          "OTHER"
         ],
         "title": "Purpose"
       },

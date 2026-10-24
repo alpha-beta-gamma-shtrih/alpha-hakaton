@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { downloadDocument } from '../../../api/client'
-import type { CompanyDetail, Draft, Product, Purpose } from '../../../api/types'
+import type { Candidate, CompanyDetail, Draft, Product, Purpose } from '../../../api/types'
 import { PixelArt, type PixelShape } from '../../../components/pixel'
 import { Button, Checkbox, Notice, ProvenanceBadge, SectionTitle, Skeleton, useToast } from '../../../components/ui'
 import { date, groupDigits, money, moneyShort, moneyToInput, monthName, months as monthsLabel, parseMoney } from '../../../lib/format'
@@ -15,6 +15,8 @@ const PURPOSE_ICON: Record<Purpose, { shape: PixelShape; color: string }> = {
   INVENTORY: { shape: 'doc', color: 'var(--red)' },
   OPERATING_EXPENSES: { shape: 'bolt', color: 'var(--blue)' },
   SEASONAL_PURCHASE: { shape: 'hourglass', color: 'var(--violet)' },
+  EQUIPMENT: { shape: 'bolt', color: 'var(--violet)' },
+  OTHER: { shape: 'question', color: 'var(--blue)' },
 }
 
 function MoneyField({ value, onChange, invalid, label, id, big, placeholder, onEnter }: { value: string; onChange: (v: string) => void; invalid?: string; label?: string; id: string; big?: boolean; placeholder?: string; onEnter?: () => void }) {
@@ -59,7 +61,7 @@ export function StepNeed({ ed, product, highlight }: { ed: Editor; product?: Pro
   const min = Number(product?.min_amount ?? 100000)
   const max = Number(product?.max_amount ?? 5000000)
   const tmin = product?.min_term_months ?? 6
-  const tmax = product?.max_term_months ?? 24
+  const tmax = product?.max_term_months ?? 60
   const amt = parseMoney(form.amount)
   const amtNum = amt && amt !== 'invalid' ? Number(amt) : null
   const outOfRange = amtNum !== null && (amtNum < min || amtNum > max)
@@ -91,7 +93,7 @@ export function StepNeed({ ed, product, highlight }: { ed: Editor; product?: Pro
           {allowed.map((p) => {
             const on = form.purpose === p
             return (
-              <button key={p} type="button" role="radio" aria-checked={on} className={`purpose ${on ? 'on' : ''}`} onClick={() => update({ purpose: p }, ['purpose'], true)}>
+              <button key={p} type="button" role="radio" aria-checked={on} className={`purpose ${on ? 'on' : ''}`} onClick={() => update({ purpose: p, partnerPurchase: ['INVENTORY', 'SEASONAL_PURCHASE', 'EQUIPMENT'].includes(p) ? form.partnerPurchase : false }, ['purpose', ...(product?.version === 3 ? ['partner' as const] : [])], true)}>
                 <span className="purpose-ic">
                   <PixelArt shape={PURPOSE_ICON[p].shape} size={4.6} gap={1.2} color={on ? 'var(--ink)' : PURPOSE_ICON[p].color} animate={false} />
                 </span>
@@ -103,6 +105,8 @@ export function StepNeed({ ed, product, highlight }: { ed: Editor; product?: Pro
           })}
         </div>
         {fieldErrors.purpose_code && <p className="error-text" style={{ marginTop: 10 }}>{fieldErrors.purpose_code}</p>}
+        {product?.version === 3 && form.purpose && ['INVENTORY', 'SEASONAL_PURCHASE', 'EQUIPMENT'].includes(form.purpose) && <div data-anchor="draft_data.purchase_from_bank_partner" style={{ marginTop: 18 }}><Checkbox checked={form.partnerPurchase} onChange={v => update({ partnerPurchase: v }, ['partner'], true)} title="Планируется покупка у партнёра банка" desc="Скидка 0,5 п. п. · DEMO: поставщик и документы не проверяются." /></div>}
+        {fieldErrors['draft_data.purchase_from_bank_partner'] && <p className="error-text">{fieldErrors['draft_data.purchase_from_bank_partner']}</p>}
         <div className="field" data-anchor="details" style={{ marginTop: 18 }}>
           <label htmlFor="details">Пара слов о задаче · необязательно</label>
           <textarea
@@ -149,7 +153,7 @@ export function StepNeed({ ed, product, highlight }: { ed: Editor; product?: Pro
           </div>
           <div className="stack" data-anchor="term">
             <div className="field">
-              <label htmlFor="term">Срок</label>
+              <label htmlFor="term">Срок, в месяцах</label>
               <div className="term-input">
                 <input
                   id="term"
@@ -161,9 +165,10 @@ export function StepNeed({ ed, product, highlight }: { ed: Editor; product?: Pro
                   aria-invalid={!!termError}
                   onChange={(e) => onTermText(e.target.value)}
                 />
-                <span className="unit">{termNum ? monthsLabel(termNum).split(' ')[1] : 'месяцев'}</span>
+                <span className="unit">мес.</span>
               </div>
               {termError && <span className="error-text">{termError}</span>}
+              {form.term !== null && <span className="hint">{monthsLabel(form.term)}</span>}
             </div>
             <input
               type="range"
@@ -177,13 +182,13 @@ export function StepNeed({ ed, product, highlight }: { ed: Editor; product?: Pro
               onChange={(e) => update({ term: Number(e.target.value) }, ['term'])}
             />
             <div className="range-scale">
-              <span>{tmin} мес</span>
-              <span>{tmax} мес</span>
+              <span>{monthsLabel(tmin)}</span>
+              <span>{monthsLabel(tmax)}</span>
             </div>
             <div className="quick">
-              {[6, 12, 18, 24].filter((v) => v >= tmin && v <= tmax).map((v) => (
+              {[6, 12, 24, 36, 48, 60].filter((v) => v >= tmin && v <= tmax).map((v) => (
                 <button key={v} type="button" className={form.term === v ? 'on' : ''} onClick={() => update({ term: v }, ['term'], true)}>
-                  {v} мес
+                  {monthsLabel(v)}
                 </button>
               ))}
             </div>
@@ -192,7 +197,7 @@ export function StepNeed({ ed, product, highlight }: { ed: Editor; product?: Pro
         </div>
         {product && (
           <p className="hint" style={{ marginTop: 18 }}>
-            {product.name}. Ставка {Number(product.annual_rate_percent)}% годовых, аннуитетный платёж. {product.description}
+            {product.name}. {product.version === 3 ? 'Персональная ставка от' : 'Ставка'} {Number(product.annual_rate_percent)}% годовых, аннуитетный платёж. {product.description}
           </p>
         )}
       </div>
@@ -407,7 +412,7 @@ export function avgCashflow(rows: MonthRow[]) {
 }
 
 /* ---------------- REVIEW ---------------- */
-export function StepReview({ ed, company, product, ready, highlight }: { ed: Editor; company?: CompanyDetail; product?: Product; ready: ReturnType<typeof import('./useDraftEditor').readiness>; highlight: Set<string> }) {
+export function StepReview({ ed, company, product, ready, highlight, candidate }: { ed: Editor; company?: CompanyDetail; product?: Product; candidate?: Candidate; ready: ReturnType<typeof import('./useDraftEditor').readiness>; highlight: Set<string> }) {
   const { form, update, fieldErrors, server } = ed
   const needsInfo = server.status === 'NEEDS_INFO'
   return (
@@ -418,7 +423,8 @@ export function StepReview({ ed, company, product, ready, highlight }: { ed: Edi
           <ReviewItem k="Цель" v={form.purpose ? PURPOSE[form.purpose].label : '—'} />
           <ReviewItem k="Сумма" v={ready.amountNum !== null ? money(ready.amountNum) : '—'} accent />
           <ReviewItem k="Срок" v={monthsLabel(form.term)} accent />
-          <ReviewItem k="Ставка" v={product ? `${Number(product.annual_rate_percent)}% годовых` : '—'} />
+          <ReviewItem k={candidate?.pricing?.status === 'PERSONALIZED' ? 'Предварительная ставка' : product?.version === 3 ? 'Базовая ставка' : 'Ставка'} v={candidate ? `${Number(candidate.annual_rate_percent)}% годовых` : product ? `${product.version === 3 ? 'от ' : ''}${Number(product.annual_rate_percent)}% годовых` : '—'} />
+          {product?.version === 3 && <ReviewItem k="Партнёрская покупка · DEMO" v={form.partnerPurchase ? 'Заявлено клиентом' : 'Не заявлена'} />}
           <ReviewItem k="Компания" v={company?.legal_name ?? '—'} />
           <ReviewItem k="Средний поток" v={avgCashflow(form.months) === null ? 'неполные данные' : money(avgCashflow(form.months))} />
         </div>

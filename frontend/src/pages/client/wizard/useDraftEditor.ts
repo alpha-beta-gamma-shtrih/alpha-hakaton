@@ -18,6 +18,7 @@ export interface FormState {
   term: number | null
   purpose: Purpose | null
   details: string
+  partnerPurchase: boolean
   months: MonthRow[]
   dataConfirmed: boolean
   bkiAllowed: boolean
@@ -46,6 +47,7 @@ const fromDraft = (d: Draft): FormState => ({
   term: d.term_months,
   purpose: d.purpose_code,
   details: d.purpose_details ?? '',
+  partnerPurchase: d.draft_data.purchase_from_bank_partner ?? false,
   months: draftMonths(d),
   dataConfirmed: d.draft_data.confirmations.data_confirmed,
   bkiAllowed: d.draft_data.confirmations.credit_history_check_allowed,
@@ -53,7 +55,7 @@ const fromDraft = (d: Draft): FormState => ({
   step: d.ui_step,
 })
 
-type Field = 'amount' | 'term' | 'purpose' | 'details' | 'months' | 'confirmations' | 'info' | 'step'
+type Field = 'amount' | 'term' | 'purpose' | 'details' | 'partner' | 'months' | 'confirmations' | 'info' | 'step'
 const DEBOUNCE_MS = 900
 
 /** Local form state + serialized autosave with optimistic-lock version (expected_version).
@@ -104,6 +106,7 @@ export function useDraftEditor(initial: Draft) {
       } else if (k === 'term') p.term_months = f.term
       else if (k === 'purpose') p.purpose_code = f.purpose
       else if (k === 'details') p.purpose_details = f.details.trim() ? f.details : null
+      else if (k === 'partner') dd.purchase_from_bank_partner = f.partnerPurchase
       else if (k === 'step') p.ui_step = f.step
       else if (k === 'months') {
         const rows = f.months.map((m) => ({
@@ -283,7 +286,7 @@ function fieldOf(path: string): Field {
   if (path.startsWith('draft_data.financial_months')) return 'months'
   if (path.startsWith('draft_data.confirmations')) return 'confirmations'
   if (path === 'draft_data.info_response') return 'info'
-  return ({ requested_amount: 'amount', term_months: 'term', purpose_code: 'purpose', purpose_details: 'details', ui_step: 'step' } as Record<string, Field>)[path] ?? 'amount'
+  return ({ requested_amount: 'amount', term_months: 'term', purpose_code: 'purpose', purpose_details: 'details', ui_step: 'step', 'draft_data.purchase_from_bank_partner': 'partner' } as Record<string, Field>)[path] ?? 'amount'
 }
 
 /** Readiness navigator: what is missing before submit (client-side mirror of required inputs). */

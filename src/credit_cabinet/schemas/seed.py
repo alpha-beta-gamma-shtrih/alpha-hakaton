@@ -67,16 +67,16 @@ class MembershipSeed(StrictModel):
 
 class ProductSeed(StrictModel):
     code: Literal["WC_DEMO"]
-    version: Literal[2]
+    version: Literal[2, 3]
     name: str = Field(min_length=1)
     description: str
     allowed_purposes: list[Purpose]
     min_amount: MoneyInput
     max_amount: MoneyInput
     min_term_months: Literal[6]
-    max_term_months: Literal[24]
-    annual_rate_percent: Literal["24.000"]
-    policy_version: Literal["demo-policy-0.2"]
+    max_term_months: Literal[24, 60]
+    annual_rate_percent: Literal["24.000", "20.000"]
+    policy_version: Literal["demo-policy-0.2", "demo-policy-0.3"]
     policy_config: dict
     is_active: bool = Field(strict=True)
 
@@ -84,8 +84,10 @@ class ProductSeed(StrictModel):
     def current_contract(self):
         if self.min_amount != 100000 or self.max_amount != 5000000:
             raise ValueError("Amount bounds differ from demo-0.2")
-        if set(self.allowed_purposes) != set(Purpose) or len(self.allowed_purposes) != 3:
-            raise ValueError("Purpose set differs from demo-0.2")
+        from credit_cabinet.services.product_policy import supported
+
+        if not supported(self) or len(self.allowed_purposes) != len(set(self.allowed_purposes)):
+            raise ValueError("Unsupported immutable product contract")
         if self.policy_config.get("calculation_date") != CALCULATION_DATE.isoformat():
             raise ValueError("Missing fixed calculation date")
         return self
@@ -100,8 +102,8 @@ class DocumentTemplate(StrictModel):
 
 class Manifest(StrictModel):
     schema_version: Literal[2]
-    dataset_version: Literal["demo-0.2"]
-    policy_version: Literal["demo-policy-0.2"]
+    dataset_version: Literal["demo-0.2", "demo-0.3"]
+    policy_version: Literal["demo-policy-0.2", "demo-policy-0.3"]
     subset: Literal["C01_C02_BOOTSTRAP", "FULL"]
     seed: Literal[42]
     calculation_date: date
@@ -165,10 +167,16 @@ class FixtureEntry(StrictModel):
 
 
 class ScenarioSeed(StrictModel):
+    purchase_from_bank_partner: bool = Field(default=False, strict=True)
     scenario_key: str = Field(min_length=1)
     company_key: str
     requested_amount: MoneyInput
-    term_months: int = Field(strict=True, ge=6, le=24)
+    term_months: int = Field(strict=True, ge=6, le=60)
     purpose_code: Purpose
     sequence: list[str]
     expected_result: dict
+
+
+class BankRelationshipSeed(StrictModel):
+    company_key: str
+    has_active_loan_in_our_bank: bool = Field(strict=True)

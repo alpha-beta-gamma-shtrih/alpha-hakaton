@@ -1,0 +1,10 @@
+[
+  {
+    "company_key": "C01",
+    "has_active_loan_in_our_bank": true
+  },
+  {
+    "company_key": "C02",
+    "has_active_loan_in_our_bank": false
+  }
+]

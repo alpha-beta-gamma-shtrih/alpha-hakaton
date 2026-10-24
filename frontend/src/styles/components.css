@@ -739,3 +739,11 @@
 .ft .ft-flow.neg { color: var(--red); }
 .ft tbody tr:hover td { background: #fafafb; }
 .ft-missing { display: inline-block; padding: 2px 8px; border-radius: 6px; background: #fff2cc; color: #8a5a00; font-size: 12px; font-weight: 600; }
+
+/* Server-side rate explanation shared by the client and employee cabinets. */
+.pricing-breakdown { margin-top: 16px; padding: 12px; border: 1px solid currentColor; border-radius: 14px; font-size: 13px; overflow-wrap: anywhere; }
+.pricing-breakdown summary { cursor: pointer; font-weight: 700; }
+.pricing-breakdown dl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; margin: 14px 0; }
+.pricing-row { display: contents; }
+.pricing-breakdown dd { margin: 0; text-align: right; }
+.pricing-breakdown p, .pricing-note { margin-top: 10px; font-size: 12px; line-height: 1.5; }

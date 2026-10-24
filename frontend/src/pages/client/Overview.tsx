@@ -64,12 +64,12 @@ export function OverviewPage() {
               <div>
                 <span>Срок</span>
                 <b>
-                  {product.min_term_months}–{product.max_term_months} мес
+                  {months(product.min_term_months)} – {months(product.max_term_months)}
                 </b>
               </div>
               <div>
                 <span>Ставка</span>
-                <b>{Number(product.annual_rate_percent)}% годовых</b>
+                <b>{product.version === 3 ? 'от ' : ''}{Number(product.annual_rate_percent)}% годовых</b>
               </div>
             </div>
           ) : (

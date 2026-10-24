@@ -115,7 +115,11 @@ def decide(db, principal, application_id, body, auth):
             outcome=body.outcome,
             approved_amount=revision.requested_amount if approved else None,
             approved_term_months=revision.term_months if approved else None,
-            annual_rate_percent=Decimal(revision.product_snapshot["annual_rate_percent"])
+            annual_rate_percent=Decimal(
+                result.calculation_details.get(
+                    "annual_rate_percent", revision.product_snapshot["annual_rate_percent"]
+                )
+            )
             if approved
             else None,
             monthly_payment=Decimal(result.calculation_details["monthly_payment"])
