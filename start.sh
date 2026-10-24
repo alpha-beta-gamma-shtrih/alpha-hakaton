@@ -30,8 +30,20 @@ docker build -f Dockerfile -t credit-cabinet-app:local .
 echo "Building frontend image..."
 docker build -f frontend/Dockerfile -t credit-cabinet-frontend:local ./frontend
 
-echo "Starting Compose: tests, database and model initialization, application..."
-docker compose -f compose.yaml up -d
+cleanup_tests() {
+    docker compose -f compose.yaml --profile test rm -sf tests postgres-test
+}
+
+echo "Running tests..."
+trap cleanup_tests EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+docker compose -f compose.yaml --profile test up --exit-code-from tests tests
+cleanup_tests
+trap - EXIT INT TERM
+
+echo "Starting application..."
+docker compose -f compose.yaml up -d frontend
 docker compose -f compose.yaml ps
 
 echo "Frontend URL: http://localhost:8080"
