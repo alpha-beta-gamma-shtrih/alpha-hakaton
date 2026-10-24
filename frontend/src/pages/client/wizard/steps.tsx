@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from 'react'
 import { downloadDocument } from '../../../api/client'
 import type { Candidate, CompanyDetail, Draft, Product, Purpose } from '../../../api/types'
 import { PixelArt, type PixelShape } from '../../../components/pixel'
-import { Button, Checkbox, Notice, ProvenanceBadge, SectionTitle, Skeleton, useToast } from '../../../components/ui'
+import { Checkbox, Notice, ProvenanceBadge, SectionTitle, Skeleton, useToast } from '../../../components/ui'
 import { date, groupDigits, money, moneyShort, moneyToInput, monthName, months as monthsLabel, parseMoney } from '../../../lib/format'
 import { FIN_FIELDS, LEGAL_FORM, PURPOSE, type FinKey } from '../../../lib/labels'
 import { CashflowBars } from '../Company'
@@ -279,23 +279,28 @@ export function DocumentsCard({ docs, title = 'Подготовленные до
                   {d.kind === 'FINANCIAL_STATEMENT' ? 'Финансовые показатели' : d.kind} · {(d.size_bytes / 1024).toFixed(1)} КБ · {d.source === 'DEMO' ? 'синтетический' : 'загружен'} · SHA-256 {d.content_sha256.slice(0, 10)}…
                 </div>
               </div>
-              <Button
-                size="sm"
-                variant="white"
-                loading={busy === d.id}
-                onClick={async () => {
+              {/* A link, not a button: it must keep working inside a confirmed (disabled) step. */}
+              <a
+                href={d.download_url}
+                role="button"
+                className="btn sm white"
+                aria-busy={busy === d.id}
+                onClick={async (e) => {
+                  e.preventDefault()
+                  if (busy) return
                   setBusy(d.id)
                   try {
                     await downloadDocument(d.download_url, d.original_filename)
-                  } catch (e) {
-                    toast.error(e, 'Не удалось скачать документ')
+                  } catch (err) {
+                    toast.error(err, 'Не удалось скачать документ')
                   } finally {
                     setBusy(null)
                   }
                 }}
               >
+                {busy === d.id && <span className="spin" aria-hidden="true" />}
                 Скачать
-              </Button>
+              </a>
             </div>
           ))}
         </div>

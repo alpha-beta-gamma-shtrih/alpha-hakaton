@@ -1,13 +1,15 @@
 /* In-browser demo API (VITE_API_MODE=mock).
    Mirrors the FastAPI contract closely enough to walk the whole flow without a backend:
-   same paths, DTO shapes, error format, versions/409, CSRF, and a simplified demo-policy-0.2.
-   The real credit logic lives in the backend (services/policy.py); this is only a stand-in. */
+   same paths, DTO shapes, error format, versions/409, CSRF, and demo-policy-0.3 with personal pricing
+   on the team's synthetic set (demo_data/demo_0_3, see npm run gen:mock).
+   The real credit logic lives in the backend (services/policy.py, services/pricing.py); this mirrors it for the demo. */
 import type { TransportResponse } from '../client'
 import type {
   AdvisorReport,
   ApplicationStatus,
   BankAssessment,
   BankCard,
+  BankCheck,
   BankDecision,
   BankEvent,
   BankInfoRequest,
@@ -21,7 +23,7 @@ import type {
   RiskBand,
   Routing,
 } from '../types'
-import { BKI, DEMO_COMPANIES, DEMO_MONTHS, DEMO_PRODUCT, DEMO_USERS, type DemoCompany, type DemoUser } from './data'
+import { CALCULATION_DATE, DEMO_BKI, DEMO_COMPANIES, DEMO_FNS, DEMO_MONTHS, DEMO_PRODUCT, DEMO_SCENARIOS, DEMO_USERS, FINANCIAL_MONTHS, REASON_TEXT, type DemoCompany, type DemoUser, type SourceFixture } from './data'
 
 /* ---------------- state ---------------- */
 interface AppRec {
@@ -36,6 +38,7 @@ interface AppRec {
   purpose_code: Draft['purpose_code']
   purpose_details: string | null
   financial_months: FinancialMonth[]
+  purchase_from_bank_partner: boolean
   fin_declared: boolean
   confirmations: { data_confirmed: boolean; credit_history_check_allowed: boolean }
   info_response: string | null
@@ -58,8 +61,7 @@ interface State {
   loginCsrf: string | null
 }
 
-const KEY = 'credit-cabinet-demo-v2'
-const CALC_DATE = '2026-10-01'
+const KEY = 'credit-cabinet-demo-v3'
 const uid = () =>
   (crypto as Crypto & { randomUUID?: () => string }).randomUUID?.() ??
   'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -110,19 +112,22 @@ const allUsers = (): DemoUser[] => DEMO_USERS
 const allCompanies = (): DemoCompany[] => DEMO_COMPANIES
 const companyById = (id: string) => allCompanies().find((c) => c.id === id)
 const userById = (id: string) => allUsers().find((u) => u.id === id)
-const monthsOf = (c: DemoCompany): FinancialMonth[] => DEMO_MONTHS[c.key]
-const bkiOf = (c: DemoCompany) => BKI[c.key]
-const money2 = (n: number) => (Math.round(n * 100) / 100).toFixed(2)
+const monthsOf = (c: DemoCompany): FinancialMonth[] => DEMO_MONTHS[c.key] ?? []
+/** Two decimals, half-up like Decimal.quantize(ROUND_HALF_UP) in the backend. */
+const money2 = (n: number) => (Math.round((n + Math.sign(n) * 1e-9) * 100) / 100).toFixed(2)
+const rate3 = (n: number) => n.toFixed(3)
 
-function monthsBetween(from: string, to: string) {
-  const a = new Date(from + 'T00:00:00')
-  const b = new Date(to + 'T00:00:00')
-  return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth())
+function ageMonths(from: string, to: string) {
+  const [fy, fm, fd] = from.split('-').map(Number)
+  const [ty, tm, td] = to.split('-').map(Number)
+  return (ty - fy) * 12 + tm - fm - (td < fd ? 1 : 0)
 }
 
 function annuity(amount: number, term: number, annualPct: number) {
   const r = annualPct / 100 / 12
-  return (amount * r) / (1 - Math.pow(1 + r, -term))
+  const raw = r === 0 ? amount / term : (amount * r) / (1 - Math.pow(1 + r, -term))
+  const payment = Number(money2(raw))
+  return { monthly_payment: money2(payment), estimated_total_payment: money2(payment * term), estimated_overpayment: money2(payment * term - amount) }
 }
 
 function hash(v: unknown) {
@@ -132,109 +137,193 @@ function hash(v: unknown) {
   return (h1 >>> 0).toString(16).padStart(8, '0').repeat(8)
 }
 
-const R = (code: string, message: string): Reason => ({ code, message })
-const REASONS = {
-  PASSED: R('DEMO_POLICY_PASSED', 'Заявка прошла демонстрационные правила продукта.'),
-  LOAD_35_50: R('LOAD_35_50', 'Долговая нагрузка выше 35% и не выше 50%.'),
-  LOAD_50_65: R('LOAD_50_65', 'Долговая нагрузка выше 50% и не выше 65%.'),
-  LOAD_65_80: R('LOAD_65_80', 'Долговая нагрузка выше 65% и не выше 80%.'),
-  AGE_6_11: R('BUSINESS_AGE_6_11', 'Бизнесу от 6 до 11 месяцев.'),
-  AGE_12_23: R('BUSINESS_AGE_12_23', 'Бизнесу от 12 до 23 месяцев.'),
-  TREND_5: R('INFLOW_TREND_DOWN_15', 'Поступления снизились до 15%.'),
-  TREND_15: R('INFLOW_TREND_DOWN_30', 'Поступления снизились на 15–30%.'),
-  TREND_25: R('INFLOW_TREND_DOWN_MORE', 'Поступления снизились более чем на 30%.'),
-  BORDERLINE: R('BORDERLINE_RISK', 'Нужна оценка сотрудника; итогового решения пока нет.'),
-  HIGH: R('RISK_SCORE_TOO_HIGH', 'Совокупная оценка риска выше допустимой для продукта.'),
-  LOAD_LIMIT: R('DEBT_LOAD_LIMIT_EXCEEDED', 'Расчетная долговая нагрузка превышает предел демо-политики.'),
-  NO_CF: R('NON_POSITIVE_CASHFLOW', 'Операционный денежный поток не положительный.'),
-  INCOMPLETE: R('FINANCIAL_DATA_INCOMPLETE', 'Не хватает финансовых показателей за часть месяцев.'),
-  NO_HISTORY: R('CREDIT_HISTORY_ABSENT', 'Кредитная история отсутствует.'),
-  BKI_CONFIRM: R(
-    'CREDIT_HISTORY_CONFIRMATION_REQUIRED',
-    'Для полной предварительной оценки подтвердите демонстрационную проверку истории. Расчет платежа доступен.',
-  ),
+const reason = (code: string): Reason => ({ code, message: REASON_TEXT[code] ?? code })
+const BASE_RATE = Number(DEMO_PRODUCT.annual_rate_percent)
+const PURCHASE_PURPOSES = ['INVENTORY', 'SEASONAL_PURCHASE', 'EQUIPMENT']
+
+/* ---------------- demo-policy-0.3 (mirror of services/policy.py and services/pricing.py) ---------------- */
+const PRICING = {
+  base: 20,
+  minimum: 20,
+  age: [2, 1, 0],
+  history: { absent: 2, clean: 0, '1_29': 2, '30_59': 4 } as Record<string, number>,
+  trend: [0, 1, 2],
+  term: [0, 1, 2, 3, 4],
+  purpose: { INVENTORY: 0.5, OPERATING_EXPENSES: 0, SEASONAL_PURCHASE: 0.5, EQUIPMENT: 1, OTHER: 0 } as Record<string, number>,
+  bankCustomer: 0.5,
+  partner: 0.5,
 }
 
-interface PolicyResult {
+function quote(o: { age: number; history: boolean; overdue: number; trend: number; term: number; purpose: string; bankCustomer: boolean; partner: boolean }) {
+  const historyKey = !o.history ? 'absent' : o.overdue >= 30 ? '30_59' : o.overdue ? '1_29' : 'clean'
+  const additions: [string, string, number][] = [
+    ['BUSINESS_AGE', 'Возраст бизнеса', PRICING.age[o.age < 12 ? 0 : o.age < 24 ? 1 : 2]],
+    ['CREDIT_HISTORY', 'Кредитная история', PRICING.history[historyKey]],
+    ['INFLOW_TREND', 'Динамика поступлений', PRICING.trend[o.trend <= -0.3 ? 2 : o.trend <= -0.15 ? 1 : 0]],
+    ['TERM', 'Срок кредита', PRICING.term[Math.min(4, Math.floor((o.term - 1) / 12))]],
+  ]
+  const discounts: [string, string, number][] = [
+    ['PURPOSE', 'Целевая программа', PRICING.purpose[o.purpose] ?? 0],
+    ['BANK_CUSTOMER', 'Исправный заёмщик нашего банка · DEMO', o.bankCustomer && o.history && o.overdue === 0 ? PRICING.bankCustomer : 0],
+    ['PARTNER', 'Покупка у партнёра · заявлено клиентом · DEMO', o.partner && PURCHASE_PURPOSES.includes(o.purpose) ? PRICING.partner : 0],
+  ]
+  const before = PRICING.base + additions.reduce((s, r) => s + r[2], 0)
+  const requested = discounts.reduce((s, r) => s + r[2], 0)
+  const final = Math.max(PRICING.minimum, before - requested)
+  return {
+    status: 'PERSONALIZED',
+    pricing_version: 'demo-pricing-0.3',
+    base_rate_percent: rate3(PRICING.base),
+    minimum_rate_percent: rate3(PRICING.minimum),
+    rate_before_discounts: rate3(before),
+    requested_discount_pp: rate3(requested),
+    applied_discount_pp: rate3(before - final),
+    floor_adjustment_pp: rate3(final - (before - requested)),
+    annual_rate_percent: rate3(final),
+    additions: additions.map(([code, label, v]) => ({ code, label, percentage_points: rate3(v) })),
+    discounts: discounts.map(([code, label, v]) => ({ code, label, percentage_points: rate3(v) })),
+    bank_relationship_source: 'DEMO_BANK_PROFILE',
+    has_active_loan_in_our_bank: o.bankCustomer,
+    purchase_from_bank_partner: o.partner,
+    purpose_code: o.purpose,
+  }
+}
+
+const unpriced = (code: string) => ({ status: 'INDICATIVE', annual_rate_percent: rate3(BASE_RATE), reason_code: code })
+
+/** The latest fixture row for this attempt: an explicit revision wins, then the newest run_no. */
+function fixture(list: SourceFixture[], company: DemoCompany, revisionNo: number, runNo: number) {
+  const choices = list.filter((r) => r.company_key === company.key && (r.revision_no === null || r.revision_no === revisionNo) && r.run_no <= runNo)
+  if (!choices.length) return null
+  return choices.reduce((best, r) => {
+    const k = (x: SourceFixture) => (x.revision_no !== null ? 1000 : 0) + x.run_no
+    return k(r) > k(best) ? r : best
+  })
+}
+
+interface Evaluation {
   routing: Routing
+  reason_codes: string[]
   risk_score: number | null
-  reasons: Reason[]
-  missing: string[]
   details: Record<string, unknown>
-  payment: number
+  checks: BankCheck[]
+  requested_fields: string[]
+  facts: Record<string, unknown>
 }
 
-function runPolicy(company: DemoCompany, amount: number, term: number, months: FinancialMonth[]): PolicyResult {
-  const payment = annuity(amount, term, Number(DEMO_PRODUCT.annual_rate_percent))
-  const total = payment * term
-  const base = {
-    monthly_payment: money2(payment),
-    estimated_total_payment: money2(total),
-    estimated_overpayment: money2(total - amount),
+function evaluate(o: { company: DemoCompany; months: FinancialMonth[]; amount: number; term: number; purpose: string; partner: boolean; revisionNo: number; runNo: number }): Evaluation {
+  const t = now()
+  const res: Evaluation = { routing: 'MANUAL_REVIEW', reason_codes: [], risk_score: null, details: {}, checks: [], requested_fields: [], facts: {} }
+  const finish = (route: Routing, code: string, fields: string[] = []) => {
+    res.routing = route
+    res.reason_codes = [code]
+    res.requested_fields = fields
+    if (!res.details.pricing) res.details.pricing = unpriced(code)
+    return res
   }
+  const consult = (source: 'FNS' | 'BKI') => {
+    const row = fixture(source === 'FNS' ? DEMO_FNS : DEMO_BKI, o.company, o.revisionNo, o.runNo)
+    const provenanceItem = { source: source === 'FNS' ? 'MOCK_FNS' : 'MOCK_BKI', as_of_date: CALCULATION_DATE, checked_at: t }
+    const status = row?.status ?? 'NO_DATA'
+    const data = row?.normalized_data ? { ...row.normalized_data, provenance: provenanceItem } : null
+    res.checks.push({ source, status, reasons: [], source_version: source === 'FNS' ? 'legal-mock-0.2' : 'bki-mock-0.2', completed_at: t, started_at: t, normalized_data: data, error_code: row?.error_code ?? null })
+    res.facts[source.toLowerCase()] = data
+    return { status, error: row?.error_code ?? null, data: (row?.normalized_data ?? {}) as Record<string, any> }
+  }
+
+  const legal = consult('FNS')
+  if (legal.status !== 'SUCCESS') return finish('MANUAL_REVIEW', legal.error === 'SOURCE_RESPONSE_INVALID' ? 'SOURCE_RESPONSE_INVALID' : 'SOURCE_FNS_UNAVAILABLE')
+  const c = o.company as unknown as Record<string, unknown>
+  if (['inn', 'legal_form', 'registered_on'].some((k) => String(legal.data[k]) !== String(c[k]))) return finish('MANUAL_REVIEW', 'COMPANY_DATA_MISMATCH')
+  if (legal.data.registry_status !== 'ACTIVE') return finish('REJECT', 'COMPANY_NOT_ACTIVE')
+  if (legal.data.is_bankrupt === true) return finish('REJECT', 'COMPANY_BANKRUPTCY')
+  if (legal.data.is_bankrupt == null) return finish('MANUAL_REVIEW', 'LEGAL_STATUS_UNCONFIRMED')
+  const age = ageMonths(o.company.registered_on, CALCULATION_DATE)
+  res.details.business_age_months = age
+  if (age < 6) return finish('REJECT', 'BUSINESS_TOO_YOUNG')
+
+  const credit = consult('BKI')
+  if (credit.status !== 'SUCCESS') return finish('MANUAL_REVIEW', credit.error === 'SOURCE_RESPONSE_INVALID' ? 'SOURCE_RESPONSE_INVALID' : 'SOURCE_BKI_UNAVAILABLE')
+  const f = credit.data
+  if (Number(f.current_overdue_amount) > 0) return finish('REJECT', 'CURRENT_OVERDUE')
+  if (Number(f.max_overdue_days_12m) >= 60) return finish('REJECT', 'SEVERE_OVERDUE_HISTORY')
+
+  const byMonth = new Map(o.months.map((m) => [m.month, m]))
   const missing: string[] = []
-  for (const m of months)
+  for (const month of FINANCIAL_MONTHS)
     for (const k of ['cash_inflow', 'operating_outflow', 'existing_debt_payment'] as const)
-      if (m[k] === null) missing.push(`draft_data.financial_months.${m.month}.${k}`)
-  if (missing.length || months.length < 6) {
-    return { routing: 'NEEDS_INFO', risk_score: null, reasons: [REASONS.INCOMPLETE], missing, details: base, payment }
-  }
-  const cf = months.map((m) => Number(m.cash_inflow) - Number(m.operating_outflow))
-  const avgCf = cf.reduce((a, b) => a + b, 0) / cf.length
-  const declared = Number(months[months.length - 1].existing_debt_payment)
-  const confirmed = Number(bkiOf(company).current_monthly_payment)
+      if (byMonth.get(month)?.[k] == null) missing.push(`draft_data.financial_months.${month}.${k}`)
+  res.checks.push({
+    source: 'DATA_QUALITY',
+    status: missing.length ? 'NO_DATA' : 'SUCCESS',
+    reasons: missing.length ? [reason('FINANCIAL_HISTORY_INCOMPLETE')] : [],
+    source_version: 'data-quality-0.2',
+    completed_at: t,
+    started_at: t,
+    normalized_data: missing.length ? null : { financial_month_count: 6 },
+    error_code: missing.length ? 'FINANCIAL_HISTORY_INCOMPLETE' : null,
+  })
+  if (missing.length) return finish('NEEDS_INFO', 'FINANCIAL_HISTORY_INCOMPLETE', missing)
+
+  const months = FINANCIAL_MONTHS.map((m) => byMonth.get(m)!)
+  const declared = Number(months[5].existing_debt_payment)
+  const confirmed = Number(f.current_monthly_payment)
+  Object.assign(res.details, { declared_current_payment: money2(declared), confirmed_current_payment: money2(confirmed) })
+  if (Math.abs(declared - confirmed) > Math.max(1000, 0.1 * Math.max(declared, confirmed)))
+    return finish('NEEDS_INFO', 'DEBT_PAYMENT_MISMATCH', [`draft_data.financial_months.${FINANCIAL_MONTHS[5]}.existing_debt_payment`])
+  const average = months.reduce((s, m) => s + Number(m.cash_inflow) - Number(m.operating_outflow), 0) / 6
+  res.details.average_operating_cashflow = String(average)
+  if (average <= 0) return finish('REJECT', 'NON_POSITIVE_CASHFLOW')
+  const first = months.slice(0, 3).reduce((s, m) => s + Number(m.cash_inflow), 0)
+  if (first === 0) return finish('MANUAL_REVIEW', 'TREND_BASELINE_ZERO')
+  const trend = months.slice(3).reduce((s, m) => s + Number(m.cash_inflow), 0) / first - 1
+  const pricing = quote({ age, history: !!f.history_present, overdue: Number(f.max_overdue_days_12m), trend, term: o.term, purpose: o.purpose, bankCustomer: o.company.has_active_loan_in_our_bank, partner: o.partner })
+  res.details.pricing = pricing
+  res.details.annual_rate_percent = pricing.annual_rate_percent
+  const pay = annuity(o.amount, o.term, Number(pricing.annual_rate_percent))
   const existing = Math.max(declared, confirmed)
-  const age = monthsBetween(company.registered_on, CALC_DATE)
-  const inflowFirst = months.slice(0, 3).reduce((a, m) => a + Number(m.cash_inflow), 0)
-  const inflowLast = months.slice(3).reduce((a, m) => a + Number(m.cash_inflow), 0)
-  const trend = inflowFirst > 0 ? inflowLast / inflowFirst - 1 : 0
-  const details: Record<string, unknown> = {
-    ...base,
-    existing_payment: money2(existing),
-    declared_current_payment: money2(declared),
-    confirmed_current_payment: money2(confirmed),
-    business_age_months: age,
-    average_operating_cashflow: money2(avgCf),
-    inflow_trend: trend.toFixed(4),
-  }
-  if (avgCf <= 0) return { routing: 'REJECT', risk_score: null, reasons: [REASONS.NO_CF], missing, details, payment }
-  const load = (payment + existing) / avgCf
-  details.load_ratio = load.toFixed(10)
-  if (load > 0.8) return { routing: 'REJECT', risk_score: null, reasons: [REASONS.LOAD_LIMIT], missing, details, payment }
+  const load = (existing + Number(pay.monthly_payment)) / average
+  Object.assign(res.details, pay, { existing_payment: money2(existing), load_ratio: String(load) })
+  if (load > 0.8) return finish('REJECT', 'DEBT_LOAD_LIMIT_EXCEEDED')
 
   const factors: { factor_id: string; points: number; value: string }[] = []
-  const factorReasons: Reason[] = []
-  const add = (r: Reason, points: number, value: string) => {
-    if (!points) return
-    factors.push({ factor_id: r.code, points, value })
-    factorReasons.push(r)
-  }
-  if (load > 0.65) add(REASONS.LOAD_65_80, 40, load.toFixed(6))
-  else if (load > 0.5) add(REASONS.LOAD_50_65, 25, load.toFixed(6))
-  else if (load > 0.35) add(REASONS.LOAD_35_50, 10, load.toFixed(6))
-  if (age >= 6 && age <= 11) add(REASONS.AGE_6_11, 20, String(age))
-  else if (age >= 12 && age <= 23) add(REASONS.AGE_12_23, 10, String(age))
-  if (trend < -0.3) add(REASONS.TREND_25, 25, trend.toFixed(4))
-  else if (trend < -0.15) add(REASONS.TREND_15, 15, trend.toFixed(4))
-  else if (trend < 0) add(REASONS.TREND_5, 5, trend.toFixed(4))
-  if (!bkiOf(company).history_present) add(REASONS.NO_HISTORY, 15, 'false')
-  const score = Math.min(100, factors.reduce((a, f) => a + f.points, 0))
-  details.factors = factors
-  if (score <= 29) return { routing: 'APPROVE', risk_score: score, reasons: [REASONS.PASSED, ...factorReasons], missing, details, payment }
-  if (score <= 59) return { routing: 'MANUAL_REVIEW', risk_score: score, reasons: [REASONS.BORDERLINE, ...factorReasons], missing, details, payment }
-  return { routing: 'REJECT', risk_score: score, reasons: [REASONS.HIGH, ...factorReasons], missing, details, payment }
+  const add = (code: string, points: number, value: unknown) => points && factors.push({ factor_id: code, points, value: String(value) })
+  add(age < 12 ? 'BUSINESS_AGE_6_11' : 'BUSINESS_AGE_12_23', age < 12 ? 20 : age < 24 ? 10 : 0, age)
+  if (load > 0.65) add('LOAD_65_80', 40, load)
+  else if (load > 0.5) add('LOAD_50_65', 25, load)
+  else if (load > 0.35) add('LOAD_35_50', 10, load)
+  if (trend < -0.3) add('INFLOW_DROP_OVER_30', 25, trend)
+  else if (trend < -0.15) add('INFLOW_DROP_15_30', 15, trend)
+  else if (trend < 0) add('INFLOW_DROP_0_15', 5, trend)
+  const overdue = Number(f.max_overdue_days_12m)
+  if (overdue >= 30) add('OVERDUE_30_59', 25, overdue)
+  else if (overdue > 0) add('OVERDUE_1_29', 10, overdue)
+  if (!f.history_present) add('CREDIT_HISTORY_ABSENT', 15, false)
+  const score = Math.min(100, factors.reduce((s, x) => s + x.points, 0))
+  res.risk_score = score
+  res.routing = score <= 29 ? 'APPROVE' : score <= 59 ? 'MANUAL_REVIEW' : 'REJECT'
+  res.reason_codes = [score <= 29 ? 'DEMO_POLICY_PASSED' : score <= 59 ? 'BORDERLINE_RISK' : 'RISK_SCORE_LIMIT_EXCEEDED', ...factors.map((x) => x.factor_id)]
+  Object.assign(res.details, { inflow_trend: String(trend), factors })
+  return res
 }
 
-const bandOf = (score: number | null, routing: Routing): RiskBand =>
-  score === null ? (routing === 'REJECT' ? 'HIGH' : 'UNKNOWN') : score <= 29 ? 'LOW' : score <= 59 ? 'MEDIUM' : 'HIGH'
+const bandOf = (score: number | null): RiskBand => (score === null ? 'UNKNOWN' : score <= 29 ? 'LOW' : score <= 59 ? 'MEDIUM' : 'HIGH')
+
+/** Dev check: runs one of the 18 reference scenarios from demo_data/demo_0_3/scenarios.json. */
+export function evaluateScenario(key: string, runNo = 1) {
+  const s = DEMO_SCENARIOS.find((x) => x.key === key)!
+  const company = DEMO_COMPANIES.find((c) => c.key === s.company_key)!
+  const r = evaluate({ company, months: monthsOf(company), amount: Number(s.requested_amount), term: s.term_months, purpose: s.purpose_code, partner: s.purchase_from_bank_partner, revisionNo: 1, runNo })
+  return { routing: r.routing, risk_score: r.risk_score, reason_codes: r.reason_codes, annual_rate_percent: (r.details.pricing as { status: string; annual_rate_percent: string }).status === 'PERSONALIZED' ? r.details.annual_rate_percent : null, monthly_payment: r.details.monthly_payment ?? null, expected: s.expected, sequence: s.sequence }
+}
 
 function provenance(app: AppRec, checked?: string): Provenance {
   return {
     company: checked
-      ? { source: 'MOCK_FNS', as_of_date: CALC_DATE, checked_at: checked }
-      : { source: 'DEMO_PROFILE', as_of_date: CALC_DATE, checked_at: null },
+      ? { source: 'MOCK_FNS', as_of_date: CALCULATION_DATE, checked_at: checked }
+      : { source: 'DEMO_PROFILE', as_of_date: CALCULATION_DATE, checked_at: null },
     financial_months: { source: app.fin_declared ? 'CLIENT_DECLARED' : 'DEMO_PROFILE', as_of_date: '2026-09-30', checked_at: null },
-    credit_history: checked ? { source: 'MOCK_BKI', as_of_date: CALC_DATE, checked_at: checked } : null,
+    credit_history: checked ? { source: 'MOCK_BKI', as_of_date: CALCULATION_DATE, checked_at: checked } : null,
   }
 }
 
@@ -274,51 +363,29 @@ function setStatus(app: AppRec, to: ApplicationStatus, e: { event_type: string; 
 function processLatest(app: AppRec, actor: string | null = null) {
   const rev = app.revisions.at(-1)!
   const company = companyById(app.company_id)!
-  const started = now()
-  const months = (rev.financial_snapshot as { financial_months: FinancialMonth[] }).financial_months
-  const res = runPolicy(company, Number(rev.requested_amount), rev.term_months, months)
-  const checked = now()
-  const fns = {
-    inn: company.inn,
-    legal_form: company.legal_form,
-    registered_on: company.registered_on,
-    registry_status: 'ACTIVE',
-    is_bankrupt: false,
-    provenance: { source: 'MOCK_FNS', as_of_date: CALC_DATE, checked_at: checked },
-  }
-  const bki = { ...bkiOf(company), provenance: { source: 'MOCK_BKI', as_of_date: CALC_DATE, checked_at: checked } }
+  const fin = rev.financial_snapshot as { financial_months: FinancialMonth[]; purchase_from_bank_partner?: boolean }
   const runNo = app.assessments.filter((a) => a.revision_id === rev.id).length + 1
+  const res = evaluate({ company, months: fin.financial_months, amount: Number(rev.requested_amount), term: rev.term_months, purpose: rev.purpose_code, partner: !!fin.purchase_from_bank_partner, revisionNo: rev.revision_no, runNo })
+  const reasons = res.reason_codes.map(reason)
+  const done = now()
   const assessment: BankAssessment = {
     id: uid(),
     revision_id: rev.id,
     run_no: runNo,
     rules_version: DEMO_PRODUCT.policy_version,
     risk_score: res.risk_score,
-    risk_band: bandOf(res.risk_score, res.routing),
+    risk_band: bandOf(res.risk_score),
     routing: res.routing,
-    reasons: res.reasons,
+    reasons,
     calculation_details: res.details,
-    checks: [
-      {
-        source: 'DATA_QUALITY',
-        status: res.missing.length ? 'NO_DATA' : 'SUCCESS',
-        reasons: res.missing.length ? [REASONS.INCOMPLETE] : [],
-        source_version: 'data-quality-0.2',
-        completed_at: checked,
-        started_at: started,
-        normalized_data: { financial_month_count: months.length, missing_fields: res.missing.length },
-        error_code: null,
-      },
-      { source: 'FNS', status: 'SUCCESS', reasons: [], source_version: 'legal-mock-0.2', completed_at: checked, started_at: started, normalized_data: fns, error_code: null },
-      { source: 'BKI', status: 'SUCCESS', reasons: [], source_version: 'bki-mock-0.2', completed_at: checked, started_at: started, normalized_data: bki, error_code: null },
-    ],
-    provenance: provenance(app, checked),
-    completed_at: checked,
-    started_at: started,
-    input_facts: { company: rev.company_snapshot, fns, bki, financial_months: months, calculation_date: CALC_DATE },
+    checks: res.checks,
+    provenance: provenance(app, done),
+    completed_at: done,
+    started_at: done,
+    input_facts: { company: rev.company_snapshot, ...res.facts, financial_months: fin.financial_months, calculation_date: CALCULATION_DATE },
   }
   app.assessments.push(assessment)
-  const msg = res.reasons[0]?.message ?? 'Проверки завершены'
+  const msg = reasons[0]?.message ?? 'Проверки завершены'
   if (res.routing === 'APPROVE' || res.routing === 'REJECT') {
     const outcome = res.routing === 'APPROVE' ? 'APPROVED' : 'REJECTED'
     setStatus(app, outcome, { event_type: 'CHECKS_COMPLETED', message: msg, actor, details: { run_no: runNo, assessment_id: assessment.id } })
@@ -330,9 +397,9 @@ function processLatest(app: AppRec, actor: string | null = null) {
       source: 'AUTO',
       approved_amount: outcome === 'APPROVED' ? rev.requested_amount : null,
       approved_term_months: outcome === 'APPROVED' ? rev.term_months : null,
-      annual_rate_percent: outcome === 'APPROVED' ? DEMO_PRODUCT.annual_rate_percent : null,
-      monthly_payment: String(res.details.monthly_payment),
-      reasons: res.reasons,
+      annual_rate_percent: outcome === 'APPROVED' ? String(res.details.annual_rate_percent ?? DEMO_PRODUCT.annual_rate_percent) : null,
+      monthly_payment: outcome === 'APPROVED' ? String(res.details.monthly_payment) : null,
+      reasons,
       public_explanation: msg,
       policy_version: DEMO_PRODUCT.policy_version,
       created_at: now(),
@@ -346,8 +413,8 @@ function processLatest(app: AppRec, actor: string | null = null) {
       id: uid(),
       revision_id: rev.id,
       created_by_user_id: null,
-      requested_fields: res.missing.length ? res.missing : ['draft_data.financial_months'],
-      message_to_client: 'Заполните недостающие финансовые показатели и отправьте заявку повторно.',
+      requested_fields: res.requested_fields.length ? res.requested_fields : ['draft_data.financial_months'],
+      message_to_client: msg,
       status: 'OPEN',
       answer_text: null,
       answered_revision_id: null,
@@ -363,6 +430,7 @@ function makeRevision(app: AppRec, key: string, userId: string): Revision {
   const company = companyById(app.company_id)!
   const fin = {
     financial_months: clone(app.financial_months),
+    purchase_from_bank_partner: app.purchase_from_bank_partner,
     confirmations: clone(app.confirmations),
     info_response: app.info_response,
     purpose_details: app.purpose_details,
@@ -390,7 +458,7 @@ function makeRevision(app: AppRec, key: string, userId: string): Revision {
 
 /* ---------------- projections ---------------- */
 function companyPublic(c: DemoCompany) {
-  const { key: _k, ...rest } = c
+  const { key: _k, has_active_loan_in_our_bank: _b, members: _m, ...rest } = c
   return rest
 }
 
@@ -420,9 +488,9 @@ function clientDraft(app: AppRec): Draft {
     term_months: app.term_months,
     purpose_code: app.purpose_code,
     purpose_details: app.purpose_details,
-    draft_data: { financial_months: app.financial_months, confirmations: app.confirmations, info_response: app.info_response },
+    draft_data: { financial_months: app.financial_months, purchase_from_bank_partner: app.purchase_from_bank_partner, confirmations: app.confirmations, info_response: app.info_response },
     ui_step: app.ui_step,
-    calculation_date: CALC_DATE,
+    calculation_date: CALCULATION_DATE,
     policy_version: DEMO_PRODUCT.policy_version,
     provenance: provenance(app),
     allowed_actions: editable ? ['EDIT_DRAFT', 'SUBMIT'] : [],
@@ -438,12 +506,17 @@ function clientDraft(app: AppRec): Draft {
   }
 }
 
+const RETRY_REASONS = ['SOURCE_FNS_UNAVAILABLE', 'SOURCE_BKI_UNAVAILABLE', 'SOURCE_RESPONSE_INVALID', 'COMPANY_DATA_MISMATCH', 'LEGAL_STATUS_UNCONFIRMED']
+
 function bankActions(app: AppRec): BankQueueItem['allowed_actions'] {
   const a = latestAssessment(app)
   if (app.status === 'SUBMITTED' || app.status === 'CHECKING') return ['RETRY_PROCESSING']
   if (app.status !== 'MANUAL_REVIEW' || !a) return []
-  if (a.reasons.some((r) => r.code === 'BORDERLINE_RISK')) return ['REQUEST_INFO', 'APPROVE', 'REJECT']
-  return ['REQUEST_INFO']
+  const codes = a.reasons.map((r) => r.code)
+  if (RETRY_REASONS.includes(codes[0])) return ['RETRY_PROCESSING']
+  if (codes[0] === 'BORDERLINE_RISK' && a.risk_score !== null && a.risk_score >= 30 && a.risk_score <= 59) return ['REQUEST_INFO', 'APPROVE', 'REJECT']
+  if (codes.length === 1 && codes[0] === 'TREND_BASELINE_ZERO') return ['REQUEST_INFO']
+  return []
 }
 
 function queueItem(app: AppRec): BankQueueItem {
@@ -496,7 +569,7 @@ function scenarioCandidates(app: AppRec, preview: boolean): Candidate[] | Transp
   const company = companyById(app.company_id)!
   const raw: [Candidate['candidate_id'], number, number][] = [
     ['REQUESTED', amount, term],
-    ['LOWER_AMOUNT', Math.max(Number(p.min_amount), Math.round(amount * 0.8)), term],
+    ['LOWER_AMOUNT', Math.max(Number(p.min_amount), Math.round(amount * 80) / 100), term],
     ['LONGER_TERM', amount, Math.min(p.max_term_months, term + 12)],
   ]
   const seen = new Set<string>()
@@ -509,26 +582,29 @@ function scenarioCandidates(app: AppRec, preview: boolean): Candidate[] | Transp
       return true
     })
     .map(([id, a, t]) => {
-      const res = runPolicy(company, a, t, app.financial_months)
-      const pay = res.payment
+      const res = preview
+        ? evaluate({ company, months: app.financial_months, amount: a, term: t, purpose: app.purpose_code ?? 'OTHER', partner: app.purchase_from_bank_partner, revisionNo: (app.revisions.at(-1)?.revision_no ?? 0) + 1, runNo: 1 })
+        : null
+      const pricing = (res?.details.pricing as { annual_rate_percent: string } | undefined) ?? unpriced('CONSENT_REQUIRED')
+      const pay = annuity(a, t, Number(pricing.annual_rate_percent))
+      const codes = res ? res.reason_codes : ['CREDIT_HISTORY_CONFIRMATION_REQUIRED']
       return {
         candidate_id: id,
         requested_amount: money2(a),
         term_months: t,
-        annual_rate_percent: p.annual_rate_percent,
-        monthly_payment: money2(pay),
-        estimated_total_payment: money2(pay * t),
-        estimated_overpayment: money2(pay * t - a),
-        load_ratio: preview ? ((res.details.load_ratio as string) ?? null) : null,
-        risk_score: preview ? res.risk_score : null,
-        preliminary_route: preview ? res.routing : null,
-        reason_codes: preview ? res.reasons.map((r) => r.code) : [REASONS.BKI_CONFIRM.code],
-        reasons: preview ? res.reasons : [REASONS.BKI_CONFIRM],
+        annual_rate_percent: pricing.annual_rate_percent,
+        pricing,
+        ...pay,
+        load_ratio: (res?.details.load_ratio as string | undefined) ?? null,
+        risk_score: res?.risk_score ?? null,
+        preliminary_route: res?.routing ?? null,
+        reason_codes: codes,
+        reasons: codes.map(reason),
         provenance: preview ? provenance(app, checked) : provenance(app),
         policy_version: p.policy_version,
-        input_hash: hash([a, t, app.financial_months]),
+        input_hash: hash([a, t, app.financial_months, app.purpose_code, app.purchase_from_bank_partner]),
         is_binding: false,
-      }
+      } as Candidate
     })
 }
 
@@ -598,6 +674,7 @@ function newApp(ownerId: string, companyId: string): AppRec {
     purpose_code: null,
     purpose_details: null,
     financial_months: clone(monthsOf(c)),
+    purchase_from_bank_partner: false,
     fin_declared: false,
     confirmations: { data_confirmed: false, credit_history_check_allowed: false },
     info_response: null,
@@ -630,20 +707,23 @@ function newApp(ownerId: string, companyId: string): AppRec {
   return app
 }
 
+/** Submitted applications from the team's reference scenarios (demo_data/demo_0_3/scenarios.json). */
+const SEEDED = ['C01_REFERENCE', 'C02_REFERENCE', 'C03_BORDERLINE', 'C03_SCORE_LIMIT_OVERDUE', 'C04_INCOMPLETE_FINANCE', 'C05_SEVERE_OVERDUE', 'C06_BKI_RETRY', 'C07_NO_CREDIT_HISTORY', 'C08_NEGATIVE_CASHFLOW', 'LEGAL_BANKRUPTCY', 'LEGAL_UNKNOWN', 'C09_BUSINESS_TOO_YOUNG']
+
 function seed(s: State) {
-  const mk = (userKey: string, compKey: string, amount: string, term: number) => {
-    const u = DEMO_USERS.find((x) => x.key === userKey)!
-    const c = DEMO_COMPANIES.find((x) => x.key === compKey)!
-    const app = newApp(u.id, c.id)
-    Object.assign(app, { requested_amount: amount, term_months: term, purpose_code: 'INVENTORY', ui_step: 'REVIEW', version: 3 })
+  for (const key of SEEDED) {
+    const sc = DEMO_SCENARIOS.find((x) => x.key === key)
+    const c = sc && DEMO_COMPANIES.find((x) => x.key === sc.company_key)
+    if (!sc || !c?.members[0]) continue
+    const owner = c.members[0]
+    const app = newApp(owner, c.id)
+    Object.assign(app, { requested_amount: sc.requested_amount, term_months: sc.term_months, purpose_code: sc.purpose_code, purchase_from_bank_partner: sc.purchase_from_bank_partner, ui_step: 'REVIEW', version: 3 })
     app.confirmations = { data_confirmed: true, credit_history_check_allowed: true }
-    app.revisions.push(makeRevision(app, uid(), u.id))
-    setStatus(app, 'SUBMITTED', { event_type: 'SUBMITTED', message: 'Заявка отправлена на демонстрационную проверку', actor: u.id })
+    app.revisions.push(makeRevision(app, uid(), owner))
+    setStatus(app, 'SUBMITTED', { event_type: 'SUBMITTED', message: 'Заявка отправлена на демонстрационную проверку', actor: owner })
     processLatest(app)
     s.apps.push(app)
   }
-  mk('CLIENT_C01', 'C01', '3000000.00', 18)
-  mk('CLIENT_C02', 'C02', '2000000.00', 12)
 }
 
 /* ---------------- router ---------------- */
@@ -703,7 +783,7 @@ on('GET', /^\/api\/companies$/, (_m, _b, _q, user) => {
 on('GET', new RegExp(`^/api/companies/${U}$`), (m, _b, _q, user) => {
   const c = companyById(m[1])
   if (!c || !c.members.includes(user!.id)) return err(404, 'COMPANY_NOT_FOUND', 'Компания не найдена')
-  return ok({ ...companyPublic(c), financial_months: monthsOf(c), provenance: { company: { source: 'DEMO_PROFILE', as_of_date: CALC_DATE, checked_at: null }, financial_months: { source: 'DEMO_PROFILE', as_of_date: '2026-09-30', checked_at: null }, credit_history: null } })
+  return ok({ ...companyPublic(c), financial_months: monthsOf(c), provenance: { company: { source: 'DEMO_PROFILE', as_of_date: CALCULATION_DATE, checked_at: null }, financial_months: { source: 'DEMO_PROFILE', as_of_date: '2026-09-30', checked_at: null }, credit_history: null } })
 }, { auth: 'CLIENT' })
 on('GET', /^\/api\/products$/, () => ok({ items: [DEMO_PRODUCT], total: 1, limit: 100, offset: 0 }), { auth: 'CLIENT' })
 
@@ -739,16 +819,20 @@ on('PATCH', new RegExp(`^/api/applications/${U}$`), (m, body, _q, user) => {
     for (const k of ['cash_inflow', 'operating_outflow', 'existing_debt_payment'])
       if (fm[k] !== null && fm[k] !== undefined && !moneyRe.test(fm[k])) fe.push({ field: `draft_data.financial_months.${fm.month}.${k}`, message: 'Некорректное значение' })
   if (fe.length) return err(422, 'VALIDATION_ERROR', 'Проверьте поля запроса', fe)
-  for (const k of ['requested_amount', 'term_months', 'purpose_code', 'purpose_details', 'ui_step'] as const) if (k in body) (app as any)[k] = body[k]
   const dd = body.draft_data
+  const purpose = 'purpose_code' in body ? body.purpose_code : app.purpose_code
+  const partner = dd && 'purchase_from_bank_partner' in dd ? dd.purchase_from_bank_partner === true : app.purchase_from_bank_partner
+  if (partner && !PURCHASE_PURPOSES.includes(purpose))
+    return err(422, 'VALIDATION_ERROR', 'Партнёрская программа доступна только для закупочных целей', [{ field: 'draft_data.purchase_from_bank_partner', message: 'Снимите признак партнёрской покупки' }])
+  for (const k of ['requested_amount', 'term_months', 'purpose_code', 'purpose_details', 'ui_step'] as const) if (k in body) (app as any)[k] = body[k]
   if (dd?.financial_months) {
-    const byMonth = new Map<string, FinancialMonth>((dd.financial_months as FinancialMonth[]).map((x) => [x.month, x]))
-    app.financial_months = app.financial_months.map((x) => {
-      const n = byMonth.get(x.month)
-      return n ? { month: x.month, cash_inflow: n.cash_inflow ?? null, operating_outflow: n.operating_outflow ?? null, existing_debt_payment: n.existing_debt_payment ?? null } : { ...x, cash_inflow: null, operating_outflow: null, existing_debt_payment: null }
-    })
+    // Same as the backend: the list replaces the stored months as a whole, sorted by month.
+    app.financial_months = (dd.financial_months as FinancialMonth[])
+      .map((n) => ({ month: n.month, cash_inflow: n.cash_inflow ?? null, operating_outflow: n.operating_outflow ?? null, existing_debt_payment: n.existing_debt_payment ?? null }))
+      .sort((x, y) => x.month.localeCompare(y.month))
     app.fin_declared = true
   }
+  app.purchase_from_bank_partner = partner
   if (dd?.confirmations) app.confirmations = { ...app.confirmations, ...dd.confirmations }
   if (dd && 'info_response' in dd) app.info_response = dd.info_response
   app.version++
