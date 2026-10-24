@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     cookie_secure: bool = True
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     demo_user_password: SecretStr | None = None
-    demo_dataset_dir: Path = Path("demo_data/demo_0_2")
+    demo_dataset_dir: Path = Path("demo_data/demo_0_3")
     documents_dir: Path = Path(".data/documents")
     llm_enabled: bool = True
     llm_base_url: str = "http://127.0.0.1:11434"

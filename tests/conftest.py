@@ -41,6 +41,7 @@ def settings(tmp_path):
         cookie_secure=False,
         documents_dir=tmp_path / "documents",
         llm_enabled=False,
+        demo_dataset_dir=ROOT / "demo_data/demo_0_2",
     )
 
 

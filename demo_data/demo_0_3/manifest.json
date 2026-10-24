@@ -1,0 +1,52 @@
+{
+  "schema_version": 2,
+  "dataset_version": "demo-0.3",
+  "policy_version": "demo-policy-0.3",
+  "subset": "C01_C02_BOOTSTRAP",
+  "seed": 42,
+  "calculation_date": "2026-10-01",
+  "financial_months": [
+    "2026-04-01",
+    "2026-05-01",
+    "2026-06-01",
+    "2026-07-01",
+    "2026-08-01",
+    "2026-09-01"
+  ],
+  "uuid_namespace": "9079ad9b-f2d1-4574-9f71-8a8f1945646a",
+  "source_versions": {
+    "FNS": "legal-mock-0.2",
+    "BKI": "bki-mock-0.2"
+  },
+  "company_keys": [
+    "C01",
+    "C02"
+  ],
+  "files": {
+    "companies.csv": "82b16f79f506472e91ebc782c6eed43c4aaf7d0c38635ebb99b52b729487d6a0",
+    "financial_months.csv": "d02d0e09c05e2988c0c2e01438cc0df44bc020d16b679abd4710ac80adc0bcdc",
+    "memberships.csv": "7818ffdb4b2061ec626b3d13d83efda4504080ad80313dfb86b26c6c6d9e61a9",
+    "demo_users.json": "ab1b2aaae6f84f521a4b5e781d8773d32334fe140d020e73c11022ff5ecd7ab6",
+    "credit_products.json": "b7f5862a5010e639732b13f37a3924a9fe72526e5a08c036afcd08ec09462d57",
+    "fns_responses.json": "09b7c5e7ac54b7292aef67335388e8188075c5bfff78a8f4f34eeef65840e5a8",
+    "bki_responses.json": "1e2d2973725296789db9463285dd4d3f9af1aea7b77463fc4ea0a8e9f28eb912",
+    "scenarios.json": "5b9c5da3739009e4777441ce64d78ac3530b88f06a68a1009f8efd196c6b93b4",
+    "documents/C01.csv": "ad4fb6bb15bf36c1003978f11a1c9b7c06f25c79b2c95b3157023e40b83b3d20",
+    "documents/C02.csv": "948672fff2b8a94b02bf7102d3788295192f8764f2396bdbb1f1b93a7de6c263",
+    "bank_relationships.json": "69499787147ce5c1cce86f60f090a51f7c322e2bdab973c2e3dac62724f6264c"
+  },
+  "document_templates": [
+    {
+      "company_key": "C01",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C01.csv",
+      "content_sha256": "ad4fb6bb15bf36c1003978f11a1c9b7c06f25c79b2c95b3157023e40b83b3d20"
+    },
+    {
+      "company_key": "C02",
+      "kind": "FINANCIAL_STATEMENT",
+      "path": "documents/C02.csv",
+      "content_sha256": "948672fff2b8a94b02bf7102d3788295192f8764f2396bdbb1f1b93a7de6c263"
+    }
+  ]
+}

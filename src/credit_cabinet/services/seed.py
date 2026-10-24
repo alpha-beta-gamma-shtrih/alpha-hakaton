@@ -22,6 +22,7 @@ from credit_cabinet.models import (
 )
 from credit_cabinet.models.enums import Role
 from credit_cabinet.schemas.seed import (
+    BankRelationshipSeed,
     CompanySeed,
     CreditFacts,
     FinancialSeed,
@@ -58,6 +59,7 @@ class SeedBundle:
     users: list[UserSeed]
     memberships: list[MembershipSeed]
     products: list[ProductSeed]
+    bank_relationships: list[BankRelationshipSeed] | None = None
 
 
 def read_json(path: Path):
@@ -105,6 +107,11 @@ def load_bundle(directory: Path) -> SeedBundle:
         if not CORE_FILES <= set(manifest.files):
             raise DatasetError("Manifest is missing required files")
         allowed = CORE_FILES | {template.path for template in manifest.document_templates}
+        personal = manifest.dataset_version == "demo-0.3"
+        if manifest.policy_version != ("demo-policy-0.3" if personal else "demo-policy-0.2"):
+            raise DatasetError("Dataset and policy versions disagree")
+        if personal:
+            allowed.add("bank_relationships.json")
         if set(manifest.files) != allowed:
             raise DatasetError("Manifest contains unknown files")
         for name, checksum in manifest.files.items():
@@ -133,6 +140,8 @@ def load_bundle(directory: Path) -> SeedBundle:
         unique(memberships, lambda row: (row.user_key, row.company_key), "membership")
         if len(products) != 1:
             raise DatasetError("Exactly one version of WC_DEMO is required")
+        if products[0].policy_version != manifest.policy_version:
+            raise DatasetError("Product and manifest policies disagree")
         company_map = {row.company_key: row for row in companies}
         user_map = {row.user_key: row for row in users}
         if set(company_map) != set(manifest.company_keys):
@@ -189,7 +198,17 @@ def load_bundle(directory: Path) -> SeedBundle:
                 or manifest.files.get(template.path) != template.content_sha256
             ):
                 raise DatasetError("Invalid document template metadata")
-        return SeedBundle(manifest, companies, financials, users, memberships, products)
+        relationships = None
+        if personal:
+            relationships = TypeAdapter(list[BankRelationshipSeed]).validate_python(
+                read_json(root / "bank_relationships.json")
+            )
+            unique(relationships, lambda row: row.company_key, "bank relationship")
+            if {row.company_key for row in relationships} != set(company_map):
+                raise DatasetError("Bank relationship companies differ from manifest")
+        return SeedBundle(
+            manifest, companies, financials, users, memberships, products, relationships
+        )
     except (ValidationError, OSError, csv.Error) as exc:
         # Do not echo arbitrary input values, including accidentally pasted credentials.
         raise DatasetError(
@@ -247,6 +266,10 @@ def import_bundle(db: Session, bundle: SeedBundle, password: str | None = None) 
                 counts["companies"] += 1
             company_map[row.company_key] = company
         db.flush()
+        for row in bundle.bank_relationships or []:
+            company_map[
+                row.company_key
+            ].has_active_loan_in_our_bank = row.has_active_loan_in_our_bank
         for row in bundle.products:
             values = row.model_dump()
             values["annual_rate_percent"] = Decimal(values["annual_rate_percent"])

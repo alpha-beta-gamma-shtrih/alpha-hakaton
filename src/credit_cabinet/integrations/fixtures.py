@@ -31,7 +31,10 @@ class FixtureSources:
 
         try:
             manifest = json.loads((self.directory / "manifest.json").read_text(encoding="utf-8"))
-            if manifest["schema_version"] != 2 or manifest["policy_version"] != "demo-policy-0.2":
+            if manifest["schema_version"] != 2 or manifest["policy_version"] not in (
+                "demo-policy-0.2",
+                "demo-policy-0.3",
+            ):
                 raise ValueError("Unsupported fixture contract")
 
             def read(name):

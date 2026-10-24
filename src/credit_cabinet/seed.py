@@ -19,7 +19,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Validate/import synthetic demo-0.2 without resetting data"
     )
-    parser.add_argument("--dataset", type=Path, default=Path("demo_data/demo_0_2"))
+    parser.add_argument("--dataset", type=Path, default=Path("demo_data/demo_0_3"))
     parser.add_argument(
         "--check-only", action="store_true", help="Validate files without connecting to DB"
     )

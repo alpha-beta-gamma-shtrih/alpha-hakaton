@@ -1,0 +1,47 @@
+[
+  {
+    "scenario_key": "C01_REFERENCE",
+    "company_key": "C01",
+    "requested_amount": "1000000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "APPROVED",
+      "routing": "APPROVE",
+      "risk_score": 10,
+      "reason_codes": [
+        "DEMO_POLICY_PASSED",
+        "LOAD_35_50"
+      ],
+      "monthly_payment": "94559.60"
+    }
+  },
+  {
+    "scenario_key": "C02_REFERENCE",
+    "company_key": "C02",
+    "requested_amount": "2000000.00",
+    "term_months": 12,
+    "purpose_code": "INVENTORY",
+    "sequence": [
+      "CREATE_DRAFT",
+      "SAVE_PARAMETERS",
+      "CONFIRM_DATA",
+      "SUBMIT"
+    ],
+    "expected_result": {
+      "status": "REJECTED",
+      "routing": "REJECT",
+      "risk_score": null,
+      "reason_codes": [
+        "DEBT_LOAD_LIMIT_EXCEEDED"
+      ],
+      "monthly_payment": "189119.19"
+    }
+  }
+]

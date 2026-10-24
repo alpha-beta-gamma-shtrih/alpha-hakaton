@@ -1,0 +1,38 @@
+[
+  {
+    "company_key": "C01",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000001",
+      "legal_form": "OOO",
+      "registered_on": "2022-10-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  },
+  {
+    "company_key": "C02",
+    "status": "SUCCESS",
+    "error_code": null,
+    "source_version": "legal-mock-0.2",
+    "normalized_data": {
+      "inn": "0000000002",
+      "legal_form": "OOO",
+      "registered_on": "2023-10-01",
+      "registry_status": "ACTIVE",
+      "is_bankrupt": false
+    },
+    "provenance": {
+      "source": "MOCK_FNS",
+      "as_of_date": "2026-10-01",
+      "checked_at": null
+    }
+  }
+]
