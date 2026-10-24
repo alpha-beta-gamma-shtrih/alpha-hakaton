@@ -22,7 +22,7 @@ const uuid = () =>
 const FIELD_STEP = (f: string): FormStep =>
   f === 'draft_data.purchase_from_bank_partner' ? 'NEED' : f.startsWith('draft_data.financial_months') ? 'FINANCES' : f.startsWith('draft_data.') ? 'REVIEW' : 'NEED'
 
-const CONFIRMABLE: FormStep[] = ['NEED', 'REVIEW']
+const CONFIRMABLE: FormStep[] = ['NEED', 'COMPANY', 'FINANCES', 'REVIEW']
 
 const FIELD_ANCHOR = (f: string): string =>
   ({ requested_amount: 'amount', term_months: 'term', purpose_code: 'purpose', purpose_details: 'details', 'draft_data.info_response': 'info', 'draft_data.financial_months': 'months' } as Record<string, string>)[f] ?? f
@@ -42,11 +42,13 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
   const submitAttempt = useRef<{ key: string; version: number } | null>(null)
   const topRef = useRef<HTMLDivElement>(null)
 
+  const info = ed.server.open_information_request
+  const highlight = useMemo(() => new Set(info?.requested_fields ?? []), [info])
   const gate = useStepConfirm(ed.server)
   // Only pages where the client makes choices are confirmed; read-only pages just move on.
   const needsConfirm = CONFIRMABLE.includes(step)
   const locked = needsConfirm && !!gate.confirmed[step]
-  const missing = needsConfirm ? stepMissing(step, ed.form, product, ed.fieldErrors) : []
+  const missing = needsConfirm ? stepMissing(step, ed.form, product, ed.fieldErrors, highlight) : []
   const allConfirmed = CONFIRMABLE.every((s) => gate.confirmed[s])
   const [confirming, setConfirming] = useState(false)
   // ?ai=1 comes from the global helper: open the panel right away.
@@ -64,8 +66,6 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
     }
   }
 
-  const info = ed.server.open_information_request
-  const highlight = useMemo(() => new Set(info?.requested_fields ?? []), [info])
 
   /** Opens a step; with an anchor, scrolls to that field, flashes it and puts the cursor in it. */
   const go = (s: FormStep, anchor?: string) => {
@@ -252,7 +252,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
                 </ul>
               </div>
             )}
-            {needsConfirm && !locked && missing.length === 0 && <div className="sb-text">Всё заполнено. Проверьте данные и подтвердите страницу.</div>}
+            {needsConfirm && !locked && missing.length === 0 && <div className="sb-text">{step === 'COMPANY' || step === 'FINANCES' ? 'Проверьте данные и подтвердите страницу.' : 'Всё заполнено. Проверьте данные и подтвердите страницу.'}</div>}
             {locked && (
               <div className="sb-text sb-ok">
                 <CheckIcon size={14} color="var(--ink)" /> Страница подтверждена

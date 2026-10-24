@@ -9,7 +9,7 @@ export interface Missing {
 }
 
 /** What still has to be filled on a step before it can be confirmed. */
-export function stepMissing(step: FormStep, form: FormState, product: Product | undefined, localErrors: Record<string, string>): Missing[] {
+export function stepMissing(step: FormStep, form: FormState, product: Product | undefined, localErrors: Record<string, string>, requested: Set<string> = new Set()): Missing[] {
   const out: Missing[] = []
   if (step === 'NEED') {
     const min = Number(product?.min_amount ?? 100000)
@@ -21,6 +21,21 @@ export function stepMissing(step: FormStep, form: FormState, product: Product | 
     const n = a && a !== 'invalid' ? Number(a) : null
     if (n === null || n < min || n > max) out.push({ label: `Сумма от ${moneyShort(min)} до ${moneyShort(max)}`, anchor: 'amount' })
     if (form.term === null || form.term < tmin || form.term > tmax) out.push({ label: `Срок от ${tmin} до ${tmax} месяцев`, anchor: 'term' })
+  }
+  if (step === 'FINANCES') {
+    // The table is read-only; only cells the bank asked for must be filled before confirming.
+    const keys = ['cash_inflow', 'operating_outflow', 'existing_debt_payment'] as const
+    const names = { cash_inflow: 'поступления', operating_outflow: 'операционные выплаты', existing_debt_payment: 'платежи по долгам' }
+    for (const m of form.months) {
+      for (const k of keys) {
+        const path = `draft_data.financial_months.${m.month}.${k}`
+        if (!requested.has(path) && !requested.has('draft_data.financial_months')) continue
+        if (!m[k] || localErrors[path]) {
+          const d = new Date(m.month + 'T00:00:00').toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }).replace(' г.', '')
+          out.push({ label: `${d.charAt(0).toUpperCase() + d.slice(1)}: ${names[k]}`, anchor: path })
+        }
+      }
+    }
   }
   if (step === 'REVIEW') {
     if (!form.dataConfirmed) out.push({ label: 'Подтверждение, что сведения верны', anchor: 'confirm' })

@@ -124,26 +124,30 @@ export function ApplicationsPage() {
                         <td className="hint">{dateTime(a.updated_at)}</td>
                         <td className="r">
                           <span className="row-actions">
-                            <button
-                              type="button"
-                              className={`row-del ${asking ? 'on' : ''}`}
-                              aria-label="Удалить заявку"
-                              title={deletable ? 'Удалить черновик' : 'Отправленную заявку удалить нельзя'}
-                              aria-expanded={asking}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setConfirmId(asking ? null : a.id)
-                              }}
-                            >
-                              <TrashIcon />
-                            </button>
+                            {deletable ? (
+                              <button
+                                type="button"
+                                className={`row-del ${asking ? 'on' : ''}`}
+                                aria-label="Удалить заявку"
+                                title="Удалить черновик"
+                                aria-expanded={asking}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setConfirmId(asking ? null : a.id)
+                                }}
+                              >
+                                <TrashIcon />
+                              </button>
+                            ) : (
+                              <span className="row-del-gap" aria-hidden="true" />
+                            )}
                             <span className="row-go">
                               <Arrow />
                             </span>
                           </span>
                         </td>
                       </tr>
-                      {asking && (
+                      {asking && deletable && (
                         <tr className="confirm-row" onClick={(e) => e.stopPropagation()}>
                           <td colSpan={7}>
                             <div className={`del-confirm ${deletable ? '' : 'info'}`} role="alertdialog" aria-label="Подтверждение удаления">
