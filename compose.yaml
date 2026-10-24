@@ -1,11 +1,5 @@
 name: credit-cabinet
 
-x-app: &app
-  image: credit-cabinet-app:local
-  build:
-    context: .
-    dockerfile: Dockerfile
-
 x-backend-environment: &backend-environment
   APP_ENV: ${APP_ENV:-development}
   DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:-credit}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-credit_cabinet}"
@@ -87,7 +81,7 @@ services:
       retries: 30
 
   tests:
-    <<: *app
+    image: credit-cabinet-app:local
     command: [python, -m, pytest, -q, -p, "no:cacheprovider"]
     environment:
       TEST_DATABASE_URL: postgresql+psycopg://credit_test:isolated-test-password@postgres-test:5432/credit_test
@@ -97,7 +91,7 @@ services:
         condition: service_healthy
 
   init:
-    <<: *app
+    image: credit-cabinet-app:local
     environment:
       <<: *backend-environment
       DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:?Set DEMO_USER_PASSWORD (12+ characters) in .env}
@@ -109,7 +103,7 @@ services:
         condition: service_completed_successfully
 
   backend:
-    <<: *app
+    image: credit-cabinet-app:local
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     environment: *backend-environment
@@ -123,9 +117,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: credit-cabinet-frontend:local
     ports:
       - "${FRONTEND_PORT:-8080}:80"
     depends_on:
