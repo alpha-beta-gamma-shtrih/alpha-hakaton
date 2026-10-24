@@ -14,6 +14,8 @@ from credit_cabinet.models.enums import ApplicationStatus, CheckSource
 from credit_cabinet.schemas.scenarios import ScenariosResponse
 from credit_cabinet.services.access import client_application
 from credit_cabinet.services.policy import SourceResult, annuity, evaluate
+from credit_cabinet.services.pricing import unpriced
+from credit_cabinet.services.product_policy import evaluation_options
 from credit_cabinet.services.reasons import public_reasons
 from credit_cabinet.services.snapshots import application_input, financial_input_hash
 from credit_cabinet.services.submissions import latest_assessment, latest_revision
@@ -118,6 +120,9 @@ def prepare_comparison(db, user_id, application_id, body, sources):
             continue
         seen.add((value, months))
         payment = annuity(value, months, Decimal(product["annual_rate_percent"]))
+        pricing = unpriced(
+            Decimal(product["annual_rate_percent"]), personal=product["version"] == 3
+        )
         result = None
         if allowed:
             result = evaluate(
@@ -128,7 +133,10 @@ def prepare_comparison(db, user_id, application_id, body, sources):
                 annual_rate=Decimal(product["annual_rate_percent"]),
                 calculation_date=date.fromisoformat(payload["calculation_date"]),
                 source=source,
+                **evaluation_options(payload),
             )
+            pricing = result.calculation_details.get("pricing", pricing)
+            payment = annuity(value, months, Decimal(pricing["annual_rate_percent"]))
             if candidate_id == "REQUESTED":
                 missing_fields = result.requested_fields
         provenance = {
@@ -150,7 +158,8 @@ def prepare_comparison(db, user_id, application_id, body, sources):
                 "candidate_id": candidate_id,
                 "requested_amount": value,
                 "term_months": months,
-                "annual_rate_percent": Decimal(product["annual_rate_percent"]),
+                "annual_rate_percent": Decimal(pricing["annual_rate_percent"]),
+                "pricing": pricing,
                 **payment,
                 "load_ratio": result.calculation_details.get("load_ratio") if result else None,
                 "risk_score": result.risk_score if result else None,

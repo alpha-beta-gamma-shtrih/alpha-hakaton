@@ -119,6 +119,27 @@ def build_facts(comparison, application, mode):
             f"Сумма {candidate['requested_amount']} RUB, срок {candidate['term_months']} мес., ставка {candidate['annual_rate_percent']}% годовых; платеж {candidate['monthly_payment']} RUB в месяц, расчетная переплата {candidate['estimated_overpayment']} RUB.",
             identifier,
         )
+        pricing = candidate.get("pricing", {})
+        if pricing.get("status") == "PERSONALIZED":
+            components = [
+                f"{r['label']}: +{r['percentage_points']} п. п." for r in pricing["additions"]
+            ]
+            components += [
+                f"{r['label']}: скидка {r['percentage_points']} п. п." for r in pricing["discounts"]
+            ]
+            card(
+                identifier + "_PRICING",
+                f"Базовая ставка {pricing['base_rate_percent']}%. "
+                + "; ".join(components)
+                + f". Фактически применённая скидка {pricing['applied_discount_pp']} п. п.; минимальная ставка {pricing['minimum_rate_percent']}%, итог {pricing['annual_rate_percent']}%. Цель и партнёрская покупка не подтверждены документами в DEMO.",
+                identifier,
+            )
+        elif pricing.get("status") == "INDICATIVE":
+            card(
+                identifier + "_PRICING",
+                "Персональная ставка не определена: недостаточно подтверждённых демо-данных. Платёж показан ориентировочно по базовой ставке.",
+                identifier,
+            )
         route = candidate["preliminary_route"]
         card(
             identifier + "_ROUTE",

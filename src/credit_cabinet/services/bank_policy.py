@@ -10,7 +10,8 @@ from credit_cabinet.models import CheckResult
 from credit_cabinet.models.enums import ApplicationStatus, CheckSource, CheckStatus
 from credit_cabinet.schemas.business import DraftDataPatch
 from credit_cabinet.schemas.seed import CreditFacts, LegalFacts
-from credit_cabinet.services.policy import POLICY_CONFIG, POLICY_VERSION, SourceResult, evaluate
+from credit_cabinet.services.policy import SourceResult, evaluate
+from credit_cabinet.services.product_policy import evaluation_options, supported
 from credit_cabinet.services.submissions import can_retry
 
 
@@ -19,15 +20,14 @@ def saved_evaluation(db, revision, assessment):
     if (
         assessment is None
         or assessment.revision_id != revision.id
-        or assessment.rules_version != POLICY_VERSION
+        or assessment.rules_version != revision.product_snapshot.get("policy_version")
     ):
         return None
     product = revision.product_snapshot
     confirmations = revision.financial_snapshot.get("confirmations", {})
     if (
         revision.schema_version != 2
-        or product.get("policy_version") != POLICY_VERSION
-        or product.get("policy_config") != POLICY_CONFIG
+        or not supported(product)
         or confirmations.get("data_confirmed") is not True
         or confirmations.get("credit_history_check_allowed") is not True
     ):
@@ -86,12 +86,20 @@ def saved_evaluation(db, revision, assessment):
             annual_rate=Decimal(product["annual_rate_percent"]),
             calculation_date=CALCULATION_DATE,
             source=source,
+            **evaluation_options(
+                {
+                    "product_snapshot": product,
+                    "financial_snapshot": revision.financial_snapshot,
+                    "purpose_code": revision.purpose_code.value,
+                }
+            ),
         )
         if (
             result.routing != assessment.routing
             or result.risk_score != assessment.risk_score
             or result.risk_band != assessment.risk_band
             or result.reason_codes != assessment.reason_codes
+            or result.calculation_details != assessment.calculation_details
         ):
             return None
         return result

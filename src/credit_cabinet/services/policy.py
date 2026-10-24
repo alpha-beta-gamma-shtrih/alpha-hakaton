@@ -10,6 +10,7 @@ from importlib.resources import files
 
 from credit_cabinet.core.demo import FINANCIAL_MONTHS
 from credit_cabinet.models.enums import CheckSource, CheckStatus, RiskBand, Routing
+from credit_cabinet.services.pricing import quote, unpriced
 
 POLICY_VERSION = "demo-policy-0.2"
 POLICY_CONFIG = json.loads(
@@ -130,13 +131,43 @@ def evaluate(
     annual_rate: Decimal,
     calculation_date: date,
     source: Callable[[CheckSource], SourceResult],
+    personal_pricing: bool = False,
+    purpose: str | None = None,
+    partner_purchase: bool = False,
 ) -> Evaluation:
     with localcontext() as context:
         context.prec = 40
-        return _evaluate(company, financials, amount, term, annual_rate, calculation_date, source)
+        result = _evaluate(
+            company,
+            financials,
+            amount,
+            term,
+            annual_rate,
+            calculation_date,
+            source,
+            personal_pricing,
+            purpose,
+            partner_purchase,
+        )
+        if personal_pricing and "pricing" not in result.calculation_details:
+            result.calculation_details["pricing"] = unpriced(
+                annual_rate, personal=True, reason=result.reason_codes[0]
+            )
+        return result
 
 
-def _evaluate(company, financials, amount, term, annual_rate, calculation_date, source):
+def _evaluate(
+    company,
+    financials,
+    amount,
+    term,
+    annual_rate,
+    calculation_date,
+    source,
+    personal_pricing,
+    purpose,
+    partner_purchase,
+):
     result = Evaluation(Routing.MANUAL_REVIEW, [])
 
     def finish(route, reason, fields=None):
@@ -225,6 +256,24 @@ def _evaluate(company, financials, amount, term, annual_rate, calculation_date, 
     result.calculation_details["average_operating_cashflow"] = str(average)
     if average <= 0:
         return finish(Routing.REJECT, "NON_POSITIVE_CASHFLOW")
+    if personal_pricing:
+        first = sum(Decimal(row["cash_inflow"]) for row in months[:3])
+        if first == 0:
+            return finish(Routing.MANUAL_REVIEW, "TREND_BASELINE_ZERO")
+        trend = sum(Decimal(row["cash_inflow"]) for row in months[3:]) / first - 1
+        pricing = quote(
+            age=age,
+            history=facts["history_present"],
+            overdue=facts["max_overdue_days_12m"],
+            trend=trend,
+            term=term,
+            purpose=purpose,
+            bank_customer=company.get("has_active_loan_in_our_bank", False),
+            partner=partner_purchase,
+        )
+        result.calculation_details["pricing"] = pricing
+        annual_rate = Decimal(pricing["annual_rate_percent"])
+        result.calculation_details["annual_rate_percent"] = format(annual_rate, ".3f")
     payment = annuity(amount, term, annual_rate)
     existing = max(declared, confirmed)
     load = (existing + Decimal(payment["monthly_payment"])) / average

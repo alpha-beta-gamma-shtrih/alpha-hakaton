@@ -104,12 +104,23 @@ def create_draft(
             CreditProduct.id == body.product_id,
             CreditProduct.is_active.is_(True),
             CreditProduct.code == "WC_DEMO",
-            CreditProduct.version == 2,
-            CreditProduct.policy_version == "demo-policy-0.2",
+            CreditProduct.version.in_([2, 3]),
+            CreditProduct.policy_version.in_(["demo-policy-0.2", "demo-policy-0.3"]),
         )
     )
     if product is None:
         raise APIError(404, "PRODUCT_NOT_FOUND", "Доступная версия продукта не найдена")
+    newest = db.scalar(
+        select(func.max(CreditProduct.version)).where(
+            CreditProduct.code == "WC_DEMO",
+            CreditProduct.is_active.is_(True),
+            CreditProduct.version.in_([2, 3]),
+        )
+    )
+    if product.version != newest:
+        raise APIError(
+            409, "PRODUCT_VERSION_RETIRED", "Для новой заявки выберите актуальную версию продукта"
+        )
     months = financial_profile(db, body.company_id)
     application = Application(
         company_id=body.company_id,
@@ -196,6 +207,31 @@ def patch_draft(
             }
         if "info_response" in patch.model_fields_set:
             data["info_response"] = patch.info_response
+        if "purchase_from_bank_partner" in patch.model_fields_set:
+            data["purchase_from_bank_partner"] = patch.purchase_from_bank_partner
+    if data.get("purchase_from_bank_partner") and application.purpose_code not in (
+        "INVENTORY",
+        "SEASONAL_PURCHASE",
+        "EQUIPMENT",
+    ):
+        raise APIError(
+            422,
+            "VALIDATION_ERROR",
+            "Партнёрская программа доступна только для закупочных целей",
+            fields=[
+                {
+                    "field": "draft_data.purchase_from_bank_partner",
+                    "message": "Снимите признак партнёрской покупки",
+                }
+            ],
+        )
+    if (
+        data.get("purchase_from_bank_partner")
+        and db.get(CreditProduct, application.product_id).version != 3
+    ):
+        raise APIError(
+            422, "VALIDATION_ERROR", "Для партнёрской программы создайте заявку на новый продукт"
+        )
     application.draft_data = data
     application.lock_version += 1
     application.updated_at = utc_now()

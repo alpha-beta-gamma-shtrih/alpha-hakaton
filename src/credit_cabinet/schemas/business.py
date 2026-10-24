@@ -222,6 +222,7 @@ class ConfirmationsResponse(BaseModel):
 
 
 class DraftDataResponse(BaseModel):
+    purchase_from_bank_partner: bool = False
     financial_months: list[FinancialMonthResponse]
     confirmations: ConfirmationsResponse
     info_response: str | None = None
