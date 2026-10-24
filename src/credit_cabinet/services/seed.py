@@ -194,16 +194,35 @@ def load_bundle(directory: Path) -> SeedBundle:
             raise DatasetError("Scenario references unknown company")
         if any(
             not products[0].min_term_months <= row.term_months <= products[0].max_term_months
+            or not products[0].min_amount <= row.requested_amount <= products[0].max_amount
             or row.purpose_code not in products[0].allowed_purposes
+            or (
+                row.purchase_from_bank_partner
+                and row.purpose_code not in {"INVENTORY", "SEASONAL_PURCHASE", "EQUIPMENT"}
+            )
             for row in scenarios
         ):
             raise DatasetError("Scenario parameters differ from its product")
+        unique(manifest.document_templates, lambda row: row.path, "document path")
+        unique(
+            manifest.document_templates,
+            lambda row: (row.company_key, row.kind),
+            "company document kind",
+        )
+        if {row.company_key for row in manifest.document_templates} != set(company_map):
+            raise DatasetError("Each company needs a financial document template")
         for template in manifest.document_templates:
             if (
                 template.company_key not in company_map
                 or manifest.files.get(template.path) != template.content_sha256
             ):
                 raise DatasetError("Invalid document template metadata")
+            rows = csv_models(root / template.path, FinancialSeed)
+            expected = [row for row in financials if row.company_key == template.company_key]
+            if not rows or sorted(rows, key=lambda row: row.month) != sorted(
+                expected, key=lambda row: row.month
+            ):
+                raise DatasetError("Financial document differs from company seed finances")
         relationships = None
         if personal:
             relationships = TypeAdapter(list[BankRelationshipSeed]).validate_python(
