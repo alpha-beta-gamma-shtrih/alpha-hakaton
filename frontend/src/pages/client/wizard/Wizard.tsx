@@ -89,7 +89,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
       box.classList.remove('pulse')
       void box.offsetWidth
       box.classList.add('pulse')
-      setTimeout(() => box.classList.remove('pulse'), 1800)
+      setTimeout(() => box.classList.remove('pulse'), 2300)
       const focusable = el.matches('input, textarea, button') ? el : el.querySelector<HTMLElement>('input:not([type=range]), textarea, button, input')
       setTimeout(() => focusable?.focus({ preventScroll: true }), 350)
     }
