@@ -34,9 +34,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
-    depends_on:
-      tests:
-        condition: service_completed_successfully
     restart: unless-stopped
 
   ollama-model:
@@ -61,12 +58,11 @@ services:
       interval: 3s
       timeout: 3s
       retries: 30
-    depends_on:
-      tests:
-        condition: service_completed_successfully
     restart: unless-stopped
 
   postgres-test:
+    profiles: 
+      - test
     image: postgres:17-bookworm
     environment:
       POSTGRES_USER: credit_test
@@ -81,6 +77,8 @@ services:
       retries: 30
 
   tests:
+    profiles: 
+      - test
     image: credit-cabinet-app:local
     command: [python, -m, pytest, -q, -p, "no:cacheprovider"]
     environment:
@@ -99,8 +97,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      tests:
-        condition: service_completed_successfully
 
   backend:
     image: credit-cabinet-app:local
