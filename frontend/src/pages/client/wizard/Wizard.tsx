@@ -1,16 +1,18 @@
 import { useMemo, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { ApiError } from '../../../api/client'
 import { applications } from '../../../api/endpoints'
 import type { Draft, FormStep } from '../../../api/types'
-import { Arrow, Button, CheckIcon, Notice, StatusChip, useToast } from '../../../components/ui'
-import { shortId } from '../../../lib/format'
+import { Arrow, Button, CheckIcon, ErrorNotice, Notice, StatusChip, useToast } from '../../../components/ui'
+import { parseMoney, shortId } from '../../../lib/format'
 import { requestedFieldLabel, STEPS } from '../../../lib/labels'
 import { useCompany, useProducts } from '../../../lib/queries'
 import { AdvisorDock, CalcPanel, ReadinessCard, useScenarios, Variants } from './Aside'
 import { StepCompany, StepFinances, StepNeed, StepReview } from './steps'
 import { readiness, useDraftEditor } from './useDraftEditor'
 import { stepMissing, useStepConfirm } from './stepGate'
+import { needTermsKey, submittedNeedKey } from './needConfirmation'
 
 const uuid = () =>
   (crypto as Crypto & { randomUUID?: () => string }).randomUUID?.() ??
@@ -44,17 +46,30 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
 
   const info = ed.server.open_information_request
   const highlight = useMemo(() => new Set(info?.requested_fields ?? []), [info])
-  const gate = useStepConfirm(ed.server)
+  const isReply = ed.server.status === 'NEEDS_INFO'
+  const previous = useQuery({
+    queryKey: ['revision', ed.server.id, ed.server.latest_revision_no],
+    queryFn: () => applications.revision(ed.server.id, ed.server.latest_revision_no!),
+    enabled: isReply && !!ed.server.latest_revision_no,
+    staleTime: Infinity,
+  })
+  const baseline = previous.data?.application_id === ed.server.id && previous.data.revision_no === ed.server.latest_revision_no ? submittedNeedKey(previous.data) : null
+  const waitingForBaseline = isReply && !baseline
+  const currentNeedKey = stepMissing('NEED', ed.form, product, ed.fieldErrors).length ? null : needTermsKey({
+    requested_amount: parseMoney(ed.form.amount), term_months: ed.form.term, purpose_code: ed.form.purpose, purchase_from_bank_partner: ed.form.partnerPurchase,
+  })
+  const gate = useStepConfirm(ed.server, currentNeedKey, baseline)
   // Only pages where the client makes choices are confirmed; read-only pages just move on.
   const needsConfirm = CONFIRMABLE.includes(step)
-  const locked = needsConfirm && !!gate.confirmed[step]
+  const locked = needsConfirm && !!gate.confirmed[step] && !(step === 'NEED' && gate.editingNeed)
+  const unchangedNeedEditor = step === 'NEED' && gate.editingNeed && gate.confirmed.NEED
   const missing = needsConfirm ? stepMissing(step, ed.form, product, ed.fieldErrors, highlight) : []
   const allConfirmed = CONFIRMABLE.every((s) => gate.confirmed[s])
   const [confirming, setConfirming] = useState(false)
   // ?ai=1 comes from the global helper: open the panel right away.
   const [aiOpen, setAiOpen] = useState(() => new URLSearchParams(window.location.search || window.location.hash.split('?')[1] || '').get('ai') === '1')
   const confirmStep = async () => {
-    if (missing.length || confirming || submitting || submitAttempt.current) return
+    if (missing.length || confirming || submitting || submitAttempt.current || (step === 'NEED' && waitingForBaseline)) return
     setConfirming(true)
     try {
       await ed.flush()
@@ -70,6 +85,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
   /** Opens a step; with an anchor, scrolls to that field, flashes it and puts the cursor in it. */
   const go = (s: FormStep, anchor?: string) => {
     if (submitting || submitAttempt.current || ed.commandBusy) return
+    if (s !== 'NEED') gate.closeNeedEditor()
     if (s !== ed.form.step) ed.update({ step: s }, ['step'], true)
     if (!anchor) {
       topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -188,6 +204,8 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
           </div>
         </section>
       )}
+      {isReply && previous.error && <ErrorNotice error={previous.error} onRetry={() => previous.refetch()} />}
+      {waitingForBaseline && !previous.error && <Notice tone="plain">Загружаем последнюю отправку, чтобы проверить, изменились ли условия финансирования.</Notice>}
 
       <nav className="stepper" aria-label="Шаги заявки">
         {STEPS.map((s, i) => (
@@ -210,7 +228,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
               </span>
               <div className="grow">
                 <b>Шаг «{STEPS[stepIdx].title}» подтверждён</b>
-                <span>Данные зафиксированы. Чтобы что-то поменять, нажмите «Редактировать».</span>
+                <span>{step === 'NEED' && gate.inheritedNeed ? 'Условия совпадают с последней отправкой. Повторное подтверждение не требуется.' : 'Данные зафиксированы. Чтобы что-то поменять, нажмите «Редактировать».'}</span>
               </div>
               <Button size="sm" variant="white" disabled={submitting || !!submitAttempt.current} onClick={() => gate.unlock(step)}>
                 Редактировать
@@ -252,7 +270,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
                 </ul>
               </div>
             )}
-            {needsConfirm && !locked && missing.length === 0 && <div className="sb-text">{step === 'COMPANY' || step === 'FINANCES' ? 'Проверьте данные и подтвердите страницу.' : 'Всё заполнено. Проверьте данные и подтвердите страницу.'}</div>}
+            {needsConfirm && !locked && missing.length === 0 && <div className="sb-text">{unchangedNeedEditor ? 'Условия уже подтверждены. Можно переходить дальше.' : step === 'COMPANY' || step === 'FINANCES' ? 'Проверьте данные и подтвердите страницу.' : 'Всё заполнено. Проверьте данные и подтвердите страницу.'}</div>}
             {locked && (
               <div className="sb-text sb-ok">
                 <CheckIcon size={14} color="var(--ink)" /> Страница подтверждена
@@ -264,12 +282,12 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
                   <Arrow dir="left" /> Назад
                 </Button>
               )}
-              {!needsConfirm ? (
+              {!needsConfirm || unchangedNeedEditor ? (
                 <Button variant="ink" onClick={() => go(STEPS[stepIdx + 1].id)}>
                   Далее: {STEPS[stepIdx + 1].title} <Arrow />
                 </Button>
               ) : !locked ? (
-                <Button variant="lime" loading={confirming} disabled={missing.length > 0 || ed.state === 'conflict' || ed.commandBusy} onClick={confirmStep}>
+                <Button variant="lime" loading={confirming} disabled={missing.length > 0 || ed.state === 'conflict' || ed.commandBusy || (step === 'NEED' && waitingForBaseline)} onClick={confirmStep}>
                   Подтвердить
                 </Button>
               ) : step !== 'REVIEW' ? (
@@ -277,7 +295,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
                   Далее: {STEPS[stepIdx + 1].title} <Arrow />
                 </Button>
               ) : (
-                <Button variant="red" size="lg" loading={submitting} disabled={!allConfirmed || !ready.canSubmit || Object.keys(ed.fieldErrors).length > 0 || ed.state === 'conflict' || ed.commandBusy} onClick={submit}>
+                <Button variant="red" size="lg" loading={submitting} disabled={!allConfirmed || waitingForBaseline || !ready.canSubmit || Object.keys(ed.fieldErrors).length > 0 || ed.state === 'conflict' || ed.commandBusy} onClick={submit}>
                   {ed.server.status === 'NEEDS_INFO' ? 'Отправить повторно' : 'Отправить заявку'} <Arrow />
                 </Button>
               )}
@@ -292,7 +310,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
 
         <aside className="wz-aside">
           <CalcPanel ed={ed} ready={ready} scen={scen} locked={!!gate.confirmed.REVIEW} />
-          <Variants ed={ed} scen={scen} locked={!!gate.confirmed.NEED} onAskAi={() => setAiOpen(true)} />
+          <Variants ed={ed} scen={scen} locked={!!gate.confirmed.NEED && !gate.editingNeed} onAskAi={() => setAiOpen(true)} />
           <ReadinessCard ready={ready} onGo={go} />
         </aside>
       </div>

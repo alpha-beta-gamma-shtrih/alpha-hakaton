@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Draft, FormStep, Product } from '../../../api/types'
 import { moneyShort, parseMoney } from '../../../lib/format'
 import type { FormState } from './useDraftEditor'
+import { needConfirmation } from './needConfirmation'
 
 export interface Missing {
   label: string
@@ -52,35 +53,49 @@ export function stepMissing(step: FormStep, form: FormState, product: Product | 
 
 type Confirmed = Partial<Record<FormStep, boolean>>
 
-/** Per-step confirmations. Kept in this browser per application and submission round,
-    so a new round after a bank request starts unconfirmed. */
-export function useStepConfirm(app: Draft) {
+/** Final review starts fresh each round. NEED can inherit the last server submission. */
+export function useStepConfirm(app: Draft, currentNeedKey: string | null, submittedKey: string | null) {
   const key = `cc-steps:${app.id}:${app.latest_revision_no ?? 0}`
-  const read = (): Confirmed => {
+  const read = () => {
+    let confirmed: Confirmed = {}
+    let needKey: string | null = null
     try {
       const value = JSON.parse(localStorage.getItem(key) || '{}')
-      if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
-      return Object.fromEntries(['NEED', 'REVIEW'].filter((s) => value[s] === true).map((s) => [s, true]))
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        confirmed = Object.fromEntries(['NEED', 'REVIEW'].filter((s) => value[s] === true).map((s) => [s, true]))
+        needKey = typeof value.needKey === 'string' ? value.needKey : null
+      }
     } catch {
-      return {}
+      /* No browser storage: the server snapshot still restores unchanged NEED. */
     }
+    return { key, confirmed, needKey, editingNeed: false }
   }
-  const [state, setState] = useState(() => ({ key, confirmed: read() }))
-  const confirmed = state.key === key ? state.confirmed : read()
+  const [state, setState] = useState(read)
+  const current = state.key === key ? state : read()
+  const isReply = app.status === 'NEEDS_INFO'
+  const need = needConfirmation(isReply, currentNeedKey, submittedKey, !!current.confirmed.NEED, current.needKey)
+  const confirmed = { ...current.confirmed, NEED: need.confirmed }
   useEffect(() => {
-    if (state.key !== key) setState({ key, confirmed: read() })
+    if (state.key !== key) setState(read())
   }, [key, state.key])
   useEffect(() => {
     if (state.key !== key) return
     try {
-      localStorage.setItem(key, JSON.stringify(confirmed))
+      localStorage.setItem(key, JSON.stringify({ ...state.confirmed, needKey: state.needKey }))
     } catch {
       /* storage unavailable: confirmations live for this visit only */
     }
-  }, [key, confirmed, state.key])
+  }, [key, state])
 
-  const confirm = useCallback((s: FormStep) => setState((c) => ({ key, confirmed: { ...(c.key === key ? c.confirmed : {}), [s]: true } })), [key])
+  const confirm = useCallback((s: FormStep) => setState((c) => {
+    const previous = c.key === key ? c : read()
+    return { ...previous, confirmed: { ...previous.confirmed, [s]: true }, needKey: s === 'NEED' ? currentNeedKey : previous.needKey, editingNeed: false }
+  }), [key, currentNeedKey])
   /** Editing any earlier step also reopens the final review. */
-  const unlock = useCallback((s: FormStep) => setState((c) => ({ key, confirmed: { ...(c.key === key ? c.confirmed : {}), [s]: false, REVIEW: false } })), [key])
-  return { confirmed, confirm, unlock }
+  const unlock = useCallback((s: FormStep) => setState((c) => {
+    const previous = c.key === key ? c : read()
+    return { ...previous, confirmed: { ...previous.confirmed, [s]: false, REVIEW: false }, needKey: s === 'NEED' ? null : previous.needKey, editingNeed: isReply && s === 'NEED' }
+  }), [key, isReply])
+  const closeNeedEditor = useCallback(() => setState((c) => c.editingNeed ? { ...c, editingNeed: false } : c), [])
+  return { confirmed, confirm, unlock, closeNeedEditor, editingNeed: current.editingNeed, inheritedNeed: need.inherited }
 }
