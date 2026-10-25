@@ -255,7 +255,9 @@ def import_bundle(db: Session, bundle: SeedBundle, password: str | None = None) 
                 select(User).where(User.email.in_([str(row.email) for row in bundle.users]))
             )
         }
-        if any(str(row.email) not in existing_users for row in bundle.users):
+        if any(
+            str(row.email) not in existing_users and row.password is None for row in bundle.users
+        ):
             if not password or not 12 <= len(password) <= 1024:
                 raise DatasetError("A 12–1024 character password is required for new demo users")
         user_map = {}
@@ -271,7 +273,9 @@ def import_bundle(db: Session, bundle: SeedBundle, password: str | None = None) 
                     role=row.role,
                     is_active=row.is_active,
                     ui_context={},
-                    password_hash=hash_password(password),
+                    password_hash=hash_password(
+                        row.password.get_secret_value() if row.password is not None else password
+                    ),
                 )
                 db.add(user)
                 counts["users"] += 1

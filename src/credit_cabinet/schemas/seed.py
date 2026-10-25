@@ -2,7 +2,7 @@ from datetime import date
 from typing import Literal
 from uuid import UUID
 
-from pydantic import EmailStr, Field, field_validator, model_validator
+from pydantic import ConfigDict, EmailStr, Field, SecretStr, field_validator, model_validator
 
 from credit_cabinet.core.demo import CALCULATION_DATE, DEMO_NAMESPACE, FINANCIAL_MONTHS
 from credit_cabinet.models.enums import CheckStatus, LegalForm, Purpose, Role
@@ -48,11 +48,15 @@ class FinancialSeed(StrictModel):
 
 
 class UserSeed(StrictModel):
+    model_config = ConfigDict(hide_input_in_errors=True)
+
     user_key: str = Field(min_length=1, max_length=64)
     email: EmailStr
     display_name: str = Field(min_length=1, max_length=200)
     role: Role
     is_active: bool = Field(strict=True)
+    # Public demo credentials only; never copy this field to API responses or logs.
+    password: SecretStr | None = Field(default=None, min_length=12, max_length=1024, repr=False)
 
     @field_validator("email", mode="before")
     @classmethod
