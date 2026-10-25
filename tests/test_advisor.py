@@ -55,6 +55,7 @@ def test_fallback_has_grounded_calculations_without_changing_application(seeded,
     assert report["is_current"] is True and report["scenarios"][0]["monthly_payment"] == "94559.60"
     assert "не гарантирует" in report["explanation"]["notice"]
     assert report["explanation"]["comparisons"] == []
+    assert all("балл" not in factor["text"].lower() for factor in report["factors"])
     assert client.get(f"/api/applications/{draft['id']}").json() == draft
     assert counts(seeded) == before
     assert client.get(f"/api/applications/{draft['id']}/advisor").json() == report

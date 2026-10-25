@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { applications } from '../../api/endpoints'
 import type { Assessment, CheckSource, Draft, EventItem } from '../../api/types'
 import { PixelArt, type PixelShape } from '../../components/pixel'
-import { Arrow, Button, Notice, ProvenanceBadge, Reasons, RiskMeter, SectionTitle, Skeleton, StatusChip } from '../../components/ui'
+import { Arrow, Button, Notice, ProvenanceBadge, Reasons, SectionTitle, Skeleton, StatusChip } from '../../components/ui'
 import { dateTime, money, months, percent, shortId } from '../../lib/format'
 import { CHECK_SOURCE, CHECK_STATUS, eventLabel, PURPOSE, requestedFieldLabel, STATUS } from '../../lib/labels'
 import { useCompanies, useProducts, useStartApplication } from '../../lib/queries'
@@ -222,41 +222,25 @@ function ChecksCard({ a, animate }: { a: Assessment | null | undefined; animate:
 
 function AssessmentCard({ a }: { a: Assessment }) {
   const cd = a.calculation_details as Record<string, unknown>
-  const factors = (cd.factors as { factor_id: string; points: number }[] | undefined) ?? []
   return (
     <div className="card">
       <SectionTitle n="02" color="red" aside={<span className="hint">правила {a.rules_version}</span>}>
         Оценка
       </SectionTitle>
-      <div className="assess">
+      <div className="assess-stats">
         <div>
-          <span className="label">Риск-балл</span>
-          <RiskMeter score={a.risk_score} band={a.risk_band} />
+          <span>Платёж</span>
+          <b className="num">{money(cd.monthly_payment as string)}</b>
         </div>
-        <div className="assess-stats">
-          <div>
-            <span>Платёж</span>
-            <b className="num">{money(cd.monthly_payment as string)}</b>
-          </div>
-          <div>
-            <span>Нагрузка</span>
-            <b className="num">{percent(cd.load_ratio as string)}</b>
-          </div>
-          <div>
-            <span>Поток в месяц</span>
-            <b className="num">{money(cd.average_operating_cashflow as string)}</b>
-          </div>
+        <div>
+          <span>Нагрузка</span>
+          <b className="num">{percent(cd.load_ratio as string)}</b>
+        </div>
+        <div>
+          <span>Поток в месяц</span>
+          <b className="num">{money(cd.average_operating_cashflow as string)}</b>
         </div>
       </div>
-      {factors.length > 0 && (
-        <div className="factor-row">
-          {factors.map((f) => (
-            <span key={f.factor_id} className="factor">
-              {f.factor_id} <b>+{f.points}</b>
-            </span>
-          ))}
-        </div>
-      )}
       <div style={{ marginTop: 16 }}>
         <Reasons items={a.reasons} />
       </div>

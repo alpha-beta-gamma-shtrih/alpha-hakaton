@@ -159,14 +159,9 @@ def build_facts(comparison, application, mode):
             identifier,
         )
         if candidate["load_ratio"] is not None:
-            score = (
-                f"Риск-балл {candidate['risk_score']}."
-                if candidate["risk_score"] is not None
-                else "Риск-балл не рассчитывался."
-            )
             card(
                 identifier + "_LOAD",
-                f"Демонстрационная долговая нагрузка: {Decimal(candidate['load_ratio']) * 100:.2f}%. {score}",
+                f"Демонстрационная долговая нагрузка: {Decimal(candidate['load_ratio']) * 100:.2f}%.",
                 identifier,
             )
         if identifier != "REQUESTED":

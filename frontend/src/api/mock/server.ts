@@ -670,7 +670,7 @@ function advisorReport(app: AppRec, mode: 'EXPLAIN' | 'COMPARE', cands: Candidat
     const routeText = c.preliminary_route === 'APPROVE' ? 'Проходит предварительные демо-правила.' : c.preliminary_route === 'MANUAL_REVIEW' ? 'Потребуется оценка сотрудника.' : c.preliminary_route === 'REJECT' ? 'Не проходит предварительные демо-правила.' : 'Нужны дополнительные сведения.'
     factors.push({ factor_id: `${c.candidate_id}_PAYMENT`, candidate_id: c.candidate_id, text: `Сумма ${fmt(c.requested_amount)} RUB, срок ${c.term_months} мес., ставка ${c.annual_rate_percent}% годовых; платеж ${fmt(c.monthly_payment)} RUB в месяц, расчетная переплата ${fmt(c.estimated_overpayment)} RUB.` })
     factors.push({ factor_id: `${c.candidate_id}_ROUTE`, candidate_id: c.candidate_id, text: `${routeText} ${c.reasons.map((r) => r.message).join(' ')}` })
-    if (c.load_ratio) factors.push({ factor_id: `${c.candidate_id}_LOAD`, candidate_id: c.candidate_id, text: `Демонстрационная долговая нагрузка: ${(Number(c.load_ratio) * 100).toFixed(2)}%. Риск-балл ${c.risk_score ?? '—'}.` })
+    if (c.load_ratio) factors.push({ factor_id: `${c.candidate_id}_LOAD`, candidate_id: c.candidate_id, text: `Демонстрационная долговая нагрузка: ${(Number(c.load_ratio) * 100).toFixed(2)}%.` })
     if (c !== base) {
       const dp = Number(base.monthly_payment) - Number(c.monthly_payment)
       const dov = Number(c.estimated_overpayment) - Number(base.estimated_overpayment)
