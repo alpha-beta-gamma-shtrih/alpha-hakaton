@@ -14,7 +14,9 @@ from credit_cabinet.schemas.agreements import DeclineAgreementRequest, SignAgree
 from credit_cabinet.services.agreements import decline, sign
 from tests.conftest import ROOT
 from tests.test_advisor_postgres import ready_postgres
+from tests.test_agreement_decline import decline as decline_api
 from tests.test_agreement_decline import decline_body
+from tests.test_agreements import sign as sign_api
 from tests.test_agreements import sign_body, url
 from tests.test_drafts_postgres import postgres_app as postgres_app
 from tests.test_drafts_postgres import pytestmark as pytestmark
@@ -86,3 +88,27 @@ def test_refusal_is_atomic_against_retry_or_signing_and_survives_restart(postgre
     with postgres_app() as client:
         client.cookies.set("credit_session", cookie)
         assert client.get(f"/api/applications/{app['id']}").json() == saved
+
+
+def test_upgrade_preserves_existing_signed_and_approved_applications(postgres_app):
+    with postgres_app() as client:
+        app = send(client, ready_postgres(client)).json()["application"]
+        document = client.get(url(app)).json()
+        signed = sign_api(client, app, sign_body(app, document)).json()
+        pending = send(client, ready_postgres(client)).json()["application"]
+        config = Config(str(ROOT / "alembic.ini"))
+        with client.app.state.engine.begin() as connection:
+            config.attributes["connection"] = connection
+            command.downgrade(config, "0008_bank_offers")
+            command.upgrade(config, "head")
+        assert client.get(f"/api/applications/{app['id']}").json() == signed
+        assert client.get(f"/api/applications/{pending['id']}").json() == pending
+        assert decline_api(client, pending).status_code == 200
+        with client.app.state.session_factory() as db:
+            with pytest.raises(IntegrityError):
+                db.execute(
+                    update(Application)
+                    .where(Application.id == UUID(app["id"]))
+                    .values(signing_record={"tampered": True})
+                )
+            db.rollback()

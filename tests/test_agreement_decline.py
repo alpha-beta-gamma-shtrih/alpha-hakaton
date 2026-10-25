@@ -102,3 +102,13 @@ def test_signed_and_draft_applications_cannot_be_declined(seeded, client):
     signed = sign(client, app, sign_body(app, document)).json()
     assert decline(client, app).status_code == 409
     assert client.get(f"/api/applications/{app['id']}").json() == signed
+
+
+def test_advisor_distinguishes_client_refusal_from_bank_rejection(seeded, client):
+    from tests.test_advisor import explain
+
+    refused = decline(client, approved(client)).json()
+    report = explain(client, refused)
+    assert report.status_code == 200, report.text
+    fact = next(row for row in report.json()["factors"] if row["factor_id"] == "SAVED_DECISION")
+    assert "банк одобрил" in fact["text"] and "клиент отказался" in fact["text"]
