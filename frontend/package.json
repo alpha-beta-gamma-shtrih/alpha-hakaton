@@ -11,6 +11,7 @@
     "build:mock": "tsc -b && vite build --mode mock",
     "preview": "vite preview",
     "typecheck": "tsc -b",
+    "test:need-confirmation": "node --test tests/need-confirmation.test.mjs",
     "gen:mock": "node scripts/build-mock-dataset.mjs",
     "gen:api": "openapi-typescript ../docs/openapi.json --default-non-nullable=false -o src/api/schema.d.ts"
   },
