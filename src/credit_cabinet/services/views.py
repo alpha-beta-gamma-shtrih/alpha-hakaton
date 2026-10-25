@@ -20,6 +20,7 @@ from credit_cabinet.schemas.business import (
     SignatureResponse,
 )
 from credit_cabinet.schemas.submissions import RevisionResponse
+from credit_cabinet.services.exposure import review_required
 from credit_cabinet.services.reasons import public_reasons
 
 
@@ -107,6 +108,7 @@ def enrich_application(db, application, response):
         .limit(1)
     )
     if revision:
+        response.credit_review_required = review_required(db, application, revision.id)
         response.latest_revision_id = revision.id
         response.latest_revision_no = revision.revision_no
         has_confirmation = (

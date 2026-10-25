@@ -12,9 +12,12 @@ from credit_cabinet.models import ApplicationRevision, CreditProduct, Decision
 from credit_cabinet.models.enums import ApplicationStatus
 from credit_cabinet.schemas.agreements import AgreementContent, AgreementResponse
 from credit_cabinet.services.access import client_application
+from credit_cabinet.services.bank_policy import saved_evaluation
 from credit_cabinet.services.drafts import draft_view
+from credit_cabinet.services.exposure import approvable
 from credit_cabinet.services.policy import canonical_hash
-from credit_cabinet.services.submissions import event
+from credit_cabinet.services.submissions import event, latest_assessment
+from credit_cabinet.services.views import decision_view
 
 logger = logging.getLogger(__name__)
 NOTICE = "Демонстрационный документ хакатона. Кнопка «Подписать» имитирует электронную подпись; юридически значимая электронная подпись не создаётся, договор с реальным банком не заключается, средства не выдаются."
@@ -131,6 +134,24 @@ def sign(db, principal, application_id, body, auth):
         return draft_view(application, db.get(CreditProduct, application.product_id), db)
     if application.lock_version != body.expected_version:
         raise APIError(409, "VERSION_CONFLICT", "Заявка изменена; получите актуальную версию")
+    decision = db.scalar(select(Decision).where(Decision.application_id == application.id))
+    revision = db.get(ApplicationRevision, decision.revision_id)
+    result = saved_evaluation(
+        db,
+        revision,
+        latest_assessment(db, revision.id),
+        amount=decision.approved_amount,
+        term=decision.approved_term_months,
+        binding_rate=decision.annual_rate_percent,
+        current=True,
+    )
+    if not approvable(result, manual=decision.source == "MANUAL"):
+        reopen_for_review(db, principal, application, revision, decision, result, auth)
+        raise APIError(
+            409,
+            "COMPANY_EXPOSURE_CHANGED",
+            "Нагрузка компании изменилась или требует проверки. Подписание отменено, заявка возвращена сотруднику банка; прежний резерв освобождён.",
+        )
     now = utc_now()
     application.signing_record = {
         "decision_id": str(body.decision_id),
@@ -175,3 +196,49 @@ def sign(db, principal, application_id, body, auth):
         },
     )
     return draft_view(application, db.get(CreditProduct, application.product_id), db)
+
+
+def reopen_for_review(db, principal, application, revision, decision, result, auth):
+    # One current decision per application is a schema invariant. Archive the full
+    # superseded decision in BANK-only history before removing its current projection.
+    archived = decision_view(decision).model_dump(mode="json")
+    archived.update(
+        application_id=str(application.id),
+        decided_by_user_id=str(decision.decided_by_user_id)
+        if decision.decided_by_user_id
+        else None,
+        internal_comment=decision.internal_comment,
+        offer_snapshot=decision.offer_snapshot,
+    )
+    event(
+        db,
+        application,
+        "DECISION_MADE",
+        "Прежнее одобрение сохранено в истории перед повторным рассмотрением.",
+        revision=revision,
+        actor=principal.user.id,
+        previous="APPROVED",
+        details={"superseded_decision": archived},
+        visibility="BANK",
+    )
+    db.delete(decision)
+    application.status = ApplicationStatus.MANUAL_REVIEW
+    application.closed_at = None
+    application.updated_at = utc_now()
+    event(
+        db,
+        application,
+        "PROCESSING_RETRIED",
+        "Обязательства компании изменились или требуют проверки. Заявка возвращена сотруднику; прежнее одобрение больше не действует, резерв освобождён.",
+        revision=revision,
+        actor=principal.user.id,
+        previous="APPROVED",
+        details={
+            "reason_code": "COMPANY_EXPOSURE_CHANGED",
+            "superseded_decision_id": str(decision.id),
+            "service_exposure": result.input_facts.get("service_exposure") if result else None,
+        },
+    )
+    auth.activity(db, principal, commit=False)
+    db.commit()
+    logger.info("application.credit_review_required", extra={"application_id": str(application.id)})

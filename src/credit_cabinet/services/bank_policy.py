@@ -6,16 +6,19 @@ from pydantic import ValidationError
 from sqlalchemy import select
 
 from credit_cabinet.core.demo import CALCULATION_DATE
-from credit_cabinet.models import CheckResult
+from credit_cabinet.models import Application, CheckResult
 from credit_cabinet.models.enums import ApplicationStatus, CheckSource, CheckStatus
 from credit_cabinet.schemas.business import DraftDataPatch
 from credit_cabinet.schemas.seed import CreditFacts, LegalFacts
+from credit_cabinet.services.exposure import review_required, service_exposure
 from credit_cabinet.services.policy import SourceResult, evaluate
 from credit_cabinet.services.product_policy import evaluation_options, supported
 from credit_cabinet.services.submissions import can_retry
 
 
-def saved_evaluation(db, revision, assessment, *, amount=None, term=None):
+def saved_evaluation(
+    db, revision, assessment, *, amount=None, term=None, current=False, binding_rate=None
+):
     """Recheck mandatory conditions locally, with no source calls and no new assessment."""
     if (
         assessment is None
@@ -78,11 +81,11 @@ def saved_evaluation(db, revision, assessment, *, amount=None, term=None):
                 row.completed_at,
             )
 
-        result = evaluate(
+        options = dict(
             company=revision.company_snapshot,
             financials=revision.financial_snapshot["financial_months"],
-            amount=revision.requested_amount if amount is None else amount,
-            term=revision.term_months if term is None else term,
+            amount=revision.requested_amount,
+            term=revision.term_months,
             annual_rate=Decimal(product["annual_rate_percent"]),
             calculation_date=CALCULATION_DATE,
             source=source,
@@ -94,18 +97,34 @@ def saved_evaluation(db, revision, assessment, *, amount=None, term=None):
                 }
             ),
         )
+        result = evaluate(
+            **options, service_exposure=assessment.input_facts.get("service_exposure")
+        )
         if (
-            amount is None
-            and term is None
-            and (
-                result.routing != assessment.routing
-                or result.risk_score != assessment.risk_score
-                or result.risk_band != assessment.risk_band
-                or result.reason_codes != assessment.reason_codes
-                or result.calculation_details != assessment.calculation_details
-            )
+            result.routing != assessment.routing
+            or result.risk_score != assessment.risk_score
+            or result.risk_band != assessment.risk_band
+            or result.reason_codes != assessment.reason_codes
+            or result.calculation_details != assessment.calculation_details
         ):
             return None
+        if amount is not None:
+            options["amount"] = amount
+        if term is not None:
+            options["term"] = term
+        exposure = assessment.input_facts.get("service_exposure")
+        if current:
+            company_id = db.scalar(
+                select(Application.company_id).where(Application.id == revision.application_id)
+            )
+            exposure = service_exposure(
+                db, company_id, exclude_application_id=revision.application_id
+            )
+        if binding_rate is not None:
+            options["annual_rate"] = binding_rate
+            options["personal_pricing"] = False
+        if current or amount is not None or term is not None or binding_rate is not None:
+            result = evaluate(**options, service_exposure=exposure)
         return result
     except (KeyError, ValueError, TypeError, ValidationError, ArithmeticError):
         return None
@@ -121,6 +140,8 @@ def bank_actions(db, application, revision, assessment):
     result = saved_evaluation(db, revision, assessment)
     if result is None:
         return []
+    if review_required(db, application, revision.id):
+        return ["REQUEST_INFO", "APPROVE", "REJECT"]
     if (
         result.reason_codes[0] == "BORDERLINE_RISK"
         and result.risk_score is not None

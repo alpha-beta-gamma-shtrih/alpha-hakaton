@@ -13,6 +13,7 @@ from credit_cabinet.models import CheckResult, Decision
 from credit_cabinet.models.enums import ApplicationStatus, CheckSource
 from credit_cabinet.schemas.scenarios import ScenariosResponse
 from credit_cabinet.services.access import client_application
+from credit_cabinet.services.exposure import decision_exposure, service_exposure
 from credit_cabinet.services.policy import SourceResult, annuity, evaluate
 from credit_cabinet.services.pricing import unpriced
 from credit_cabinet.services.product_policy import evaluation_options
@@ -79,6 +80,11 @@ def prepare_comparison(db, user_id, application_id, body, sources):
     else:
         payload = application_input(db, application, require_confirmation=False)
     cache = {}
+    exposure = (
+        (decision_exposure(db, application, assessment, decision))
+        if application.status in {"APPROVED", "REJECTED", "SIGNED"}
+        else service_exposure(db, application.company_id, exclude_application_id=application.id)
+    )
     if allowed and assessment:
         for row in db.scalars(
             select(CheckResult).where(
@@ -139,6 +145,7 @@ def prepare_comparison(db, user_id, application_id, body, sources):
         result = None
         if allowed:
             result = evaluate(
+                service_exposure=exposure,
                 company=payload["company_snapshot"],
                 financials=payload["financial_snapshot"]["financial_months"],
                 amount=value,
@@ -216,6 +223,7 @@ def prepare_comparison(db, user_id, application_id, body, sources):
         candidate["input_hash"] = financial_input_hash(
             {
                 "input": payload,
+                "service_exposure": exposure,
                 "sources": source_context,
                 "assessment_id": str(assessment.id) if allowed and assessment else None,
                 "requested_amount": format(candidate["requested_amount"], ".2f"),

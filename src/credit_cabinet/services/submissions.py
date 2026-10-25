@@ -31,6 +31,7 @@ from credit_cabinet.services.access import bank_application, client_application
 from credit_cabinet.services.auth import AuthService, Principal
 from credit_cabinet.services.documents import document_references, ensure_documents
 from credit_cabinet.services.drafts import remember_draft
+from credit_cabinet.services.exposure import service_exposure
 from credit_cabinet.services.policy import (
     evaluate,
 )
@@ -50,7 +51,16 @@ RETRY_REASONS = {
 
 
 def event(
-    db, application, kind, message, *, revision=None, actor=None, previous=None, details=None
+    db,
+    application,
+    kind,
+    message,
+    *,
+    revision=None,
+    actor=None,
+    previous=None,
+    details=None,
+    visibility="CLIENT",
 ):
     number = (
         db.scalar(
@@ -69,7 +79,7 @@ def event(
             event_type=kind,
             from_status=previous,
             to_status=application.status,
-            visibility="CLIENT",
+            visibility=visibility,
             message=message,
             details=details or {},
         )
@@ -229,6 +239,9 @@ def process(db, application, revision, sources):
     prior = latest_assessment(db, revision.id)
     run_no = prior.run_no + 1 if prior else 1
     result = evaluate(
+        service_exposure=service_exposure(
+            db, application.company_id, exclude_application_id=application.id
+        ),
         company=revision.company_snapshot,
         financials=revision.financial_snapshot["financial_months"],
         amount=revision.requested_amount,

@@ -134,6 +134,7 @@ def evaluate(
     personal_pricing: bool = False,
     purpose: str | None = None,
     partner_purchase: bool = False,
+    service_exposure: dict | None = None,
 ) -> Evaluation:
     with localcontext() as context:
         context.prec = 40
@@ -148,6 +149,7 @@ def evaluate(
             personal_pricing,
             purpose,
             partner_purchase,
+            service_exposure,
         )
         if personal_pricing and "pricing" not in result.calculation_details:
             result.calculation_details["pricing"] = unpriced(
@@ -167,8 +169,11 @@ def _evaluate(
     personal_pricing,
     purpose,
     partner_purchase,
+    service_exposure,
 ):
     result = Evaluation(Routing.MANUAL_REVIEW, [])
+    if service_exposure is not None:
+        result.input_facts["service_exposure"] = service_exposure.copy()
 
     def finish(route, reason, fields=None):
         result.routing = route
@@ -276,6 +281,16 @@ def _evaluate(
         result.calculation_details["annual_rate_percent"] = format(annual_rate, ".3f")
     payment = annuity(amount, term, annual_rate)
     existing = max(declared, confirmed)
+    if service_exposure is not None:
+        result.calculation_details.update(
+            base_existing_payment=money(existing),
+            service_signed_payment=service_exposure["signed_payment"],
+            service_reserved_payment=service_exposure["reserved_payment"],
+            service_exposure=service_exposure.copy(),
+        )
+        existing += Decimal(service_exposure["signed_payment"]) + Decimal(
+            service_exposure["reserved_payment"]
+        )
     load = (existing + Decimal(payment["monthly_payment"])) / average
     result.calculation_details.update(
         payment, existing_payment=money(existing), load_ratio=str(load)

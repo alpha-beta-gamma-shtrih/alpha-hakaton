@@ -124,6 +124,8 @@ class BankQueuePage(BaseModel):
 
 
 class BankCard(BankQueueItem):
+    credit_review_required: bool = False
+    current_credit_check: dict | None = None
     signature: SignatureResponse | None = None
     decline: DeclineResponse | None = None
     revision: RevisionResponse
