@@ -3,6 +3,7 @@
 import logging
 from copy import deepcopy
 from time import perf_counter
+from types import SimpleNamespace
 
 from sqlalchemy import select
 
@@ -19,7 +20,12 @@ from credit_cabinet.services.advisor_context import (
     fixture_stamp,
     render,
     require_confirmation,
-    valid_selection,
+)
+from credit_cabinet.services.advisor_narrative import (
+    comparison_guidance,
+    prompt_context,
+    render_narrative,
+    valid_narrative,
 )
 from credit_cabinet.services.policy import canonical_hash
 from credit_cabinet.services.scenario_sets import use_saved_comparison
@@ -30,6 +36,8 @@ logger = logging.getLogger(__name__)
 
 def current(db, application, report, settings):
     try:
+        if report.prompt_version != PROMPT_VERSION:
+            return False
         if report.context_snapshot.get("mode") == "COMPARE":
             set_id = (
                 (application.scenario_set or {}).get("id")
@@ -57,6 +65,8 @@ def view(db, application, report, settings):
         revision_id=report.revision_id,
         draft_lock_version=report.draft_lock_version,
         mode=report.context_snapshot["mode"],
+        priority=report.context_snapshot.get("priority", "BALANCED"),
+        preferred_candidate_ids=report.context_snapshot.get("preferred_candidate_ids", []),
         status=report.status,
         is_current=current(db, application, report, settings),
         input_hash=report.input_hash,
@@ -100,11 +110,23 @@ def generate(db, principal, application_id, body, auth, sources, model, session_
     context["provenance"] = comparison.response.candidates[0].provenance.model_dump(mode="json")
     context["credit_history_check_allowed"] = True
     scenarios = comparison.response.model_dump(mode="json")["candidates"]
+    context["priority"] = body.priority
+    context["preferred_candidate_ids"] = (
+        comparison_guidance(scenarios, body.priority)
+        if body.mode == "COMPARE"
+        and context["next_step"]["id"] in {"REVIEW_SUBMISSION", "REVIEW_PARAMETERS"}
+        else []
+    )
+    context["narrative_contract"] = prompt_context(context, scenarios, body.priority)
     report_hash = canonical_hash(
         {
             "basis": context["basis_hash"],
             "candidates": [row["input_hash"] for row in scenarios],
             "mode": body.mode,
+            "priority": body.priority,
+            "model": auth.settings.llm_model,
+            "digest_pin": auth.settings.llm_model_digest,
+            "generation_config": GENERATION_CONFIG,
             "prompt_version": PROMPT_VERSION,
             "scenario_set_id": context["scenario_set_id"],
         }
@@ -112,30 +134,47 @@ def generate(db, principal, application_id, body, auth, sources, model, session_
     revision_id = comparison.revision_id
     draft_version = comparison.response.application_version if revision_id is None else None
     user_id = principal.user.id
+    cached = db.scalar(
+        select(AdvisorReport)
+        .where(
+            AdvisorReport.application_id == application_id,
+            AdvisorReport.input_hash == report_hash,
+            AdvisorReport.status == ReportStatus.SUCCESS,
+        )
+        .order_by(AdvisorReport.created_at.desc())
+        .limit(1)
+    )
+    cached_id = cached.id if cached is not None else None
+    cached_identity = (
+        SimpleNamespace(model_id=cached.model_id, model_digest=cached.model_digest)
+        if cached is not None
+        else None
+    )
     # No ORM object is needed during inference. Release the connection and all read locks.
     db.rollback()
-    prompt_context = {
-        key: context[key] for key in ("mode", "factors", "candidate_ids", "next_step")
-    }
+    if cached_identity is not None and getattr(model, "cache_matches", lambda _: False)(
+        cached_identity
+    ):
+        principal, application = recheck(db, auth, session_token, user_id, application_id)
+        cached = db.get(AdvisorReport, cached_id)
+        if current(db, application, cached, auth.settings):
+            auth.activity(db, principal, commit=False)
+            db.commit()
+            return view(db, application, cached, auth.settings)
+        db.rollback()
     started = perf_counter()
-    generation = model.generate(prompt_context)
+    generation = model.generate(context["narrative_contract"])
     latency = max(0, round((perf_counter() - started) * 1000))
     selection = generation.selection
     error_code = generation.error_code
-    if selection is not None and not valid_selection(selection, context):
+    if selection is not None and not valid_narrative(selection, context):
         selection, error_code = None, "LLM_RESPONSE_INVALID"
     success = selection is not None and error_code is None
     if not success:
         selection = fallback_selection(context)
         error_code = error_code or "LLM_RESPONSE_INVALID"
     # Recheck session, role, membership and consent after the potentially slow call.
-    principal = auth.authenticate(db, session_token)
-    if principal is None or principal.user.id != user_id:
-        raise APIError(401, "AUTH_REQUIRED", "Требуется повторный вход")
-    if principal.user.role != "CLIENT":
-        raise APIError(403, "ROLE_FORBIDDEN", "Требуется клиентская учетная запись")
-    application = client_application(db, user_id, application_id, lock=True)
-    require_confirmation(application)
+    principal, application = recheck(db, auth, session_token, user_id, application_id)
     report = AdvisorReport(
         application_id=application_id,
         revision_id=revision_id,
@@ -144,15 +183,14 @@ def generate(db, principal, application_id, body, auth, sources, model, session_
         input_hash=report_hash,
         context_snapshot=context,
         scenarios=scenarios,
-        explanation=render(selection, context),
+        explanation=render_narrative(selection, context) if success else render(selection, context),
         status=ReportStatus.SUCCESS if success else ReportStatus.FALLBACK,
         model_id=generation.model_id,
         model_digest=generation.model_digest,
         prompt_version=PROMPT_VERSION,
         generation_config={
             **GENERATION_CONFIG,
-            "think": False,
-            "output_mode": "GROUNDED_FACT_SELECTION",
+            "output_mode": "GROUNDED_NARRATIVE",
             "timeout_seconds": auth.settings.llm_timeout_seconds,
         },
         latency_ms=latency,
@@ -174,6 +212,17 @@ def generate(db, principal, application_id, body, auth, sources, model, session_
         },
     )
     return view(db, application, report, auth.settings)
+
+
+def recheck(db, auth, session_token, user_id, application_id):
+    principal = auth.authenticate(db, session_token)
+    if principal is None or principal.user.id != user_id:
+        raise APIError(401, "AUTH_REQUIRED", "Требуется повторный вход")
+    if principal.user.role != "CLIENT":
+        raise APIError(403, "ROLE_FORBIDDEN", "Требуется клиентская учетная запись")
+    application = client_application(db, user_id, application_id, lock=True)
+    require_confirmation(application)
+    return principal, application
 
 
 def read(db, principal, application_id, settings, report_id=None, *, bank=False):

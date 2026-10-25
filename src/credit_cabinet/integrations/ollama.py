@@ -10,24 +10,22 @@ from urllib.parse import urlsplit
 
 from pydantic import ValidationError
 
-from credit_cabinet.schemas.advisor import ModelSelection
+from credit_cabinet.schemas.advisor import ModelNarrative
 
-PROMPT_VERSION = "advisor-grounded-0.2.1"
-GENERATION_CONFIG = {"temperature": 0, "seed": 42, "num_ctx": 4096, "num_predict": 384}
-SYSTEM_PROMPT = """Ты помощник демонстрационного кредитного кабинета.
-Выбери наиболее значимые факторы для объяснения заявки или сравнения вариантов.
-Верни только JSON по заданной схеме. Используй ТОЛЬКО переданные идентификаторы.
-Не добавляй текст, числа, инструменты или новые условия. Все вычисления уже выполнены.
-Для EXPLAIN comparisons пустой. Для COMPARE включи каждый candidate_id ровно один раз;
-у каждого варианта используй только его factor_ids. В summary_factor_ids выбери до
-четырех доступных факторов. next_step_id возьми из переданного next_step.
-Карточки содержат синтетические данные, предварительная оценка не гарантирует выдачу.
+PROMPT_VERSION = "advisor-priority-0.3.0"
+GENERATION_CONFIG = {"temperature": 0, "seed": 42, "num_ctx": 2048, "num_predict": 384}
+SYSTEM_PROMPT = """Ты объясняешь предпринимателю заявку на банковский кредит.
+Объясни два переданных факта простым русским языком для клиента.
+Верни JSON: benefit — одно предложение о пользе, tradeoff — одно предложение о цене
+компромисса или ограничении. Не выбирай другой вариант, не выдумывай условия.
+Раскрой практический смысл для бюджета бизнеса. Не используй числа.
+Только два предложения, без вступления. Сравнения только с исходным запросом.
 """
 
 
 @dataclass
 class Generation:
-    selection: ModelSelection | None
+    selection: ModelNarrative | None
     error_code: str | None
     model_id: str | None = None
     model_digest: str | None = None
@@ -79,6 +77,29 @@ class OllamaAdvisor:
         finally:
             connection.close()
 
+    def cache_matches(self, report):
+        if not self.settings.llm_enabled or report.model_id != self.settings.llm_model:
+            return False
+        try:
+            data = self.request("GET", "/api/tags", None, monotonic() + 3, 256 * 1024)
+            rows = [row for row in data["models"] if row["name"] == self.settings.llm_model]
+            if len(rows) != 1 or not isinstance(rows[0]["digest"], str):
+                return False
+            digest = "sha256:" + rows[0]["digest"].removeprefix("sha256:")
+            return digest == report.model_digest and (
+                not self.settings.llm_model_digest or digest == self.settings.llm_model_digest
+            )
+        except (
+            ModelFailure,
+            OSError,
+            http.client.HTTPException,
+            ValueError,
+            TypeError,
+            KeyError,
+            AttributeError,
+        ):
+            return False
+
     def generate(self, context):
         if not self.settings.llm_enabled:
             return Generation(None, "LLM_DISABLED")
@@ -100,27 +121,13 @@ class OllamaAdvisor:
             digest = "sha256:" + raw_digest.removeprefix("sha256:")
             if self.settings.llm_model_digest and digest != self.settings.llm_model_digest:
                 raise ModelFailure("LLM_MODEL_MISMATCH")
-            schema = ModelSelection.model_json_schema()
-            allowed_facts = [
-                row["factor_id"]
-                for row in context["factors"]
-                if context["mode"] == "COMPARE" or row["candidate_id"] in (None, "REQUESTED")
-            ]
-            schema["properties"]["summary_factor_ids"]["items"]["enum"] = allowed_facts
-            schema["properties"]["next_step_id"]["enum"] = [context["next_step"]["id"]]
-            comparison_count = len(context["candidate_ids"]) if context["mode"] == "COMPARE" else 0
-            schema["properties"]["comparisons"]["minItems"] = comparison_count
-            schema["properties"]["comparisons"]["maxItems"] = comparison_count
-            schema["$defs"]["CandidateSelection"]["properties"]["candidate_id"]["enum"] = context[
-                "candidate_ids"
-            ]
+            schema = ModelNarrative.model_json_schema()
             result = self.request(
                 "POST",
                 "/api/chat",
                 {
                     "model": model,
                     "stream": False,
-                    "think": False,
                     "keep_alive": "5m",
                     "options": GENERATION_CONFIG,
                     "format": schema,
@@ -128,9 +135,7 @@ class OllamaAdvisor:
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {
                             "role": "user",
-                            "content": json.dumps(
-                                {"context": context, "schema": schema}, ensure_ascii=False
-                            ),
+                            "content": json.dumps(context["brief"], ensure_ascii=False),
                         },
                     ],
                 },
@@ -145,7 +150,7 @@ class OllamaAdvisor:
                 or result["message"].get("tool_calls")
             ):
                 raise ModelFailure("LLM_RESPONSE_INVALID")
-            selection = ModelSelection.model_validate_json(result["message"]["content"])
+            selection = ModelNarrative.model_validate_json(result["message"]["content"])
             return Generation(selection, None, model, digest)
         except ModelFailure as exc:
             return Generation(None, exc.args[0], model, digest)

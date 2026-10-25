@@ -23,10 +23,10 @@ class Settings(BaseSettings):
     documents_dir: Path = Path(".data/documents")
     llm_enabled: bool = True
     llm_base_url: str = "http://127.0.0.1:11434"
-    llm_model: str = Field(default="qwen3:4b", min_length=1, max_length=128)
+    llm_model: str = Field(default="qwen2.5:1.5b", min_length=1, max_length=128)
     llm_model_digest: str | None = Field(default=None, pattern=r"^sha256:[a-f0-9]{64}$")
     llm_timeout_seconds: float = Field(default=45, ge=1, le=120)
-    llm_max_parallel: int = Field(default=1, ge=1, le=4)
+    llm_max_parallel: int = Field(default=1, ge=1, le=1)
     csrf_signing_key: SecretStr
     client_session_absolute_ttl_seconds: int = Field(default=28800, gt=0)
     client_session_idle_ttl_seconds: int = Field(default=3600, gt=0)

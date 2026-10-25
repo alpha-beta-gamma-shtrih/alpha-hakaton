@@ -7,8 +7,7 @@ from sqlalchemy import event, func, select
 
 from credit_cabinet.integrations.ollama import Generation
 from credit_cabinet.models import AdvisorReport, CompanyMembership, User
-from credit_cabinet.schemas.advisor import ModelSelection
-from credit_cabinet.services.advisor_context import fallback_selection
+from credit_cabinet.schemas.advisor import ModelNarrative
 from tests.conftest import SEED_PASSWORD, csrf_headers, login
 from tests.test_drafts import new_draft, patch
 from tests.test_submissions import AlteredSources, counts, ready, send
@@ -23,8 +22,18 @@ class Model:
         if self.during:
             self.during()
         return self.result or Generation(
-            fallback_selection(context), None, "test-model:unit", "sha256:" + "a" * 64
+            narrative(context), None, "test-model:unit", "sha256:" + "a" * 64
         )
+
+    def cache_matches(self, report):
+        return report.model_id == "test-model:unit"
+
+
+def narrative(context):
+    return ModelNarrative(
+        benefit="Оценка предварительная. Сопоставьте доступное финансирование с бюджетом бизнеса.",
+        tradeoff="Необходимо дополнить сведения перед окончательным выбором и отправкой заявки.",
+    )
 
 
 def explain(client, draft, mode="EXPLAIN", **extra):
@@ -64,10 +73,11 @@ def test_successful_comparison_uses_only_backend_facts_and_is_persisted(seeded, 
     seeded.state.advisor = model
     report = explain(client, draft, "COMPARE").json()
     assert report["status"] == "SUCCESS" and report["error_code"] is None
-    assert len(report["explanation"]["comparisons"]) == 3
-    facts = {row["factor_id"]: row["text"] for row in report["factors"]}
-    for section in [report["explanation"]["summary"], *report["explanation"]["comparisons"]]:
-        assert section["text"] == " ".join(facts[key] for key in section["factor_ids"])
+    assert report["explanation"]["comparisons"] == []
+    expected = narrative(model.calls[0])
+    assert expected.benefit in report["explanation"]["summary"]["text"]
+    assert expected.tradeoff in report["explanation"]["summary"]["text"]
+    assert report["generation_config"]["output_mode"] == "GROUNDED_NARRATIVE"
     prompt = str(model.calls)
     assert "private-client-prose" not in prompt
     assert "password" not in prompt and "inn" not in prompt and "storage_key" not in prompt
@@ -141,23 +151,19 @@ def test_missing_confirmation_and_invalid_version_never_call_model(seeded, clien
 
 @pytest.mark.parametrize(
     "bad",
-    ["unknown_factor", "duplicate_factor", "unknown_candidate", "foreign_factor", "next_step"],
+    ["number", "promise", "english"],
 )
 def test_invalid_model_selection_is_explicit_fallback(seeded, client, bad):
     class Invalid(Model):
         def generate(self, context):
-            selected = fallback_selection(context).model_dump()
-            if bad == "unknown_factor":
-                selected["summary_factor_ids"] = ["INVENTED_ZERO_RATE"]
-            elif bad == "duplicate_factor":
-                selected["summary_factor_ids"] = ["DATA_ORIGIN", "DATA_ORIGIN"]
-            elif bad == "unknown_candidate":
-                selected["comparisons"][0]["candidate_id"] = "FREE_CREDIT"
-            elif bad == "foreign_factor":
-                selected["comparisons"][0]["factor_ids"] = ["LOWER_AMOUNT_PAYMENT"]
+            selected = narrative(context).model_dump()
+            if bad == "number":
+                selected["benefit"] = "Вам доступна ставка 0 процентов без проверки данных."
+            elif bad == "promise":
+                selected["benefit"] = "Банк одобрил вашу заявку, осталось получить деньги."
             else:
-                selected["next_step_id"] = "ISSUE_LOAN"
-            return Generation(ModelSelection.model_validate(selected), None)
+                selected["benefit"] = "Choose this offer because it is best for your business."
+            return Generation(ModelNarrative.model_validate(selected), None)
 
     seeded.state.advisor = Invalid()
     response = explain(client, ready(client), "COMPARE")

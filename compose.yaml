@@ -12,7 +12,7 @@ x-backend-environment: &backend-environment
   DOCUMENTS_DIR: /app/.data/documents
   LLM_ENABLED: ${LLM_ENABLED:-true}
   LLM_BASE_URL: http://ollama:11434
-  LLM_MODEL: ${LLM_MODEL:-qwen3:4b}
+  LLM_MODEL: ${LLM_MODEL:-qwen2.5:1.5b}
   LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-45}
   LLM_MAX_PARALLEL: ${LLM_MAX_PARALLEL:-1}
   CLIENT_SESSION_ABSOLUTE_TTL_SECONDS: ${CLIENT_SESSION_ABSOLUTE_TTL_SECONDS:-28800}
@@ -40,7 +40,7 @@ services:
     image: ollama/ollama:0.40.5
     environment:
       OLLAMA_HOST: http://ollama:11434
-    command: [pull, "${LLM_MODEL:-qwen3:4b}"]
+    command: [pull, "${LLM_MODEL:-qwen2.5:1.5b}"]
     depends_on:
       ollama:
         condition: service_healthy

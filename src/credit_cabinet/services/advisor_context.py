@@ -15,7 +15,7 @@ from credit_cabinet.services.snapshots import application_input, financial_input
 from credit_cabinet.services.submissions import latest_assessment, latest_revision
 
 EDITABLE = {ApplicationStatus.DRAFT, ApplicationStatus.NEEDS_INFO}
-NOTICE = "Демонстрационный разбор. Сравнение предварительное и не гарантирует одобрение или выдачу. Числа и формулировки фактов рассчитаны backend."
+NOTICE = "Демонстрационный разбор: не гарантирует одобрение или выдачу. Числа, предварительные проверки и подбор по приоритету рассчитаны backend. Модель объясняет компромиссы и может ошибаться; сверяйте текст с карточками вариантов."
 ROUTES = {
     "APPROVE": "Проходит предварительные демо-правила",
     "REJECT": "Не проходит текущие демо-правила",
@@ -29,6 +29,8 @@ NEXT_STEPS = {
     "WAIT_PROCESSING": "Отправка сохранена; дождитесь обработки или обратитесь к сотруднику для технического повтора.",
     "CONTACT_BANK": "Заявка у сотрудника; следите за статусом и возможным дозапросом.",
     "REVIEW_DECISION": "Посмотрите сохраненное решение по отправленной версии; сравнение не меняет его.",
+    "RESOLVE_RESTRICTION": "Уточните причину ограничения у сотрудника банка. Одно изменение суммы или срока не устраняет ограничения по статусу компании или просрочкам.",
+    "RETRY_CHECK": "Проверка источника недоступна; повторите её позже. Технический сбой сам по себе не означает отказ.",
 }
 
 
@@ -185,9 +187,18 @@ def build_facts(comparison, application, mode):
         ApplicationStatus.REJECTED: "REVIEW_DECISION",
     }.get(application.status)
     if next_step is None:
+        reasons = candidates[0]["reason_codes"]
         next_step = (
             "COMPLETE_DATA"
             if comparison.missing_fields
+            else "RETRY_CHECK"
+            if any(code.startswith("SOURCE_") for code in reasons)
+            else "RESOLVE_RESTRICTION"
+            if set(reasons) & {
+                "COMPANY_NOT_ACTIVE", "COMPANY_BANKRUPTCY", "BUSINESS_TOO_YOUNG",
+                "CURRENT_OVERDUE", "SEVERE_OVERDUE_HISTORY", "LEGAL_STATUS_UNCONFIRMED",
+                "COMPANY_DATA_MISMATCH",
+            }
             else "REVIEW_SUBMISSION"
             if candidates[0]["preliminary_route"] == "APPROVE"
             else "REVIEW_PARAMETERS"
