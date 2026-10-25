@@ -1,5 +1,7 @@
 # Backend: запуск и контракты
 
+Профиль компании: GET `/api/companies/{id}/agreements` возвращает подписанные снимки условий, GET `/api/companies/{id}/documents` — документы неудалённых заявок. Оба списка поддерживают limit/offset и требуют CLIENT с membership компании. Просмотр и скачивание используют существующие защищённые маршруты; новых миграций нет. [Контракт и проверка](COMPANY_FILES_CHECK.md).
+
 Предложения банка: POST `/api/bank/applications/{id}/offer-preview` (version/amount/term_months) → preview_hash; POST `/{id}/decision` с необязательным offer (amount/term_months/preview_hash). Ставку назначает backend, исходная оценка сохраняется. Контракт/проверка — [BANK_OFFERS_CHECK.md](BANK_OFFERS_CHECK.md).
 
 Актуальные персональные условия, поля и совместимость версий — [PRICING.md](PRICING.md); обновление и приемка — [PRICING_CHECK.md](PRICING_CHECK.md).
