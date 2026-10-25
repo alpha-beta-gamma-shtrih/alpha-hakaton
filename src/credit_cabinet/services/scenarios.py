@@ -157,6 +157,11 @@ def prepare_comparison(db, user_id, application_id, body, sources):
                 decision.offer_snapshot["terms"]["pricing"]
                 if decision.offer_snapshot
                 else assessment.calculation_details.get("pricing", pricing)
+                if assessment is not None
+                else {
+                    "status": "FIXED",
+                    "annual_rate_percent": format(decision.annual_rate_percent, ".3f"),
+                }
             )
             payment = {
                 "monthly_payment": decision.monthly_payment,
