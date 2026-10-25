@@ -195,3 +195,15 @@ def test_read_missing_set_is_read_only(personal, client):
     draft = prepared(client)
     assert client.get(endpoint(draft)).json() is None
     assert client.get(f"/api/applications/{draft['id']}").json()["version"] == draft["version"]
+
+
+def test_refresh_invalidates_comparison_report_even_when_draft_terms_are_same(personal, client):
+    draft, options = fixed(client)
+    selected = choose(client, draft, options, "LOWER_AMOUNT").json()
+    draft = selected["application"]
+    report = explain(client, draft, "COMPARE")
+    assert report.status_code == 200 and report.json()["is_current"]
+    renewed = create_set(client, draft, refresh=True)
+    assert renewed.status_code == 200
+    assert renewed.json()["application"]["requested_amount"] == draft["requested_amount"]
+    assert client.get(f"/api/applications/{draft['id']}/advisor").json()["is_current"] is False
