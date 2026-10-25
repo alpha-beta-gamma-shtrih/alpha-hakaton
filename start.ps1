@@ -1,19 +1,6 @@
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
-$postgresId = docker compose -f compose.yaml --profile database ps -q postgres
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-if (-not $postgresId) {
-    Write-Error "Start PostgreSQL first: docker compose --profile database up -d --wait postgres"
-    exit 1
-}
-$postgresHealth = docker inspect --format '{{.State.Health.Status}}' $postgresId
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-if ($postgresHealth -ne "healthy") {
-    Write-Error "Start PostgreSQL first: docker compose --profile database up -d --wait postgres"
-    exit 1
-}
-
 docker build -f Dockerfile -t credit-cabinet-app:local .
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -33,6 +20,16 @@ finally {
 }
 if ($testExitCode -ne 0) { exit $testExitCode }
 if ($cleanupExitCode -ne 0) { exit $cleanupExitCode }
+
+Write-Host "Starting PostgreSQL..."
+docker compose -f compose.postgres.yaml up -d --wait postgres
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Write-Host "Starting Ollama and downloading model..."
+docker compose -f compose.ollama.yaml up -d --wait ollama
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+docker compose -f compose.ollama.yaml run --rm ollama-model
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 docker compose -f compose.yaml up -d frontend
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -24,12 +24,6 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-POSTGRES_ID=$(docker compose -f compose.yaml --profile database ps -q postgres)
-if [ -z "$POSTGRES_ID" ] || [ "$(docker inspect --format '{{.State.Health.Status}}' "$POSTGRES_ID")" != healthy ]; then
-    echo "Start PostgreSQL first: docker compose --profile database up -d --wait postgres" >&2
-    exit 1
-fi
-
 echo "Building backend image..."
 docker build -f Dockerfile -t credit-cabinet-app:local .
 
@@ -47,6 +41,13 @@ trap 'exit 143' TERM
 docker compose -f compose.yaml --profile test up --exit-code-from tests tests
 cleanup_tests
 trap - EXIT INT TERM
+
+echo "Starting PostgreSQL..."
+docker compose -f compose.postgres.yaml up -d --wait postgres
+
+echo "Starting Ollama and downloading model..."
+docker compose -f compose.ollama.yaml up -d --wait ollama
+docker compose -f compose.ollama.yaml run --rm ollama-model
 
 echo "Starting application..."
 docker compose -f compose.yaml up -d frontend

@@ -23,28 +23,6 @@ x-backend-environment: &backend-environment
   LOGIN_RATE_WINDOW_SECONDS: ${LOGIN_RATE_WINDOW_SECONDS:-300}
 
 services:
-  ollama:
-    image: ollama/ollama:0.40.5
-    environment:
-      OLLAMA_HOST: 0.0.0.0:11434
-    volumes:
-      - ollama-data:/root/.ollama
-    healthcheck:
-      test: [CMD-SHELL, "OLLAMA_HOST=http://127.0.0.1:11434 ollama list > /dev/null"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
-    restart: unless-stopped
-
-  ollama-model:
-    image: ollama/ollama:0.40.5
-    environment:
-      OLLAMA_HOST: http://ollama:11434
-    command: [pull, "${LLM_MODEL:-qwen2.5:1.5b}"]
-    depends_on:
-      ollama:
-        condition: service_healthy
-
   postgres-test:
     profiles: 
       - test
@@ -94,8 +72,6 @@ services:
     depends_on:
       init:
         condition: service_completed_successfully
-      ollama-model:
-        condition: service_completed_successfully
     restart: unless-stopped
 
   frontend:
@@ -110,4 +86,3 @@ services:
 
 volumes:
   documents-data:
-  ollama-data:
