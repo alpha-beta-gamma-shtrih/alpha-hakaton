@@ -24,7 +24,7 @@ def test_real_model_selects_grounded_facts(seeded, client, mode, incomplete):
             **seeded.state.settings.model_dump(),
             "llm_enabled": True,
             "llm_base_url": os.environ["TEST_OLLAMA_URL"],
-            "llm_model": os.environ.get("TEST_OLLAMA_MODEL", "qwen3:4b"),
+            "llm_model": os.environ.get("TEST_OLLAMA_MODEL", "qwen2.5:1.5b"),
         }
     )
     seeded.state.advisor = OllamaAdvisor(settings)
