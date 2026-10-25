@@ -1,0 +1,78 @@
+name: Deploy credit-cabinet
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deployment:
+    name: Deploy credit-cabinet
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          load: true
+          tags: credit-cabinet-app:local
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          file: frontend/Dockerfile
+          load: true
+          tags: credit-cabinet-frontend:local
+
+      - name: Run backend tests with PostgreSQL
+        env:
+          POSTGRES_PASSWORD: ci-only-database-password
+          DEMO_USER_PASSWORD: ci-only-demo-password
+          CSRF_SIGNING_KEY: ci-only-signing-key-with-more-than-32-characters
+        run: |
+          set -euo pipefail
+          docker compose --profile test up --exit-code-from tests tests
+
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: just-a-placeholder-so-we-dont-get-errors
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy Docker images
+        run: docker save credit-cabinet-app:local credit-cabinet-frontend:local | ssh -C "$SSH_USER@$SSH_HOST" docker load
+
+      - name: Makedir
+        run: ssh "$SSH_USER@$SSH_HOST" mkdir -p credit-cabinet
+
+      - name: Deploy Compose file
+        run: scp compose.yaml "$SSH_USER@$SSH_HOST:~/credit-cabinet/"
+
+      - name: Deploy .env
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |
+          test -n "$ENV_FILE"
+          printf '%s\n' "$ENV_FILE" |
+            ssh "$SSH_USER@$SSH_HOST" \
+              'umask 077; cat > ~/credit-cabinet/.env && chmod 600 ~/credit-cabinet/.env'
+
+      - name: Start docker-compose
+        run: >
+          ssh "$SSH_USER@$SSH_HOST"
+          'cd ~/credit-cabinet && docker compose up --force-recreate -d'
