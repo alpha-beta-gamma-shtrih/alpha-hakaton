@@ -11,7 +11,6 @@ on:
 jobs:
   deployment:
     name: Deploy credit-cabinet
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
       SSH_HOST: ${{ secrets.SSH_HOST }}
