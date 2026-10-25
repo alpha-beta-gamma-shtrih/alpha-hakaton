@@ -879,6 +879,9 @@ a.ov-draft:hover { transform: translateY(-4px) rotate(-0.4deg); }
 .advisor { padding: 24px; }
 .advisor-title { font-size: 21px; font-weight: 700; margin-top: 16px; letter-spacing: -0.03em; }
 .advisor-sub { font-size: 13px; opacity: 0.8; margin-top: 8px; }
+.advisor-priority { display: grid; gap: 8px; margin-top: 18px; font-size: 13px; font-weight: 650; }
+.advisor-priority select { width: 100%; min-width: 0; padding: 12px; border: 2px solid var(--ink); border-radius: 12px; background: white; color: var(--ink); font: inherit; }
+.advisor-priority select:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
 .advisor-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 .advisor-lock { margin-top: 12px; font-size: 12.5px; padding: 10px 12px; border-radius: 12px; background: rgba(0, 0, 0, 0.18); }
 .advisor-thinking { display: flex; align-items: center; gap: 6px; margin-top: 18px; font-size: 13px; }

@@ -1,0 +1,202 @@
+{
+  "measured_at_utc": "2026-10-25T09:51:24.382594+00:00",
+  "runtime": "Ollama",
+  "runtime_version": "0.40.5",
+  "method": "tests/test_advisor_live.py; temporary test DB; local laptop GPU inference; seven functional cases, not server CPU benchmark",
+  "generation_config": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 2048,
+    "num_predict": 384
+  },
+  "weights_size_bytes": 986061892,
+  "loaded_model_size_bytes": 1108565032,
+  "loaded_model_size_vram_bytes": 1108565032,
+  "cases": [
+    {
+      "case": "EXPLAIN_C01",
+      "model_id": "qwen2.5:1.5b",
+      "model_digest": "sha256:65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+      "latency_ms": 1016,
+      "status": "SUCCESS",
+      "prompt_version": "advisor-priority-0.3.0",
+      "summary": "Кредитная заявка проходит предварительные проверки. Это значит, что она ещё не окончательно одобрена банком. Платежи по кредитам уже занимают часть вашего бюджета. Поэтому перед отправкой заявки нужно проверить, хватит ли денег на кредит и на текущие расходы вашего бизнеса."
+    },
+    {
+      "case": "COMPARE_C01",
+      "model_id": "qwen2.5:1.5b",
+      "model_digest": "sha256:65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+      "latency_ms": 888,
+      "status": "SUCCESS",
+      "prompt_version": "advisor-priority-0.3.0",
+      "summary": "Меньшая сумма: Сумма меньше исходной; Ежемесячный платёж меньше исходного; Общая переплата меньше исходной. Часть исходной потребности придётся финансировать самостоятельно. Более долгий срок: Сумма без изменения; Ежемесячный платёж меньше исходного; Общая переплата больше исходной. Долг придётся возвращать дольше."
+    },
+    {
+      "case": "EXPLAIN_MISSING_FINANCES",
+      "model_id": "qwen2.5:1.5b",
+      "model_digest": "sha256:65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+      "latency_ms": 515,
+      "status": "SUCCESS",
+      "prompt_version": "advisor-priority-0.3.0",
+      "summary": "Не хватает финансовой истории. Долговая нагрузка и доступность кредита пока не определены. Дополните указанные поля и сохраните форму; после дозапроса нужна новая отправка."
+    },
+    {
+      "case": "COMPARE_V3_BALANCED",
+      "model_id": "qwen2.5:1.5b",
+      "model_digest": "sha256:65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+      "latency_ms": 901,
+      "status": "SUCCESS",
+      "prompt_version": "advisor-priority-0.3.0",
+      "preferred_candidate_ids": [],
+      "explanation": {
+        "summary": {
+          "factor_ids": [
+            "DATA_ORIGIN",
+            "PRELIMINARY_ONLY",
+            "REQUESTED_PAYMENT",
+            "REQUESTED_PRICING",
+            "REQUESTED_ROUTE",
+            "REQUESTED_LOAD",
+            "LOWER_AMOUNT_PAYMENT",
+            "LOWER_AMOUNT_PRICING",
+            "LOWER_AMOUNT_ROUTE",
+            "LOWER_AMOUNT_LOAD",
+            "LOWER_AMOUNT_TRADEOFF",
+            "LONGER_TERM_PAYMENT",
+            "LONGER_TERM_PRICING",
+            "LONGER_TERM_ROUTE",
+            "LONGER_TERM_LOAD",
+            "LONGER_TERM_TRADEOFF"
+          ],
+          "text": "Меньшая сумма: Сумма меньше исходной; Ежемесячный платёж меньше исходного; Общая переплата меньше исходной. Часть исходной потребности придётся финансировать самостоятельно. Более долгий срок: Сумма без изменения; Ежемесячный платёж меньше исходного; Общая переплата больше исходной. Долг придётся возвращать дольше."
+        },
+        "comparisons": [],
+        "next_step": {
+          "id": "REVIEW_SUBMISSION",
+          "text": "Проверьте сведения и отдельно отправьте заявку. Разбор сам ее не отправляет."
+        },
+        "notice": "Демонстрационный разбор: не гарантирует одобрение или выдачу. Числа, предварительные проверки и подбор по приоритету рассчитаны backend. Модель объясняет компромиссы и может ошибаться; сверяйте текст с карточками вариантов."
+      }
+    },
+    {
+      "case": "COMPARE_V3_KEEP_AMOUNT",
+      "model_id": "qwen2.5:1.5b",
+      "model_digest": "sha256:65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+      "latency_ms": 607,
+      "status": "SUCCESS",
+      "prompt_version": "advisor-priority-0.3.0",
+      "preferred_candidate_ids": [
+        "LONGER_TERM"
+      ],
+      "explanation": {
+        "summary": {
+          "factor_ids": [
+            "DATA_ORIGIN",
+            "PRELIMINARY_ONLY",
+            "REQUESTED_PAYMENT",
+            "REQUESTED_PRICING",
+            "REQUESTED_ROUTE",
+            "REQUESTED_LOAD",
+            "LOWER_AMOUNT_PAYMENT",
+            "LOWER_AMOUNT_PRICING",
+            "LOWER_AMOUNT_ROUTE",
+            "LOWER_AMOUNT_LOAD",
+            "LOWER_AMOUNT_TRADEOFF",
+            "LONGER_TERM_PAYMENT",
+            "LONGER_TERM_PRICING",
+            "LONGER_TERM_ROUTE",
+            "LONGER_TERM_LOAD",
+            "LONGER_TERM_TRADEOFF"
+          ],
+          "text": "Все запрошенные средства сохраняются, а ежемесячный платеж меньше, что позволяет увеличить бюджет на ежемесячные расходы. Платежи будут дольше, и в итоге вы заплатите больше процентов."
+        },
+        "comparisons": [],
+        "next_step": {
+          "id": "REVIEW_SUBMISSION",
+          "text": "Проверьте сведения и отдельно отправьте заявку. Разбор сам ее не отправляет."
+        },
+        "notice": "Демонстрационный разбор: не гарантирует одобрение или выдачу. Числа, предварительные проверки и подбор по приоритету рассчитаны backend. Модель объясняет компромиссы и может ошибаться; сверяйте текст с карточками вариантов."
+      }
+    },
+    {
+      "case": "COMPARE_V3_LOWER_PAYMENT",
+      "model_id": "qwen2.5:1.5b",
+      "model_digest": "sha256:65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+      "latency_ms": 718,
+      "status": "SUCCESS",
+      "prompt_version": "advisor-priority-0.3.0",
+      "preferred_candidate_ids": [
+        "LONGER_TERM"
+      ],
+      "explanation": {
+        "summary": {
+          "factor_ids": [
+            "DATA_ORIGIN",
+            "PRELIMINARY_ONLY",
+            "REQUESTED_PAYMENT",
+            "REQUESTED_PRICING",
+            "REQUESTED_ROUTE",
+            "REQUESTED_LOAD",
+            "LOWER_AMOUNT_PAYMENT",
+            "LOWER_AMOUNT_PRICING",
+            "LOWER_AMOUNT_ROUTE",
+            "LOWER_AMOUNT_LOAD",
+            "LOWER_AMOUNT_TRADEOFF",
+            "LONGER_TERM_PAYMENT",
+            "LONGER_TERM_PRICING",
+            "LONGER_TERM_ROUTE",
+            "LONGER_TERM_LOAD",
+            "LONGER_TERM_TRADEOFF"
+          ],
+          "text": "Вся запрошенная сумма сохраняется, а ежемесячный платёж меньше исходного, это оставляет больше денег в ежемесячном бюджете. Возвращать долг придётся дольше и суммарно заплатить банку больше процентов."
+        },
+        "comparisons": [],
+        "next_step": {
+          "id": "REVIEW_SUBMISSION",
+          "text": "Проверьте сведения и отдельно отправьте заявку. Разбор сам ее не отправляет."
+        },
+        "notice": "Демонстрационный разбор: не гарантирует одобрение или выдачу. Числа, предварительные проверки и подбор по приоритету рассчитаны backend. Модель объясняет компромиссы и может ошибаться; сверяйте текст с карточками вариантов."
+      }
+    },
+    {
+      "case": "COMPARE_V3_LOWER_OVERPAYMENT",
+      "model_id": "qwen2.5:1.5b",
+      "model_digest": "sha256:65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+      "latency_ms": 437,
+      "status": "SUCCESS",
+      "prompt_version": "advisor-priority-0.3.0",
+      "preferred_candidate_ids": [
+        "LOWER_AMOUNT"
+      ],
+      "explanation": {
+        "summary": {
+          "factor_ids": [
+            "DATA_ORIGIN",
+            "PRELIMINARY_ONLY",
+            "REQUESTED_PAYMENT",
+            "REQUESTED_PRICING",
+            "REQUESTED_ROUTE",
+            "REQUESTED_LOAD",
+            "LOWER_AMOUNT_PAYMENT",
+            "LOWER_AMOUNT_PRICING",
+            "LOWER_AMOUNT_ROUTE",
+            "LOWER_AMOUNT_LOAD",
+            "LOWER_AMOUNT_TRADEOFF",
+            "LONGER_TERM_PAYMENT",
+            "LONGER_TERM_PRICING",
+            "LONGER_TERM_ROUTE",
+            "LONGER_TERM_LOAD",
+            "LONGER_TERM_TRADEOFF"
+          ],
+          "text": "Сумма кредита меньше исходной, поэтому затраты на кредит ниже. Недостающую часть финансирования придётся найти самостоятельно."
+        },
+        "comparisons": [],
+        "next_step": {
+          "id": "REVIEW_SUBMISSION",
+          "text": "Проверьте сведения и отдельно отправьте заявку. Разбор сам ее не отправляет."
+        },
+        "notice": "Демонстрационный разбор: не гарантирует одобрение или выдачу. Числа, предварительные проверки и подбор по приоритету рассчитаны backend. Модель объясняет компромиссы и может ошибаться; сверяйте текст с карточками вариантов."
+      }
+    }
+  ]
+}

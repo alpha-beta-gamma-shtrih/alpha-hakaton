@@ -565,6 +565,12 @@ export interface components {
              * @enum {string}
              */
             mode?: "EXPLAIN" | "COMPARE";
+            /**
+             * Priority
+             * @default BALANCED
+             * @enum {string}
+             */
+            priority?: "BALANCED" | "KEEP_AMOUNT" | "LOWER_PAYMENT" | "LOWER_OVERPAYMENT";
         };
         /** AdvisorResponse */
         AdvisorResponse: {
@@ -587,6 +593,14 @@ export interface components {
              * @enum {string}
              */
             mode: "EXPLAIN" | "COMPARE";
+            /**
+             * Priority
+             * @default BALANCED
+             * @enum {string}
+             */
+            priority?: "BALANCED" | "KEEP_AMOUNT" | "LOWER_PAYMENT" | "LOWER_OVERPAYMENT";
+            /** Preferred Candidate Ids */
+            preferred_candidate_ids?: string[];
             status: components["schemas"]["ReportStatus"];
             /** Is Current */
             is_current: boolean;

@@ -3971,6 +3971,17 @@
             ],
             "title": "Mode",
             "default": "EXPLAIN"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "BALANCED",
+              "KEEP_AMOUNT",
+              "LOWER_PAYMENT",
+              "LOWER_OVERPAYMENT"
+            ],
+            "title": "Priority",
+            "default": "BALANCED"
           }
         },
         "additionalProperties": false,
@@ -4022,6 +4033,24 @@
               "COMPARE"
             ],
             "title": "Mode"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "BALANCED",
+              "KEEP_AMOUNT",
+              "LOWER_PAYMENT",
+              "LOWER_OVERPAYMENT"
+            ],
+            "title": "Priority",
+            "default": "BALANCED"
+          },
+          "preferred_candidate_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Preferred Candidate Ids"
           },
           "status": {
             "$ref": "#/components/schemas/ReportStatus"

@@ -630,13 +630,18 @@ function optionView(app: AppRec): ScenarioSet | null {
     candidates: visible ? clone(stored.value.candidates) : [], mode: visible ? stored.value.mode : 'CALCULATION_ONLY' }
 }
 
-function advisorReport(app: AppRec, mode: 'EXPLAIN' | 'COMPARE', cands: Candidate[]): AdvisorReport {
+function advisorReport(app: AppRec, mode: 'EXPLAIN' | 'COMPARE', cands: Candidate[], priority: AdvisorReport['priority'] = 'BALANCED'): AdvisorReport {
   const fmt = (v: string) => Number(v).toLocaleString('ru-RU', { minimumFractionDigits: 2 })
   const factors: AdvisorReport['factors'] = [
     { factor_id: 'DATA_ORIGIN', candidate_id: null, text: 'Финансы взяты из синтетического демо-профиля; проверки также демонстрационные.' },
     { factor_id: 'PRELIMINARY_ONLY', candidate_id: null, text: 'Сравнение не является решением банка и не изменяет заявку.' },
   ]
   const base = cands[0]
+  let eligible = mode === 'COMPARE' && priority !== 'BALANCED' && app.status === 'DRAFT'
+    ? cands.filter((c) => c.preliminary_route === 'APPROVE' && (priority !== 'KEEP_AMOUNT' || Number(c.requested_amount) >= Number(base.requested_amount))) : []
+  const metric = priority === 'LOWER_OVERPAYMENT' ? 'estimated_overpayment' : 'monthly_payment'
+  const best = Math.min(...eligible.map((c) => Number(c[metric])))
+  eligible = eligible.filter((c) => Number(c[metric]) === best)
   for (const c of cands) {
     const routeText = c.preliminary_route === 'APPROVE' ? 'Проходит предварительные демо-правила.' : c.preliminary_route === 'MANUAL_REVIEW' ? 'Потребуется оценка сотрудника.' : c.preliminary_route === 'REJECT' ? 'Не проходит предварительные демо-правила.' : 'Нужны дополнительные сведения.'
     factors.push({ factor_id: `${c.candidate_id}_PAYMENT`, candidate_id: c.candidate_id, text: `Сумма ${fmt(c.requested_amount)} RUB, срок ${c.term_months} мес., ставка ${c.annual_rate_percent}% годовых; платеж ${fmt(c.monthly_payment)} RUB в месяц, расчетная переплата ${fmt(c.estimated_overpayment)} RUB.` })
@@ -655,6 +660,8 @@ function advisorReport(app: AppRec, mode: 'EXPLAIN' | 'COMPARE', cands: Candidat
     revision_id: null,
     draft_lock_version: app.version,
     mode,
+    priority,
+    preferred_candidate_ids: eligible.map((c) => c.candidate_id),
     status: 'FALLBACK',
     is_current: true,
     input_hash: hash([app.version]),
@@ -671,7 +678,7 @@ function advisorReport(app: AppRec, mode: 'EXPLAIN' | 'COMPARE', cands: Candidat
     },
     model_id: null,
     model_digest: null,
-    prompt_version: 'advisor-grounded-0.2.1',
+    prompt_version: 'advisor-priority-0.3.0',
     generation_config: {},
     latency_ms: 0,
     error_code: 'LLM_DISABLED',
@@ -932,7 +939,8 @@ on('POST', new RegExp(`^/api/applications/${U}/advisor$`), (m, body, _q, user) =
   if (compareFixed && !fixed.is_current) return err(409, 'SCENARIO_SET_STALE', 'Обновите варианты перед сравнением')
   const c = compareFixed ? fixed.candidates : scenarioCandidates(app, true)
   if (!Array.isArray(c)) return c
-  app.advisor = advisorReport(app, body.mode ?? 'EXPLAIN', c)
+  if (!['BALANCED', 'KEEP_AMOUNT', 'LOWER_PAYMENT', 'LOWER_OVERPAYMENT'].includes(body.priority ?? 'BALANCED')) return err(422, 'VALIDATION_ERROR', 'Неизвестный приоритет')
+  app.advisor = advisorReport(app, body.mode ?? 'EXPLAIN', c, body.priority ?? 'BALANCED')
   save()
   return ok(app.advisor)
 }, { auth: 'CLIENT' })

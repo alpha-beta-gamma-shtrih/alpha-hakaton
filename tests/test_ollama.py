@@ -10,14 +10,13 @@ from credit_cabinet.integrations.ollama import ModelFailure, OllamaAdvisor
 DIGEST = "a" * 64
 CONTEXT = {
     "mode": "EXPLAIN",
-    "factors": [{"factor_id": "DATA_ORIGIN", "candidate_id": None, "text": "demo"}],
-    "candidate_ids": ["REQUESTED"],
+    "candidates": [{"candidate_id": "REQUESTED"}],
     "next_step": {"id": "REVIEW_PARAMETERS"},
+    "brief": {"benefit": "Демо-расчёт", "tradeoff": "Оценка предварительная"},
 }
 SELECTION = {
-    "summary_factor_ids": ["DATA_ORIGIN"],
-    "comparisons": [],
-    "next_step_id": "REVIEW_PARAMETERS",
+    "benefit": "Оценка предварительная. Проверьте бюджет своей компании.",
+    "tradeoff": "Окончательное решение принимает банк после проверки заявки.",
 }
 
 
@@ -31,7 +30,7 @@ def fake_request(settings, *, content=None, **changes):
         if path == "/api/tags":
             return {"models": [{"name": settings.llm_model, "digest": DIGEST}]}
         assert path == "/api/chat" and method == "POST"
-        assert body["think"] is body["stream"] is False
+        assert body["stream"] is False and "think" not in body
         assert "tools" not in body
         assert body["options"]["num_predict"] == 384
         assert body["format"]["additionalProperties"] is False

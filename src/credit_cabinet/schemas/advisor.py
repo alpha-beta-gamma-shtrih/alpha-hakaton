@@ -9,11 +9,18 @@ from credit_cabinet.schemas.business import PositiveInteger, StrictModel
 from credit_cabinet.schemas.scenarios import CandidateResponse
 
 AdvisorMode = Literal["EXPLAIN", "COMPARE"]
+AdvisorPriority = Literal["BALANCED", "KEEP_AMOUNT", "LOWER_PAYMENT", "LOWER_OVERPAYMENT"]
 
 
 class AdvisorRequest(StrictModel):
     expected_version: PositiveInteger
     mode: AdvisorMode = "EXPLAIN"
+    priority: AdvisorPriority = "BALANCED"
+
+
+class ModelNarrative(StrictModel):
+    benefit: str = Field(min_length=15, max_length=350)
+    tradeoff: str = Field(min_length=15, max_length=350)
 
 
 class FactorCard(StrictModel):
@@ -57,6 +64,8 @@ class AdvisorResponse(BaseModel):
     revision_id: UUID | None
     draft_lock_version: int | None
     mode: AdvisorMode
+    priority: AdvisorPriority = "BALANCED"
+    preferred_candidate_ids: list[str] = Field(default_factory=list)
     status: ReportStatus
     is_current: bool
     input_hash: str
