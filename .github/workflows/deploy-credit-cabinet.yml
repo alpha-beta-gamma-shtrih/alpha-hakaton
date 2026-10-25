@@ -75,7 +75,10 @@ jobs:
             ssh "$SSH_USER@$SSH_HOST" \
               'umask 077; cat > ~/credit-cabinet/.env && chmod 600 ~/credit-cabinet/.env'
 
-      - name: Start docker-compose
+      - name: Start application
         run: >
           ssh "$SSH_USER@$SSH_HOST"
-          'cd ~/credit-cabinet && docker compose up --force-recreate -d'
+          'cd ~/credit-cabinet && docker compose up --force-recreate -d frontend'
+      
+      - name: Remove unused images
+        run: ssh "$SSH_USER@$SSH_HOST" 'docker image prune -f'
