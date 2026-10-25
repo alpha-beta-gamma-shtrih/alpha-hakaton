@@ -1489,3 +1489,9 @@ a.ov-draft:hover { transform: translateY(-4px) rotate(-0.4deg); }
 /* Pages with the floating button get room at the bottom so it never covers content. */
 .shell.client main { padding-bottom: 72px; }
 .row-del-gap { display: inline-block; width: 32px; height: 32px; }
+
+/* Bank proposals preserve the original request and compare the final terms. */
+.bank-offer-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.offer-comparison { margin-top: 20px; }
+.offer-comparison .table { margin: 12px 0; }
+@media (max-width: 640px) { .bank-offer-fields { grid-template-columns: 1fr; } }

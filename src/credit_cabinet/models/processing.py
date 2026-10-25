@@ -87,6 +87,7 @@ class Decision(IdentityMixin, Base):
     approved_term_months: Mapped[int | None]
     annual_rate_percent = mapped_column(RATE, nullable=True)
     monthly_payment = mapped_column(MONEY, nullable=True)
+    offer_snapshot: Mapped[dict | None] = mapped_column(JSON_VALUE, nullable=True)
     reason_codes: Mapped[list] = mapped_column(JSON_VALUE)
     public_explanation: Mapped[str] = mapped_column(Text)
     internal_comment: Mapped[str | None] = mapped_column(Text)

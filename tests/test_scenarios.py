@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import event
 
-from credit_cabinet.models import Company
+from credit_cabinet.models import Application, Company
 from tests.conftest import csrf_headers, login
 from tests.test_drafts import C01, SEED_PASSWORD, patch
 from tests.test_submissions import AlteredSources, counts, ready, send
@@ -15,6 +15,27 @@ def compare(client, draft):
         f"/api/applications/{draft['id']}/scenarios",
         json={"expected_version": draft["version"]},
         headers=csrf_headers(client),
+    )
+
+
+def test_saved_approval_without_consent_does_not_recalculate_risk(seeded, client):
+    app = send(client, ready(client)).json()["application"]
+    assert app["status"] == "APPROVED"
+    with seeded.state.session_factory() as db:
+        row = db.get(Application, UUID(app["id"]))
+        data = deepcopy(row.draft_data)
+        data["confirmations"]["credit_history_check_allowed"] = False
+        row.draft_data = data
+        db.commit()
+    saved = client.get(f"/api/applications/{app['id']}").json()
+    response = compare(client, saved)
+    assert response.status_code == 200, response.text
+    result = response.json()
+    assert result["mode"] == "CALCULATION_ONLY"
+    assert result["candidates"][0]["risk_score"] is None
+    assert result["candidates"][0]["load_ratio"] is None
+    assert (
+        result["candidates"][0]["annual_rate_percent"] == saved["decision"]["annual_rate_percent"]
     )
 
 

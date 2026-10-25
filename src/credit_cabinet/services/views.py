@@ -80,6 +80,7 @@ def decision_view(row):
         approved_term_months=row.approved_term_months,
         annual_rate_percent=row.annual_rate_percent,
         monthly_payment=row.monthly_payment,
+        offer=row.offer_snapshot["terms"] if row.offer_snapshot else None,
         reasons=public_reasons(row.reason_codes),
         public_explanation=row.public_explanation,
         policy_version=row.policy_version,

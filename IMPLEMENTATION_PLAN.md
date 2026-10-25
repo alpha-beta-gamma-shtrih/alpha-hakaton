@@ -1,5 +1,7 @@
 # Договоренности перед реализацией
 
+Дополнение: одобрение сотрудником с уменьшением суммы и изменением срока, автоматической ставкой и принятием через демо-подпись включено в MVP. Реализация/приёмка — [BANK_OFFERS_CHECK.md](BANK_OFFERS_CHECK.md).
+
 > Обновление demo-0.3: для нового продукта WC_DEMO/version=3 действуют [PRICING.md](PRICING.md) и [PRICING_CHECK.md](PRICING_CHECK.md): 20% минимум, 6–60 месяцев, пять целей и персональные скидки. Числа и примеры demo-0.2 ниже относятся к историческому продукту v2; новые заявки проверять по PRICING_CHECK.md. Текущая миграция — 0005_personal_pricing.
 
 Статус: согласованный план demo-0.2; реализация идет. Этот документ дополняет [ARCHITECTURE.md](ARCHITECTURE.md) и [DEVELOPMENT.md](DEVELOPMENT.md). Структура, основа, клиентские черновики/отправка/расчеты и банковский контур вошли в main. В SB/demo-documents реализованы привязка CSV к заявке/снимку и закрытая выдача; SB/ai-advisor продолжает эту ветку с AI-навигатором. Новая ручная приемка — AI_CHECK.md, DOCUMENTS_CHECK.md, предыдущие — BANK_CHECK.md, SUBMISSION_CHECK.md и DRAFTS_CHECK.md. Текущие команды и точный контракт — BACKEND.md. Диме нужен постоянный записываемый DOCUMENTS_DIR в дополнение к PostgreSQL; Ксюше доступны application.documents и revision.document_refs.

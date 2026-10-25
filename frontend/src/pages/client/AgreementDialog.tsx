@@ -54,6 +54,7 @@ export function AgreementDialog({ app, onClose }: { app: Draft; onClose: () => v
         {document.isLoading && <Skeleton h={240} />}
         {content && <>
           <p className="hint">Заявка № {shortId(app.id)} · условия одобрены {dateTime(content.issued_at)}</p>
+          {app.decision?.offer && <Notice tone="plain">Вы подписываете предложение банка с изменёнными условиями. Проверьте новые сумму и срок перед подписанием.</Notice>}
           <h3>{content.company_name}</h3>
           <p className="hint">ИНН {content.inn} · {PURPOSE[content.purpose_code].label}</p>
           <dl className="kv agreement-terms">

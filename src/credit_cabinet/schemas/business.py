@@ -233,6 +233,21 @@ class ReasonResponse(BaseModel):
     message: str
 
 
+class OfferTermsResponse(BaseModel):
+    original_amount: MoneyOutput
+    original_term_months: int
+    original_annual_rate_percent: RateOutput
+    original_monthly_payment: MoneyOutput
+    amount: MoneyOutput
+    term_months: int
+    annual_rate_percent: RateOutput
+    monthly_payment: MoneyOutput
+    estimated_total_payment: MoneyOutput
+    estimated_overpayment: MoneyOutput
+    load_ratio: str | None
+    pricing: dict
+
+
 class DecisionResponse(BaseModel):
     id: UUID
     revision_id: UUID
@@ -243,6 +258,7 @@ class DecisionResponse(BaseModel):
     approved_term_months: int | None
     annual_rate_percent: RateOutput | None
     monthly_payment: MoneyOutput | None
+    offer: OfferTermsResponse | None = None
     reasons: list[ReasonResponse]
     public_explanation: str
     policy_version: str

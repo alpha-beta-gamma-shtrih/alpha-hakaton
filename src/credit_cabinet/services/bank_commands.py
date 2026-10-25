@@ -12,6 +12,7 @@ from credit_cabinet.core.security import utc_now
 from credit_cabinet.models import Decision, InformationRequest
 from credit_cabinet.models.enums import ApplicationStatus, InfoStatus, Role
 from credit_cabinet.services.access import bank_application
+from credit_cabinet.services.bank_offers import calculate as calculate_offer
 from credit_cabinet.services.bank_policy import bank_actions, saved_evaluation
 from credit_cabinet.services.submissions import event, latest_assessment
 
@@ -103,6 +104,23 @@ def decide(db, principal, application_id, body, auth):
     )
     result = saved_evaluation(db, revision, assessment)
     approved = body.outcome == "APPROVED"
+    offer = None
+    if body.offer is not None:
+        preview, offer = calculate_offer(db, application, revision, assessment, body.offer)
+        if preview.preview_hash != body.offer.preview_hash:
+            raise APIError(
+                409,
+                "OFFER_PREVIEW_CHANGED",
+                "Пересчитайте и проверьте предложение перед одобрением",
+            )
+        if not preview.can_approve:
+            raise APIError(
+                422,
+                "OFFER_NOT_APPROVABLE",
+                "Новые условия не проходят обязательные ограничения демо-политики",
+            )
+        offer["preview_hash"] = preview.preview_hash
+    details = offer["calculation_details"] if offer else result.calculation_details
     previous = application.status
     try:
         decision = Decision(
@@ -113,25 +131,26 @@ def decide(db, principal, application_id, body, auth):
             source="MANUAL",
             decided_by_user_id=principal.user.id,
             outcome=body.outcome,
-            approved_amount=revision.requested_amount if approved else None,
-            approved_term_months=revision.term_months if approved else None,
+            approved_amount=(body.offer.amount if offer else revision.requested_amount)
+            if approved
+            else None,
+            approved_term_months=(body.offer.term_months if offer else revision.term_months)
+            if approved
+            else None,
             annual_rate_percent=Decimal(
-                result.calculation_details.get(
-                    "annual_rate_percent", revision.product_snapshot["annual_rate_percent"]
-                )
+                details.get("annual_rate_percent", revision.product_snapshot["annual_rate_percent"])
             )
             if approved
             else None,
-            monthly_payment=Decimal(result.calculation_details["monthly_payment"])
-            if approved
-            else None,
+            monthly_payment=Decimal(details["monthly_payment"]) if approved else None,
             reason_codes=[
                 "MANUAL_APPROVED" if approved else "MANUAL_REJECTED",
-                *[row["factor_id"] for row in result.calculation_details["factors"]],
+                *[row["factor_id"] for row in details["factors"]],
             ],
             public_explanation=body.public_explanation,
             internal_comment=body.internal_comment,
             policy_version=revision.product_snapshot["policy_version"],
+            offer_snapshot=offer,
         )
         db.add(decision)
         application.status = ApplicationStatus(body.outcome)
@@ -145,7 +164,11 @@ def decide(db, principal, application_id, body, auth):
             revision=revision,
             actor=principal.user.id,
             previous=previous,
-            details={"decision_id": str(decision.id), "source": "MANUAL"},
+            details={
+                "decision_id": str(decision.id),
+                "source": "MANUAL",
+                "terms_changed": offer is not None,
+            },
         )
         auth.activity(db, principal, commit=False)
         db.commit()

@@ -225,9 +225,10 @@ export function AppCard({ app }: { app: Draft }) {
         <StatusChip status={app.status} />
         <span className="hint">{relative(app.updated_at)}</span>
       </div>
-      <div className="app-card-amount display num">{app.requested_amount ? money(app.requested_amount) : '—'}</div>
+      {app.decision?.offer && <p className="hint">Условия изменены банком</p>}
+      <div className="app-card-amount display num">{money(app.decision?.approved_amount ?? app.requested_amount)}</div>
       <div className="app-card-meta">
-        <span>{months(app.term_months)}</span>
+        <span>{months(app.decision?.approved_term_months ?? app.term_months)}</span>
         <span>·</span>
         <span>{app.purpose_code ? PURPOSE[app.purpose_code].label : 'Цель не выбрана'}</span>
       </div>

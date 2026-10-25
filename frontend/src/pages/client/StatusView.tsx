@@ -12,6 +12,7 @@ import { CHECK_SOURCE, CHECK_STATUS, eventLabel, PURPOSE, requestedFieldLabel, S
 import { useCompanies, useProducts, useStartApplication } from '../../lib/queries'
 import { DocumentsCard } from './wizard/steps'
 import { AgreementDialog } from './AgreementDialog'
+import { OfferComparison } from '../../components/OfferComparison'
 
 const HERO: Record<string, { panel: string; shape: PixelShape; pix: string; title: string }> = {
   APPROVED: { panel: 'lime', shape: 'smile', pix: 'var(--ink)', title: 'Одобрено' },
@@ -73,7 +74,7 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
       <section className={`panel ${hero.panel} dots st-hero ${justSubmitted ? 'just' : ''}`}>
         <div className="st-hero-main">
           <span className={`tag ${hero.panel === 'lime' ? 'ink' : 'white'}`}>{d ? (d.source === 'MANUAL' ? 'Решение специалиста' : 'Автоматическое решение') : STATUS[app.status].label}</span>
-          <h2 className="st-title">{hero.title}</h2>
+          <h2 className="st-title">{d?.offer && app.status === 'APPROVED' ? 'Одобрено на изменённых условиях' : hero.title}</h2>
           {d?.outcome === 'APPROVED' ? (
             <>
               <div className="st-amount display num">{money(d.approved_amount)}</div>
@@ -141,11 +142,15 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
       </section>
 
       {showAgreement && <AgreementDialog app={app} onClose={() => setShowAgreement(false)} />}
+      {d?.offer && <section className="card" style={{ marginBottom: 24 }}>
+        <Notice tone="plain" title="Одобрено на изменённых условиях">Банк предложил другую сумму или срок. Проверьте предложение перед подписанием. Исходный запрос сохранён в отправленных данных.</Notice>
+        <OfferComparison terms={d.offer} />
+      </section>}
       <div className="st-grid">
         <div className="stack-lg">
           <ChecksCard a={a} animate={justSubmitted} />
-          {a && <AssessmentCard a={a} />}
-          {a?.calculation_details.pricing != null && <div className="card"><PricingBreakdown value={a.calculation_details.pricing} /></div>}
+          {a && <AssessmentCard a={a} original={!!d?.offer} />}
+          {!d?.offer && a?.calculation_details.pricing != null && <div className="card"><PricingBreakdown value={a.calculation_details.pricing} /></div>}
           {rev.data ? (
             <div className="card">
               <SectionTitle n="03" color="violet" aside={<span className="hint">отправка {rev.data.revision_no} · {dateTime(rev.data.created_at)}</span>}>
@@ -220,12 +225,12 @@ function ChecksCard({ a, animate }: { a: Assessment | null | undefined; animate:
   )
 }
 
-function AssessmentCard({ a }: { a: Assessment }) {
+function AssessmentCard({ a, original }: { a: Assessment; original?: boolean }) {
   const cd = a.calculation_details as Record<string, unknown>
   return (
     <div className="card">
       <SectionTitle n="02" color="red" aside={<span className="hint">правила {a.rules_version}</span>}>
-        Оценка
+        {original ? 'Расчёт исходного запроса' : 'Оценка'}
       </SectionTitle>
       <div className="assess-stats">
         <div>

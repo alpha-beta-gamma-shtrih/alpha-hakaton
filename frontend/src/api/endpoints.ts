@@ -16,6 +16,8 @@ import type {
   DraftPatch,
   EventItem,
   ManualDecision,
+  OfferPreview,
+  OfferPreviewRequest,
   ManualInfoRequest,
   Page,
   Product,
@@ -86,6 +88,7 @@ export const bank = {
   events: (id: string) => get<{ items: BankEvent[] }>(`/api/bank/applications/${id}/events`),
   requestInfo: (id: string, body: ManualInfoRequest) => post<BankCard>(`/api/bank/applications/${id}/request-info`, body),
   decide: (id: string, body: ManualDecision) => post<BankCard>(`/api/bank/applications/${id}/decision`, body),
+  previewOffer: (id: string, body: OfferPreviewRequest) => post<OfferPreview>(`/api/bank/applications/${id}/offer-preview`, body),
   retry: (id: string, expected_version: number) =>
     post<RetryResponse>(`/api/bank/applications/${id}/retry-processing`, { expected_version }),
   advisor: (id: string) => get<AdvisorReport>(`/api/bank/applications/${id}/advisor`),

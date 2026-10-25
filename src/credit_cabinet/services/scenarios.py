@@ -9,7 +9,7 @@ from uuid import UUID
 from sqlalchemy import select
 
 from credit_cabinet.api.errors import APIError
-from credit_cabinet.models import CheckResult
+from credit_cabinet.models import CheckResult, Decision
 from credit_cabinet.models.enums import ApplicationStatus, CheckSource
 from credit_cabinet.schemas.scenarios import ScenariosResponse
 from credit_cabinet.services.access import client_application
@@ -44,6 +44,14 @@ def revision_payload(revision):
     }
 
 
+def final_payload(revision, decision):
+    payload = revision_payload(revision)
+    if decision is not None and decision.outcome == "APPROVED":
+        payload["requested_amount"] = format(decision.approved_amount, ".2f")
+        payload["term_months"] = decision.approved_term_months
+    return payload
+
+
 def compare(db, user_id, application_id, body, sources):
     return prepare_comparison(db, user_id, application_id, body, sources).response
 
@@ -57,6 +65,7 @@ def prepare_comparison(db, user_id, application_id, body, sources):
             "Заявка уже изменена; сохраните форму и получите актуальную версию",
         )
     revision = latest_revision(db, application.id)
+    decision = db.scalar(select(Decision).where(Decision.application_id == application.id))
     allowed = (
         application.draft_data.get("confirmations", {}).get("credit_history_check_allowed") is True
     )
@@ -66,7 +75,7 @@ def prepare_comparison(db, user_id, application_id, body, sources):
         ApplicationStatus.NEEDS_INFO,
     ):
         # A result is compared against its submitted terms, even if the catalog changes later.
-        payload = revision_payload(revision)
+        payload = final_payload(revision, decision)
     else:
         payload = application_input(db, application, require_confirmation=False)
     cache = {}
@@ -112,6 +121,10 @@ def prepare_comparison(db, user_id, application_id, body, sources):
         ),
         ("LONGER_TERM", amount, min(term + 12, product["max_term_months"])),
     ]
+    if decision is not None and decision.outcome == "APPROVED":
+        options = options[
+            :1
+        ]  # Explain the binding saved offer, not fresh alternatives after approval.
     candidates = []
     missing_fields = []
     seen = set()
@@ -139,6 +152,22 @@ def prepare_comparison(db, user_id, application_id, body, sources):
             payment = annuity(value, months, Decimal(pricing["annual_rate_percent"]))
             if candidate_id == "REQUESTED":
                 missing_fields = result.requested_fields
+        if decision is not None and decision.outcome == "APPROVED":
+            pricing = (
+                decision.offer_snapshot["terms"]["pricing"]
+                if decision.offer_snapshot
+                else assessment.calculation_details.get("pricing", pricing)
+                if assessment is not None
+                else {
+                    "status": "FIXED",
+                    "annual_rate_percent": format(decision.annual_rate_percent, ".3f"),
+                }
+            )
+            payment = {
+                "monthly_payment": decision.monthly_payment,
+                "estimated_total_payment": decision.monthly_payment * months,
+                "estimated_overpayment": decision.monthly_payment * months - value,
+            }
         provenance = {
             "company": deepcopy(payload["company_snapshot"]["provenance"]),
             "financial_months": deepcopy(
@@ -158,7 +187,9 @@ def prepare_comparison(db, user_id, application_id, body, sources):
                 "candidate_id": candidate_id,
                 "requested_amount": value,
                 "term_months": months,
-                "annual_rate_percent": Decimal(pricing["annual_rate_percent"]),
+                "annual_rate_percent": decision.annual_rate_percent
+                if decision is not None and decision.outcome == "APPROVED"
+                else Decimal(pricing["annual_rate_percent"]),
                 "pricing": pricing,
                 **payment,
                 "load_ratio": result.calculation_details.get("load_ratio") if result else None,

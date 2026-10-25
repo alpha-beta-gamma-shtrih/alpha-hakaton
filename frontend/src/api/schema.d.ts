@@ -398,6 +398,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/bank/applications/{application_id}/offer-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Offer Preview */
+        post: operations["offer_preview_api_bank_applications__application_id__offer_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/applications/{application_id}/scenarios": {
         parameters: {
             query?: never;
@@ -577,6 +594,18 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AdjustedOffer */
+        AdjustedOffer: {
+            /**
+             * Amount
+             * @example 1000000.00
+             */
+            amount: string;
+            /** Term Months */
+            term_months: number;
+            /** Preview Hash */
+            preview_hash: string;
+        };
         /** AdvisorExplanation */
         AdvisorExplanation: {
             summary: components["schemas"]["ExplanationSection"];
@@ -848,6 +877,15 @@ export interface components {
             latest_revision_no: number;
             /** Requested Amount */
             requested_amount: string;
+            /** Approved Amount */
+            approved_amount?: string | null;
+            /** Approved Term Months */
+            approved_term_months?: number | null;
+            /**
+             * Terms Changed
+             * @default false
+             */
+            terms_changed?: boolean;
             /** Term Months */
             term_months: number;
             purpose_code: components["schemas"]["Purpose"];
@@ -920,6 +958,7 @@ export interface components {
             annual_rate_percent: string | null;
             /** Monthly Payment */
             monthly_payment: string | null;
+            offer?: components["schemas"]["OfferTermsResponse"] | null;
             /** Reasons */
             reasons: components["schemas"]["ReasonResponse"][];
             /** Public Explanation */
@@ -935,6 +974,9 @@ export interface components {
             decided_by_user_id: string | null;
             /** Internal Comment */
             internal_comment: string | null;
+            /** Offer Risk Score */
+            offer_risk_score?: number | null;
+            offer_risk_band?: components["schemas"]["RiskBand"] | null;
         };
         /** BankEventList */
         BankEventList: {
@@ -1044,6 +1086,15 @@ export interface components {
             latest_revision_no: number;
             /** Requested Amount */
             requested_amount: string;
+            /** Approved Amount */
+            approved_amount?: string | null;
+            /** Approved Term Months */
+            approved_term_months?: number | null;
+            /**
+             * Terms Changed
+             * @default false
+             */
+            terms_changed?: boolean;
             /** Term Months */
             term_months: number;
             purpose_code: components["schemas"]["Purpose"];
@@ -1289,6 +1340,7 @@ export interface components {
             annual_rate_percent: string | null;
             /** Monthly Payment */
             monthly_payment: string | null;
+            offer?: components["schemas"]["OfferTermsResponse"] | null;
             /** Reasons */
             reasons: components["schemas"]["ReasonResponse"][];
             /** Public Explanation */
@@ -1625,6 +1677,7 @@ export interface components {
             public_explanation: string;
             /** Internal Comment */
             internal_comment?: string | null;
+            offer?: components["schemas"]["AdjustedOffer"] | null;
         };
         /** ManualInformationRequest */
         ManualInformationRequest: {
@@ -1637,6 +1690,64 @@ export interface components {
             message_to_client: string;
             /** Requested Fields */
             requested_fields: ("draft_data.financial_months" | "draft_data.financial_months.2026-04-01.cash_inflow" | "draft_data.financial_months.2026-04-01.existing_debt_payment" | "draft_data.financial_months.2026-04-01.operating_outflow" | "draft_data.financial_months.2026-05-01.cash_inflow" | "draft_data.financial_months.2026-05-01.existing_debt_payment" | "draft_data.financial_months.2026-05-01.operating_outflow" | "draft_data.financial_months.2026-06-01.cash_inflow" | "draft_data.financial_months.2026-06-01.existing_debt_payment" | "draft_data.financial_months.2026-06-01.operating_outflow" | "draft_data.financial_months.2026-07-01.cash_inflow" | "draft_data.financial_months.2026-07-01.existing_debt_payment" | "draft_data.financial_months.2026-07-01.operating_outflow" | "draft_data.financial_months.2026-08-01.cash_inflow" | "draft_data.financial_months.2026-08-01.existing_debt_payment" | "draft_data.financial_months.2026-08-01.operating_outflow" | "draft_data.financial_months.2026-09-01.cash_inflow" | "draft_data.financial_months.2026-09-01.existing_debt_payment" | "draft_data.financial_months.2026-09-01.operating_outflow" | "draft_data.info_response" | "purpose_code" | "purpose_details" | "requested_amount" | "term_months")[];
+        };
+        /** OfferPreviewRequest */
+        OfferPreviewRequest: {
+            /**
+             * Amount
+             * @example 1000000.00
+             */
+            amount: string;
+            /** Term Months */
+            term_months: number;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /** OfferPreviewResponse */
+        OfferPreviewResponse: {
+            /** Application Version */
+            application_version: number;
+            terms: components["schemas"]["OfferTermsResponse"];
+            /** Risk Score */
+            risk_score: number | null;
+            risk_band: components["schemas"]["RiskBand"];
+            /** Routing */
+            routing: string;
+            /** Reasons */
+            reasons: components["schemas"]["ReasonResponse"][];
+            /** Can Approve */
+            can_approve: boolean;
+            /** Preview Hash */
+            preview_hash: string;
+        };
+        /** OfferTermsResponse */
+        OfferTermsResponse: {
+            /** Original Amount */
+            original_amount: string;
+            /** Original Term Months */
+            original_term_months: number;
+            /** Original Annual Rate Percent */
+            original_annual_rate_percent: string;
+            /** Original Monthly Payment */
+            original_monthly_payment: string;
+            /** Amount */
+            amount: string;
+            /** Term Months */
+            term_months: number;
+            /** Annual Rate Percent */
+            annual_rate_percent: string;
+            /** Monthly Payment */
+            monthly_payment: string;
+            /** Estimated Total Payment */
+            estimated_total_payment: string;
+            /** Estimated Overpayment */
+            estimated_overpayment: string;
+            /** Load Ratio */
+            load_ratio: string | null;
+            /** Pricing */
+            pricing: {
+                [key: string]: unknown;
+            };
         };
         /** ProductPage */
         ProductPage: {
@@ -3925,6 +4036,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BankCard"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    offer_preview_api_bank_applications__application_id__offer_preview_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-CSRF-Token"?: string | null;
+            };
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OfferPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OfferPreviewResponse"];
                 };
             };
             /** @description Unauthorized */

@@ -1,6 +1,8 @@
 # Действующий контракт формы, синтетики и решений: demo-0.2
 
-> Обновление demo-0.3: для нового продукта WC_DEMO/version=3 действуют [PRICING.md](PRICING.md) и [PRICING_CHECK.md](PRICING_CHECK.md): 20% минимум, 6–60 месяцев, пять целей и персональные скидки. Числа и примеры demo-0.2 ниже относятся к историческому продукту v2; новые заявки проверять по PRICING_CHECK.md. Текущая миграция — 0007_demo_signing.
+Дополнение от 25 октября: ручное решение поддерживает необязательный offer с уменьшенной суммой, новым сроком и preview_hash. Ставку и ограничения считает backend на отправленном снимке; исходная синтетика и скоринг не меняются. Клиент принимает предложение через существующее подписание. Контракт расширения — [BANK_OFFERS_CHECK.md](BANK_OFFERS_CHECK.md).
+
+> Обновление demo-0.3: для нового продукта WC_DEMO/version=3 действуют [PRICING.md](PRICING.md) и [PRICING_CHECK.md](PRICING_CHECK.md): 20% минимум, 6–60 месяцев, пять целей и персональные скидки. Числа и примеры demo-0.2 ниже относятся к историческому продукту v2; новые заявки проверять по PRICING_CHECK.md. Текущая миграция — 0008_bank_offers.
 
 > Расширенный набор Валеры уже принят в demo_data/demo_0_3: 144 компании, ключи C01–C144, 18 сценариев. Текущие логины, исправления исходного архива и порядок импорта — [DATA_VALIDATION.md](DATA_VALIDATION.md), актуальный состав файлов — [demo_data/README.md](demo_data/README.md). План C01–C08 ниже относится к первоначальному этапу.
 
@@ -156,7 +158,7 @@ AI-помощь находится внутри подбора. Она испо�
 | decision | null либо клиентский итог без internal_comment |
 | updated_at | ISO 8601 UTC |
 
-allowed_actions в этой версии: EDIT_DRAFT, SUBMIT, REQUEST_INFO, APPROVE, REJECT, RETRY_PROCESSING. Действия банка вычисляются по последней отправке/оценке и повторно проверяются при команде с блокировкой/version; manual decision задает только outcome/public_explanation/internal_comment, без замены условий. Для ручного итога добавлены MANUAL_APPROVED/MANUAL_REJECTED; факторы сохраняются, предварительная причина BORDERLINE_RISK не выдается как отсутствие уже принятого решения. Клиент получает только EDIT_DRAFT/SUBMIT, когда это допустимо; сотрудник — свои действия. Чтение разрешенных данных не требует отдельной кнопки в этом списке.
+allowed_actions в этой версии: EDIT_DRAFT, SUBMIT, REQUEST_INFO, APPROVE, REJECT, RETRY_PROCESSING. Действия банка вычисляются по последней отправке/оценке и повторно проверяются при команде с блокировкой/version; первоначальный manual decision задаёт outcome/public_explanation/internal_comment. Текущее расширение offer (сумма/срок/preview_hash) описано в BANK_OFFERS_CHECK.md. Для ручного итога добавлены MANUAL_APPROVED/MANUAL_REJECTED; факторы сохраняются, предварительная причина BORDERLINE_RISK не выдается как отсутствие уже принятого решения. Клиент получает только EDIT_DRAFT/SUBMIT, когда это допустимо; сотрудник — свои действия. Чтение разрешенных данных не требует отдельной кнопки в этом списке.
 
 Маршруты сохраняются из архитектуры: POST /api/applications; GET/PATCH /api/applications/{id}; POST /api/applications/{id}/submit; POST /api/applications/{id}/scenarios; POST /api/applications/{id}/advisor.
 

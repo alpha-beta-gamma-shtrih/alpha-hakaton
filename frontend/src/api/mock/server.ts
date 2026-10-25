@@ -15,6 +15,7 @@ import type {
   BankEvent,
   BankInfoRequest,
   BankQueueItem,
+  OfferPreview,
   Candidate,
   Draft,
   FinancialMonth,
@@ -215,7 +216,7 @@ interface Evaluation {
   facts: Record<string, unknown>
 }
 
-function evaluate(o: { company: DemoCompany; months: FinancialMonth[]; amount: number; term: number; purpose: string; partner: boolean; revisionNo: number; runNo: number }): Evaluation {
+function evaluate(o: { company: DemoCompany; months: FinancialMonth[]; amount: number; term: number; purpose: string; partner: boolean; revisionNo: number; runNo: number; saved?: BankCheck[] }): Evaluation {
   const t = now()
   const res: Evaluation = { routing: 'MANUAL_REVIEW', reason_codes: [], risk_score: null, details: {}, checks: [], requested_fields: [], facts: {} }
   const finish = (route: Routing, code: string, fields: string[] = []) => {
@@ -226,7 +227,7 @@ function evaluate(o: { company: DemoCompany; months: FinancialMonth[]; amount: n
     return res
   }
   const consult = (source: 'FNS' | 'BKI') => {
-    const row = fixture(source === 'FNS' ? DEMO_FNS : DEMO_BKI, o.company, o.revisionNo, o.runNo)
+    const row = o.saved ? o.saved.find(c => c.source === source) : fixture(source === 'FNS' ? DEMO_FNS : DEMO_BKI, o.company, o.revisionNo, o.runNo)
     const provenanceItem = { source: source === 'FNS' ? 'MOCK_FNS' : 'MOCK_BKI', as_of_date: CALCULATION_DATE, checked_at: t }
     const status = row?.status ?? 'NO_DATA'
     const data = row?.normalized_data ? { ...row.normalized_data, provenance: provenanceItem } : null
@@ -501,7 +502,7 @@ function clientDraft(app: AppRec): Draft {
     signature: app.agreement?.signature ?? null,
     open_information_request: open ? { id: open.id, message_to_client: open.message_to_client, requested_fields: open.requested_fields } : null,
     decision: d
-      ? (({ decided_by_user_id: _u, internal_comment: _c, ...pub }) => pub)(d)
+      ? (({ decided_by_user_id: _u, internal_comment: _c, offer_risk_score: _s, offer_risk_band: _b, ...pub }) => pub)(d)
       : null,
     latest_revision_id: app.revisions.at(-1)?.id ?? null,
     latest_revision_no: app.revisions.at(-1)?.revision_no ?? null,
@@ -544,6 +545,9 @@ function queueItem(app: AppRec): BankQueueItem {
     latest_revision_id: rev.id,
     latest_revision_no: rev.revision_no,
     requested_amount: rev.requested_amount,
+    approved_amount: app.decision?.approved_amount ?? null,
+    approved_term_months: app.decision?.approved_term_months ?? null,
+    terms_changed: !!app.decision?.offer,
     term_months: rev.term_months,
     purpose_code: rev.purpose_code,
     submitted_at: rev.created_at,
@@ -586,8 +590,9 @@ async function mockAgreement(app: AppRec): Promise<Agreement | null> {
 }
 
 function scenarioCandidates(app: AppRec, preview: boolean): Candidate[] | TransportResponse {
-  const amount = Number(app.requested_amount)
-  const term = app.term_months
+  const binding = app.decision?.outcome === 'APPROVED' ? app.decision : null
+  const amount = Number(binding?.approved_amount ?? app.requested_amount)
+  const term = binding?.approved_term_months ?? app.term_months
   if (!app.requested_amount || !term) return err(422, 'SCENARIO_INPUT_INCOMPLETE', 'Укажите сумму и срок, чтобы рассчитать варианты', [{ field: 'requested_amount', message: 'Обязательное поле' }])
   const p = DEMO_PRODUCT
   if (amount < Number(p.min_amount) || amount > Number(p.max_amount) || term < p.min_term_months || term > p.max_term_months)
@@ -598,6 +603,7 @@ function scenarioCandidates(app: AppRec, preview: boolean): Candidate[] | Transp
     ['LOWER_AMOUNT', Math.max(Number(p.min_amount), Math.round(amount * 80) / 100), term],
     ['LONGER_TERM', amount, Math.min(p.max_term_months, term + 12)],
   ]
+  if (binding) raw.splice(1)
   const seen = new Set<string>()
   const checked = now()
   return raw
@@ -609,18 +615,19 @@ function scenarioCandidates(app: AppRec, preview: boolean): Candidate[] | Transp
     })
     .map(([id, a, t]) => {
       const res = preview
-        ? evaluate({ company, months: app.financial_months, amount: a, term: t, purpose: app.purpose_code ?? 'OTHER', partner: app.purchase_from_bank_partner, revisionNo: (app.revisions.at(-1)?.revision_no ?? 0) + 1, runNo: 1 })
+        ? evaluate({ company, months: app.financial_months, amount: a, term: t, purpose: app.purpose_code ?? 'OTHER', partner: app.purchase_from_bank_partner, revisionNo: (app.revisions.at(-1)?.revision_no ?? 0) + 1, runNo: 1, saved: binding ? latestAssessment(app)?.checks : undefined })
         : null
-      const pricing = (res?.details.pricing as { annual_rate_percent: string } | undefined) ?? unpriced('CONSENT_REQUIRED')
+      const pricing = (binding?.offer?.pricing as { annual_rate_percent: string } | undefined) ?? (res?.details.pricing as { annual_rate_percent: string } | undefined) ?? unpriced('CONSENT_REQUIRED')
       const pay = annuity(a, t, Number(pricing.annual_rate_percent))
       const codes = res ? res.reason_codes : ['CREDIT_HISTORY_CONFIRMATION_REQUIRED']
       return {
         candidate_id: id,
         requested_amount: money2(a),
         term_months: t,
-        annual_rate_percent: pricing.annual_rate_percent,
+        annual_rate_percent: binding?.annual_rate_percent ?? pricing.annual_rate_percent,
         pricing,
         ...pay,
+        ...(binding ? { monthly_payment: binding.monthly_payment!, estimated_total_payment: money2(Number(binding.monthly_payment) * t), estimated_overpayment: money2(Number(binding.monthly_payment) * t - a) } : {}),
         load_ratio: (res?.details.load_ratio as string | undefined) ?? null,
         risk_score: res?.risk_score ?? null,
         preliminary_route: res?.routing ?? null,
@@ -1092,6 +1099,40 @@ on('POST', new RegExp(`^/api/bank/applications/${U}/request-info$`), (m, body, _
   save()
   return ok(bankCard(app))
 }, { auth: 'BANK_STAFF' })
+function offerPreview(app: AppRec, body: { amount: string; term_months: number }): OfferPreview | TransportResponse {
+  const rev = app.revisions.at(-1)!
+  const a = latestAssessment(app)!
+  const product = rev.product_snapshot
+  const amount = Number(body.amount), term = body.term_months
+  if (!Number.isFinite(amount) || amount < Number(product.min_amount) || amount > Number(rev.requested_amount)) return err(422, 'OFFER_AMOUNT_INVALID', 'Проверьте сумму предложения')
+  if (!Number.isInteger(term) || term < Number(product.min_term_months) || term > Number(product.max_term_months)) return err(422, 'OFFER_TERM_INVALID', 'Проверьте срок предложения')
+  if (amount === Number(rev.requested_amount) && term === rev.term_months) return err(422, 'OFFER_UNCHANGED', 'Используйте обычное одобрение')
+  const fin = rev.financial_snapshot as { financial_months: FinancialMonth[]; purchase_from_bank_partner?: boolean }
+  const company = { ...companyById(app.company_id)!, ...rev.company_snapshot } as DemoCompany
+  const res = evaluate({ company, months: fin.financial_months, amount, term, purpose: rev.purpose_code, partner: !!fin.purchase_from_bank_partner, revisionNo: rev.revision_no, runNo: a.run_no, saved: a.checks })
+  const pricing = res.details.pricing as { annual_rate_percent: string }
+  const terms: OfferPreview['terms'] = {
+    original_amount: rev.requested_amount, original_term_months: rev.term_months,
+    original_annual_rate_percent: String(a.calculation_details.annual_rate_percent ?? product.annual_rate_percent),
+    original_monthly_payment: String(a.calculation_details.monthly_payment),
+    amount: money2(amount), term_months: term, annual_rate_percent: pricing.annual_rate_percent,
+    ...annuity(amount, term, Number(pricing.annual_rate_percent)),
+    load_ratio: res.details.load_ratio as string | null ?? null, pricing,
+  }
+  const result = { application_version: app.version, terms, risk_score: res.risk_score, risk_band: bandOf(res.risk_score), routing: res.routing,
+    reasons: res.reason_codes.map(reason), can_approve: res.routing === 'APPROVE' || (res.routing === 'MANUAL_REVIEW' && res.reason_codes[0] === 'BORDERLINE_RISK'), preview_hash: '' }
+  result.preview_hash = hash(result)
+  return result
+}
+
+on('POST', new RegExp(`^/api/bank/applications/${U}/offer-preview$`), (m, body) => {
+  const app = bankApp(m[1])
+  if (!app) return notFound()
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Заявка уже изменилась')
+  if (!bankActions(app).includes('APPROVE')) return err(409, 'BANK_ACTION_NOT_ALLOWED', 'Действие недоступно')
+  const result = offerPreview(app, body)
+  return 'terms' in result ? ok(result) : result
+}, { auth: 'BANK_STAFF' })
 on('POST', new RegExp(`^/api/bank/applications/${U}/decision$`), (m, body, _q, user) => {
   const app = bankApp(m[1])
   if (!app) return notFound()
@@ -1102,17 +1143,27 @@ on('POST', new RegExp(`^/api/bank/applications/${U}/decision$`), (m, body, _q, u
   if (pe.length < 20 || pe.length > 1000) return err(422, 'VALIDATION_ERROR', 'Проверьте поля запроса', [{ field: 'public_explanation', message: 'От 20 до 1000 символов' }])
   const rev = app.revisions.at(-1)!
   const a = latestAssessment(app)!
+  let preview: OfferPreview | null = null
+  if (body.offer) {
+    if (outcome !== 'APPROVED') return err(422, 'VALIDATION_ERROR', 'Предложение допустимо только при одобрении')
+    const calculated = offerPreview(app, body.offer)
+    if (!('terms' in calculated)) return calculated
+    preview = calculated
+    if (preview.preview_hash !== body.offer.preview_hash) return err(409, 'OFFER_PREVIEW_CHANGED', 'Пересчитайте предложение')
+    if (!preview.can_approve) return err(422, 'OFFER_NOT_APPROVABLE', 'Новые условия не проходят обязательные ограничения')
+  }
   app.decision = {
     id: uid(),
     revision_id: rev.id,
     assessment_id: a.id,
     outcome,
     source: 'MANUAL',
-    approved_amount: outcome === 'APPROVED' ? rev.requested_amount : null,
-    approved_term_months: outcome === 'APPROVED' ? rev.term_months : null,
-    annual_rate_percent: outcome === 'APPROVED' ? DEMO_PRODUCT.annual_rate_percent : null,
-    monthly_payment: outcome === 'APPROVED' ? String(a.calculation_details.monthly_payment) : null,
-    reasons: a.reasons,
+    approved_amount: outcome === 'APPROVED' ? preview?.terms.amount ?? rev.requested_amount : null,
+    approved_term_months: outcome === 'APPROVED' ? preview?.terms.term_months ?? rev.term_months : null,
+    annual_rate_percent: outcome === 'APPROVED' ? preview?.terms.annual_rate_percent ?? String(a.calculation_details.annual_rate_percent ?? DEMO_PRODUCT.annual_rate_percent) : null,
+    monthly_payment: outcome === 'APPROVED' ? preview?.terms.monthly_payment ?? String(a.calculation_details.monthly_payment) : null,
+    offer: preview?.terms ?? null, offer_risk_score: preview?.risk_score ?? null, offer_risk_band: preview?.risk_band ?? null,
+    reasons: preview?.reasons ?? a.reasons,
     public_explanation: pe,
     policy_version: DEMO_PRODUCT.policy_version,
     created_at: now(),

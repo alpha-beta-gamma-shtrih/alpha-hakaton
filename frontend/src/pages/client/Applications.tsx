@@ -115,11 +115,12 @@ export function ApplicationsPage() {
                         </td>
                         <td>
                           <StatusChip status={a.status} />
+                          {a.decision?.offer && <div className="hint">Условия изменены банком</div>}
                         </td>
                         <td className="r num">
-                          <b>{money(a.requested_amount)}</b>
+                          <b>{money(a.decision?.approved_amount ?? a.requested_amount)}</b>
                         </td>
-                        <td>{months(a.term_months)}</td>
+                        <td>{months(a.decision?.approved_term_months ?? a.term_months)}</td>
                         <td>{a.purpose_code ? PURPOSE[a.purpose_code].label : '—'}</td>
                         <td className="hint">{dateTime(a.updated_at)}</td>
                         <td className="r">

@@ -12,10 +12,12 @@ from credit_cabinet.schemas.bank import (
     BankStatus,
     ManualDecision,
     ManualInformationRequest,
+    OfferPreviewRequest,
+    OfferPreviewResponse,
 )
 from credit_cabinet.schemas.errors import ErrorResponse
 from credit_cabinet.services import bank as service
-from credit_cabinet.services import bank_commands
+from credit_cabinet.services import bank_commands, bank_offers
 from credit_cabinet.services.auth import Principal
 
 Bank = Annotated[Principal, Depends(require_bank_staff)]
@@ -78,3 +80,12 @@ def decision(
         db, principal, application_id, body, request.app.state.auth
     )
     return service.card(db, row, revision)
+
+
+@router.post("/{application_id}/offer-preview", response_model=OfferPreviewResponse)
+def offer_preview(application_id: UUID, body: OfferPreviewRequest, db: Database, principal: Bank):
+    row, revision, assessment = bank_commands.command_context(
+        db, principal, application_id, body.expected_version, "APPROVE"
+    )
+    preview, _ = bank_offers.calculate(db, row, revision, assessment, body)
+    return preview

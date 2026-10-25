@@ -32,7 +32,11 @@ from credit_cabinet.services.views import assessment_view, decision_view, revisi
 
 
 def queue_item(db, application, revision, assessment):
+    decision = db.scalar(select(Decision).where(Decision.application_id == application.id))
     return BankQueueItem(
+        approved_amount=decision.approved_amount if decision else None,
+        approved_term_months=decision.approved_term_months if decision else None,
+        terms_changed=bool(decision and decision.offer_snapshot),
         id=application.id,
         company_id=application.company_id,
         company_name=revision.company_snapshot["legal_name"],
@@ -128,6 +132,12 @@ def card(db, application, revision):
             **decision_view(decision).model_dump(),
             decided_by_user_id=decision.decided_by_user_id,
             internal_comment=decision.internal_comment,
+            offer_risk_score=decision.offer_snapshot["risk_score"]
+            if decision.offer_snapshot
+            else None,
+            offer_risk_band=decision.offer_snapshot["risk_band"]
+            if decision.offer_snapshot
+            else None,
         )
         if decision
         else None,
