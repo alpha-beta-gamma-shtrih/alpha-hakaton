@@ -77,7 +77,7 @@ services:
   frontend:
     image: credit-cabinet-frontend:local
     ports:
-      - "${FRONTEND_PORT:-8080}:80"
+      - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:${FRONTEND_PORT:-8080}:80"
     depends_on:
       backend:
         condition: service_healthy

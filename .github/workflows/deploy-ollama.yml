@@ -35,7 +35,7 @@ jobs:
       - name: Download model
         run: >
           ssh "$SSH_USER@$SSH_HOST"
-          LLM_MODEL=${{ vars.LLM_MODEL || 'qwen2.5:1.5b' }}
+          LLM_MODEL=${{ secrets.LLM_MODEL || 'qwen2.5:1.5b' }}
           docker compose --env-file /dev/null -f credit-cabinet/compose.ollama.yaml run --rm ollama-model
 
       - name: Prune unused images

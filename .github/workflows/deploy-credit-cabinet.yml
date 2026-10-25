@@ -64,7 +64,7 @@ jobs:
         run: ssh "$SSH_USER@$SSH_HOST" mkdir -p credit-cabinet
 
       - name: Deploy Compose file
-        run: scp compose.yaml "$SSH_USER@$SSH_HOST:~/credit-cabinet/"
+        run: scp compose.yaml compose.https.yaml "$SSH_USER@$SSH_HOST:~/credit-cabinet/"
 
       - name: Deploy .env
         env:
@@ -78,7 +78,7 @@ jobs:
       - name: Start application
         run: >
           ssh "$SSH_USER@$SSH_HOST"
-          'cd ~/credit-cabinet && docker compose up --force-recreate -d frontend'
+          'cd ~/credit-cabinet && docker compose -f compose.yaml -f compose.https.yaml up --force-recreate -d frontend'
       
       - name: Remove unused images
         run: ssh "$SSH_USER@$SSH_HOST" 'docker image prune -f'
