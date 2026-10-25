@@ -46,7 +46,8 @@ services:
         condition: service_healthy
 
   postgres-test:
-    profiles: [test]
+    profiles: 
+      - test
     image: postgres:17-bookworm
     environment:
       POSTGRES_USER: credit_test
@@ -61,7 +62,8 @@ services:
       retries: 30
 
   tests:
-    profiles: [test]
+    profiles: 
+      - test
     image: credit-cabinet-app:local
     command: [python, -m, pytest, -q, -p, "no:cacheprovider"]
     environment:
