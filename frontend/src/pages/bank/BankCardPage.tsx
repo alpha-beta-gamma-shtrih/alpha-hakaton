@@ -13,6 +13,8 @@ import { CHECK_SOURCE, CHECK_STATUS, FIN_FIELDS, LEGAL_FORM, PURPOSE, requestedF
 import { DocumentsCard } from '../client/wizard/steps'
 import { AdvisorReportView } from '../client/wizard/Aside'
 import { Timeline } from '../client/StatusView'
+import { AdjustedOfferModal } from './AdjustedOfferModal'
+import { OfferComparison } from '../../components/OfferComparison'
 
 type Tab = 'assess' | 'checks' | 'data' | 'requests' | 'history' | 'versions' | 'docs' | 'ai'
 
@@ -22,7 +24,7 @@ export function BankCardPage() {
   const toast = useToast()
   const card = useQuery({ queryKey: ['bank-card', id], queryFn: () => bank.card(id), refetchInterval: 15_000 })
   const [tab, setTab] = useState<Tab>('assess')
-  const [modal, setModal] = useState<null | 'info' | 'APPROVED' | 'REJECTED'>(null)
+  const [modal, setModal] = useState<null | 'info' | 'APPROVED' | 'REJECTED' | 'offer'>(null)
   const [conflict, setConflict] = useState(false)
 
   const onDone = (c: BankCard, msg: string) => {
@@ -108,7 +110,7 @@ export function BankCardPage() {
               </div>
             </div>
             <div className="bc-risk">
-              <span className="lbl">Оценка риска</span>
+              <span className="lbl">Оценка исходного запроса</span>
               <RiskMeter score={c.risk_score} band={c.risk_band} />
               {a && <span className={`route r-${a.routing}`}>{ROUTING[a.routing]}</span>}
             </div>
@@ -147,6 +149,7 @@ export function BankCardPage() {
                   Отказать
                 </Button>
               )}
+              {acts.includes('APPROVE') && <Button variant="blue" block onClick={() => setModal('offer')}>Одобрить с изменением условий</Button>}
               {acts.includes('REQUEST_INFO') && (
                 <Button variant="white" block onClick={() => setModal('info')}>
                   Запросить уточнение
@@ -179,6 +182,11 @@ export function BankCardPage() {
               <span className="hint">{dateTime(c.decision.created_at)}</span>
             </div>
           )}
+          {c.decision?.offer && <>
+            <OfferComparison terms={c.decision.offer} />
+            <p className="label">Оценка предложения банка</p>
+            <RiskMeter score={c.decision.offer_risk_score ?? null} band={c.decision.offer_risk_band ?? 'UNKNOWN'} />
+          </>}
         </section>
       </div>
 
@@ -209,6 +217,7 @@ export function BankCardPage() {
       </div>
 
       <InfoRequestModal open={modal === 'info'} c={c} onClose={() => setModal(null)} onDone={onDone} onFail={onFail} />
+      {modal === 'offer' && <AdjustedOfferModal key={`${c.id}:${c.version}`} c={c} onClose={() => setModal(null)} onDone={onDone} onFail={onFail} />}
       <DecisionModal outcome={modal === 'APPROVED' || modal === 'REJECTED' ? modal : null} c={c} onClose={() => setModal(null)} onDone={onDone} onFail={onFail} />
     </div>
   )

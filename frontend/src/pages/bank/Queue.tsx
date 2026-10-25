@@ -125,12 +125,13 @@ function QueueRow({ it, onOpen }: { it: BankQueueItem; onOpen: () => void }) {
         </span>
       </div>
       <div className="q-amt">
-        <b className="num">{money(it.requested_amount)}</b>
+        <b className="num">{money(it.approved_amount ?? it.requested_amount)}</b>
         <span className="hint">
-          {months(it.term_months)} · {PURPOSE[it.purpose_code].label.toLowerCase()}
+          {it.approved_amount ? 'Одобрено · ' : 'Запрошено · '}{months(it.approved_term_months ?? it.term_months)} · {PURPOSE[it.purpose_code].label.toLowerCase()}
         </span>
       </div>
       <div className="q-risk">
+        {it.terms_changed && <span className="hint">Исходная оценка</span>}
         <RiskMeter score={it.risk_score} band={it.risk_band} compact />
       </div>
       <div className="q-st">
