@@ -1,0 +1,993 @@
+{
+  "info": {
+    "name": "Умный кредитный кабинет — ручная проверка",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ручная коллекция. Не запускать целиком: банк/клиент требуют разных сессий, подпись/отказ альтернативны. Задайте email/password из demo_users.json и base_url без завершающего /. Cookie jar включён. Перед входом и после него выполните CSRF. Все изменяющие действия используют последнюю version. Новая заявка сбрасывает submission_key. См. корневой README."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "client@example.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "csrf_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "company_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "product_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "application_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "version",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "submission_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "scenario_set_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "candidate_id",
+      "value": "REQUESTED",
+      "type": "string"
+    },
+    {
+      "key": "decision_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "content_sha256",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "preview_hash",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "offer_amount",
+      "value": "500000.00",
+      "type": "string"
+    },
+    {
+      "key": "offer_term",
+      "value": "18",
+      "type": "string"
+    },
+    {
+      "key": "document_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "report_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Сессия",
+      "item": [
+        {
+          "name": "CSRF — до и после входа",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/auth/csrf",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Вход: email/password задаются переменными",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/auth/login",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Текущая сессия",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/auth/me",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Активность",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/auth/activity",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Выход — выполнять при смене роли",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/auth/logout",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 Компания и продукт",
+      "item": [
+        {
+          "name": "Доступные компании → company_id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/companies",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 && pm.response.json().items.length) pm.collectionVariables.set('company_id', pm.response.json().items[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Профиль/обязательства",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/companies/{{company_id}}",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Документы компании",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/companies/{{company_id}}/documents",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Подписанные договоры",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/companies/{{company_id}}/agreements",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Продукты → product_id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/products",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 && pm.response.json().items.length) pm.collectionVariables.set('product_id', pm.response.json().items[0].id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 Черновик и отправка",
+      "item": [
+        {
+          "name": "Создать черновик → application_id/version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company_id\": \"{{company_id}}\",\n  \"product_id\": \"{{product_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Мои заявки",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/applications",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Прочитать актуальную заявку/version",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/applications/{{application_id}}",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Заполнить и подтвердить пример C01",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/{{application_id}}",
+            "description": "Для иных профилей измените сумму/срок/цель. Не заменяет ручную проверку сведений. Работает для редактируемого черновика.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"requested_amount\": \"1000000.00\",\n  \"term_months\": 12,\n  \"purpose_code\": \"INVENTORY\",\n  \"ui_step\": \"REVIEW\",\n  \"draft_data\": {\n    \"confirmations\": {\n      \"data_confirmed\": true,\n      \"credit_history_check_allowed\": true\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Отправить: тот же ключ при повторе",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/{{application_id}}/submit",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"submission_key\": \"{{submission_key}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Первый отправленный снимок",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/applications/{{application_id}}/revisions/1",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "События",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/applications/{{application_id}}/events",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Решение",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/applications/{{application_id}}/decision",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Архивировать — только неотправленный черновик",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/{{application_id}}",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 Варианты и AI",
+      "item": [
+        {
+          "name": "Создать/получить фиксированный набор",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/{{application_id}}/scenario-set",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"refresh\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Прочитать набор",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/applications/{{application_id}}/scenario-set",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Выбрать вариант из того же набора",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/{{application_id}}/scenario-set/select",
+            "description": "candidate_id: REQUESTED / LOWER_AMOUNT / LONGER_TERM, только из существующего набора.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"scenario_set_id\": \"{{scenario_set_id}}\",\n  \"candidate_id\": \"{{candidate_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Сравнить, приоритет — меньший платёж",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/{{application_id}}/advisor",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"mode\": \"COMPARE\",\n  \"priority\": \"LOWER_PAYMENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Объяснить заявку",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/{{application_id}}/advisor",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"mode\": \"EXPLAIN\",\n  \"priority\": \"BALANCED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Сохранённые отчёты",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/applications/{{application_id}}/advisor",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Конкретный отчёт",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/applications/{{application_id}}/advisor-reports/{{report_id}}",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 Банк — войти отдельно",
+      "item": [
+        {
+          "name": "Очередь",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/bank/applications",
+            "description": "Сначала выход клиентом, CSRF, вход BANK_STAFF, новый CSRF. Нужен ID отправленной заявки."
+          },
+          "response": []
+        },
+        {
+          "name": "Карточка/version",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/bank/applications/{{application_id}}",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "История",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/bank/applications/{{application_id}}/events",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "Запросить пояснение",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/bank/applications/{{application_id}}/request-info",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"message_to_client\": \"Уточните назначение расходов и ожидаемые поступления компании.\",\n  \"requested_fields\": [\n    \"draft_data.info_response\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Предварительный расчёт изменённых условий",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/bank/applications/{{application_id}}/offer-preview",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"amount\": \"{{offer_amount}}\",\n  \"term_months\": {{offer_term}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Одобрить изменённые условия",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/bank/applications/{{application_id}}/decision",
+            "description": "Только после успешного offer-preview с can_approve=true; при изменении условий/обязательств повторить preview.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"outcome\": \"APPROVED\",\n  \"public_explanation\": \"Предлагаем уменьшенную сумму с учётом платёжной нагрузки компании.\",\n  \"offer\": {\n    \"amount\": \"{{offer_amount}}\",\n    \"term_months\": {{offer_term}},\n    \"preview_hash\": \"{{preview_hash}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Одобрить исходные условия",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/bank/applications/{{application_id}}/decision",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"outcome\": \"APPROVED\",\n  \"public_explanation\": \"Показатели изучены в рамках демонстрационной политики банка.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Отказать",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/bank/applications/{{application_id}}/decision",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"outcome\": \"REJECTED\",\n  \"public_explanation\": \"Условия не соответствуют допустимой нагрузке в демонстрационной политике.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Повторить техническую обработку",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/bank/applications/{{application_id}}/retry-processing",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 Завершение — снова клиент",
+      "item": [
+        {
+          "name": "Прочитать договор → decision_id/content_sha256",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/applications/{{application_id}}/agreement",
+            "description": "Сначала вернитесь в клиентскую сессию. Прочитайте заявку для текущей version."
+          },
+          "response": []
+        },
+        {
+          "name": "Подписать конкретные условия",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/{{application_id}}/agreement/sign",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"decision_id\": \"{{decision_id}}\",\n  \"content_sha256\": \"{{content_sha256}}\",\n  \"accepted\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Отказаться вместо подписи",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/{{application_id}}/agreement/decline",
+            "description": "Альтернатива подписи, доступна для APPROVED. После SIGNED недопустима.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expected_version\": {{version}},\n  \"decision_id\": \"{{decision_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Скачать документ с проверкой прав",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/documents/{{document_id}}",
+            "description": "document_id возьмите из списка документов компании/снимка. Ответ бинарный CSV."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 Здоровье",
+      "item": [
+        {
+          "name": "Процесс",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/health/live",
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "БД/схема",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/health/ready",
+            "description": ""
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "let data;",
+          "try { data = pm.response.json(); } catch (_) { data = null; }",
+          "if (pm.response.code >= 200 && pm.response.code < 300 && data) {",
+          "  if (data.csrf_token) pm.collectionVariables.set('csrf_token', data.csrf_token);",
+          "  const app = data.application || data;",
+          "  if (app.id && app.company_id && app.status) {",
+          "    pm.collectionVariables.set('application_id', app.id);",
+          "    if (app.version) pm.collectionVariables.set('version', String(app.version));",
+          "    if (pm.response.code === 201) pm.collectionVariables.set('submission_key', pm.variables.replaceIn('{{$guid}}'));",
+          "  }",
+          "  if (data.application_id && data.version) pm.collectionVariables.set('version', String(data.version));",
+          "  if (data.application_version) pm.collectionVariables.set('version', String(data.application_version));",
+          "  if (data.preview_hash) pm.collectionVariables.set('preview_hash', data.preview_hash);",
+          "  const decision = app.decision || data.decision;",
+          "  if (decision && decision.id) pm.collectionVariables.set('decision_id', decision.id);",
+          "  const set = data.scenario_set || data;",
+          "  if (set.id && set.candidates && set.created_at) pm.collectionVariables.set('scenario_set_id', set.id);",
+          "  if (data.content_sha256) {",
+          "    pm.collectionVariables.set('content_sha256', data.content_sha256);",
+          "    pm.collectionVariables.set('decision_id', data.content.decision_id);",
+          "  }",
+          "  if (data.model_id !== undefined && data.id) pm.collectionVariables.set('report_id', data.id);",
+          "}"
+        ]
+      }
+    }
+  ]
+}
