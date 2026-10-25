@@ -65,6 +65,9 @@ def test_offer_preview_approval_signature_and_frozen_original(seeded, client):
     card = response.json()
     assert card["revision"] == frozen and card["assessment"]["id"] == original["id"]
     decision = card["decision"]
+    assert card["approved_amount"] == "400000.00" and card["terms_changed"] is True
+    queued = client.get("/api/bank/applications?status=APPROVED").json()["items"][0]
+    assert queued["requested_amount"] == "1000000.00" and queued["approved_term_months"] == 24
     assert decision["approved_amount"] == "400000.00" and decision["approved_term_months"] == 24
     assert decision["monthly_payment"] == preview["terms"]["monthly_payment"]
     assert decision["offer_risk_score"] == preview["risk_score"]

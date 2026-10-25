@@ -106,6 +106,9 @@ class BankQueueItem(BaseModel):
     latest_revision_id: UUID
     latest_revision_no: int
     requested_amount: MoneyOutput
+    approved_amount: MoneyOutput | None = None
+    approved_term_months: int | None = None
+    terms_changed: bool = False
     term_months: int
     purpose_code: Purpose
     submitted_at: datetime

@@ -4903,6 +4903,33 @@
             "type": "string",
             "title": "Requested Amount"
           },
+          "approved_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved Amount"
+          },
+          "approved_term_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved Term Months"
+          },
+          "terms_changed": {
+            "type": "boolean",
+            "title": "Terms Changed",
+            "default": false
+          },
           "term_months": {
             "type": "integer",
             "title": "Term Months"
@@ -5520,6 +5547,33 @@
           "requested_amount": {
             "type": "string",
             "title": "Requested Amount"
+          },
+          "approved_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved Amount"
+          },
+          "approved_term_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved Term Months"
+          },
+          "terms_changed": {
+            "type": "boolean",
+            "title": "Terms Changed",
+            "default": false
           },
           "term_months": {
             "type": "integer",
