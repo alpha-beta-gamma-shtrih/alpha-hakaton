@@ -2,7 +2,7 @@ name: credit-cabinet
 
 x-backend-environment: &backend-environment
   APP_ENV: ${APP_ENV:-development}
-  DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:-credit}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-credit_cabinet}"
+  DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL for the external database}
   PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8080}
   ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-["http://localhost:8080","http://localhost:8000"]}
   COOKIE_SECURE: ${COOKIE_SECURE:-false}
@@ -45,28 +45,8 @@ services:
       ollama:
         condition: service_healthy
 
-  postgres:
-    ports:
-      - 5432:5432
-    profiles:
-      - database
-    image: postgres:17-bookworm
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-credit}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-      POSTGRES_DB: ${POSTGRES_DB:-credit_cabinet}
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
-      interval: 3s
-      timeout: 3s
-      retries: 30
-    restart: unless-stopped
-
   postgres-test:
-    profiles: 
-      - test
+    profiles: [test]
     image: postgres:17-bookworm
     environment:
       POSTGRES_USER: credit_test
@@ -81,8 +61,7 @@ services:
       retries: 30
 
   tests:
-    profiles: 
-      - test
+    profiles: [test]
     image: credit-cabinet-app:local
     command: [python, -m, pytest, -q, -p, "no:cacheprovider"]
     environment:
@@ -128,6 +107,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres-data:
   documents-data:
   ollama-data:
