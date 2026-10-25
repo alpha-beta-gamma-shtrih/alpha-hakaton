@@ -947,6 +947,12 @@ export interface components {
             submitted_at: string;
             /** Allowed Actions */
             allowed_actions: ("REQUEST_INFO" | "APPROVE" | "REJECT" | "RETRY_PROCESSING")[];
+            /**
+             * Credit Review Required
+             * @default false
+             */
+            credit_review_required?: boolean;
+            current_credit_check?: components["schemas"]["CurrentCreditCheck"] | null;
             signature?: components["schemas"]["SignatureResponse"] | null;
             decline?: components["schemas"]["DeclineResponse"] | null;
             revision: components["schemas"]["RevisionResponse"];
@@ -1285,6 +1291,25 @@ export interface components {
             /** Offset */
             offset: number;
         };
+        /** CompanyCreditExposure */
+        CompanyCreditExposure: {
+            /** Reported Payment */
+            reported_payment: string | null;
+            /** Signed Payment */
+            signed_payment: string;
+            /** Reserved Payment */
+            reserved_payment: string;
+            /** Current Payment */
+            current_payment: string | null;
+            /** Committed Payment */
+            committed_payment: string | null;
+            /** Signed Count */
+            signed_count: number;
+            /** Reserved Count */
+            reserved_count: number;
+            /** Basis Hash */
+            basis_hash: string;
+        };
         /** CompanyDetail */
         CompanyDetail: {
             /**
@@ -1313,6 +1338,7 @@ export interface components {
             /** Financial Months */
             financial_months: components["schemas"]["FinancialMonthResponse"][];
             provenance: components["schemas"]["ProvenanceResponse"];
+            credit_exposure?: components["schemas"]["CompanyCreditExposure"] | null;
         };
         /** CompanyDocumentPage */
         CompanyDocumentPage: {
@@ -1413,6 +1439,17 @@ export interface components {
             data_confirmed: boolean;
             /** Credit History Check Allowed */
             credit_history_check_allowed: boolean;
+        };
+        /** CurrentCreditCheck */
+        CurrentCreditCheck: {
+            /** Calculation Details */
+            calculation_details: {
+                [key: string]: unknown;
+            };
+            /** Can Approve Original */
+            can_approve_original: boolean;
+            /** Reasons */
+            reasons: components["schemas"]["ReasonResponse"][];
         };
         /**
          * DecisionOutcome
@@ -1646,6 +1683,11 @@ export interface components {
             /** Allowed Actions */
             allowed_actions: ("EDIT_DRAFT" | "SUBMIT" | "SIGN_AGREEMENT" | "DECLINE_AGREEMENT")[];
             signature?: components["schemas"]["SignatureResponse"] | null;
+            /**
+             * Credit Review Required
+             * @default false
+             */
+            credit_review_required?: boolean;
             decline?: components["schemas"]["DeclineResponse"] | null;
             open_information_request?: components["schemas"]["InformationRequestResponse"] | null;
             decision?: components["schemas"]["DecisionResponse"] | null;

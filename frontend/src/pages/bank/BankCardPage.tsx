@@ -31,6 +31,7 @@ export function BankCardPage() {
     qc.setQueryData(['bank-card', id], c)
     qc.invalidateQueries({ queryKey: ['bank-queue'] })
     qc.invalidateQueries({ queryKey: ['bank-events', id] })
+    qc.invalidateQueries({ queryKey: ['company'] })
     setModal(null)
     setConflict(false)
     toast.push({ tone: 'ok', title: msg })
@@ -127,9 +128,14 @@ export function BankCardPage() {
         </section>
 
         <section className="card bc-actions">
+          {c.credit_review_required && <Notice tone="warn" title="Повторная проверка обязательств">Подписание остановлено из-за текущей нагрузки. Прежнее одобрение сохранено в банковской истории, резерв освобождён. Проверьте актуальный расчёт и примите новое решение.</Notice>}
           {c.decline && <Notice tone="warn" title="Клиент отказался от условий">Заявка закрыта без подписания {dateTime(c.decline.declined_at)} · {c.decline.declined_by_display_name}. Решение банка ниже сохранено для истории.</Notice>}
           {c.signature && <Notice tone="ok">Демо-документ подписан {dateTime(c.signature.signed_at)} · {c.signature.signed_by_display_name}. Выдача средств не выполнялась.</Notice>}
           <h3 className="card-title">Действия</h3>
+          {c.current_credit_check && <Notice tone={c.current_credit_check.can_approve_original ? 'plain' : 'warn'} title="Текущие обязательства компании">
+            Платежи с учётом других кредитов и резервов: {money(c.current_credit_check.calculation_details.existing_payment as string)} в месяц; нагрузка с этой заявкой: {percent(c.current_credit_check.calculation_details.load_ratio as string)}.
+            {!c.current_credit_check.can_approve_original && <p>Исходные условия сейчас одобрить нельзя. Рассчитайте изменённые условия, запросите уточнение или откажите.</p>}
+          </Notice>}
           {acts.length === 0 ? (
             <p className="muted" style={{ marginTop: 10 }}>
               {c.status === 'NEEDS_INFO'

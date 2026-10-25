@@ -57,6 +57,9 @@ interface AppRec {
   updated_at: string
   archived?: boolean
   scenario_set?: { value: ScenarioSet; context: string; manually_changed: boolean }
+  credit_review_required?: boolean
+  advisor_context?: string
+  decision_exposure?: ServiceTotals
   agreement?: Agreement
   decline?: Draft['decline']
 }
@@ -122,6 +125,20 @@ const monthsOf = (c: DemoCompany): FinancialMonth[] => DEMO_MONTHS[c.key] ?? []
 /** Two decimals, half-up like Decimal.quantize(ROUND_HALF_UP) in the backend. */
 const money2 = (n: number) => (Math.round((n + Math.sign(n) * 1e-9) * 100) / 100).toFixed(2)
 const rate3 = (n: number) => n.toFixed(3)
+
+type ServiceTotals = { signed_payment: string; reserved_payment: string; signed_count: number; reserved_count: number; basis_hash: string }
+function serviceTotals(companyId: string, exclude?: string): ServiceTotals {
+  const rows = (state?.apps ?? []).filter(a => !a.archived && a.company_id === companyId && a.id !== exclude && ['APPROVED', 'SIGNED'].includes(a.status)).sort((a,b) => a.id.localeCompare(b.id))
+  const sum = (status: string) => money2(rows.filter(a => a.status === status).reduce((total,a) => total + Number(a.decision?.monthly_payment ?? 0), 0))
+  return { signed_payment: sum('SIGNED'), reserved_payment: sum('APPROVED'), signed_count: rows.filter(a => a.status === 'SIGNED').length, reserved_count: rows.filter(a => a.status === 'APPROVED').length, basis_hash: hash(rows.map(a => [a.id,a.status,a.decision?.id,a.decision?.monthly_payment])) }
+}
+function currentEvaluation(app: AppRec, binding = false) {
+  const rev = app.revisions.at(-1)!, a = latestAssessment(app)!
+  const fin = rev.financial_snapshot as { financial_months: FinancialMonth[]; purchase_from_bank_partner?: boolean }
+  const d = binding ? app.decision : null
+  return evaluate({ company: { ...companyById(app.company_id)!, ...rev.company_snapshot } as DemoCompany, months: fin.financial_months, amount: Number(d?.approved_amount ?? rev.requested_amount), term: d?.approved_term_months ?? rev.term_months, purpose: rev.purpose_code, partner: !!fin.purchase_from_bank_partner, revisionNo: rev.revision_no, runNo: a.run_no, saved: a.checks, exposure: serviceTotals(app.company_id,app.id), bindingRate: d?.annual_rate_percent ? Number(d.annual_rate_percent) : undefined })
+}
+const approvable = (r: Evaluation, manual = true) => r.routing === 'APPROVE' || (manual && r.routing === 'MANUAL_REVIEW' && r.reason_codes[0] === 'BORDERLINE_RISK' && r.risk_score !== null && r.risk_score >= 30 && r.risk_score <= 59)
 
 function ageMonths(from: string, to: string) {
   const [fy, fm, fd] = from.split('-').map(Number)
@@ -217,9 +234,10 @@ interface Evaluation {
   facts: Record<string, unknown>
 }
 
-function evaluate(o: { company: DemoCompany; months: FinancialMonth[]; amount: number; term: number; purpose: string; partner: boolean; revisionNo: number; runNo: number; saved?: BankCheck[] }): Evaluation {
+function evaluate(o: { company: DemoCompany; months: FinancialMonth[]; amount: number; term: number; purpose: string; partner: boolean; revisionNo: number; runNo: number; saved?: BankCheck[]; exposure?: ServiceTotals; bindingRate?: number }): Evaluation {
   const t = now()
   const res: Evaluation = { routing: 'MANUAL_REVIEW', reason_codes: [], risk_score: null, details: {}, checks: [], requested_fields: [], facts: {} }
+  if (o.exposure) res.facts.service_exposure = o.exposure
   const finish = (route: Routing, code: string, fields: string[] = []) => {
     res.routing = route
     res.reason_codes = [code]
@@ -285,9 +303,11 @@ function evaluate(o: { company: DemoCompany; months: FinancialMonth[]; amount: n
   const trend = months.slice(3).reduce((s, m) => s + Number(m.cash_inflow), 0) / first - 1
   const pricing = quote({ age, history: !!f.history_present, overdue: Number(f.max_overdue_days_12m), trend, term: o.term, purpose: o.purpose, bankCustomer: o.company.has_active_loan_in_our_bank, partner: o.partner })
   res.details.pricing = pricing
-  res.details.annual_rate_percent = pricing.annual_rate_percent
-  const pay = annuity(o.amount, o.term, Number(pricing.annual_rate_percent))
-  const existing = Math.max(declared, confirmed)
+  res.details.annual_rate_percent = o.bindingRate === undefined ? pricing.annual_rate_percent : rate3(o.bindingRate)
+  const pay = annuity(o.amount, o.term, o.bindingRate ?? Number(pricing.annual_rate_percent))
+  const base = Math.max(declared, confirmed)
+  const existing = base + Number(o.exposure?.signed_payment ?? 0) + Number(o.exposure?.reserved_payment ?? 0)
+  if (o.exposure) Object.assign(res.details, { base_existing_payment: money2(base), service_signed_payment: o.exposure.signed_payment, service_reserved_payment: o.exposure.reserved_payment, service_exposure: o.exposure })
   const load = (existing + Number(pay.monthly_payment)) / average
   Object.assign(res.details, pay, { existing_payment: money2(existing), load_ratio: String(load) })
   if (load > 0.8) return finish('REJECT', 'DEBT_LOAD_LIMIT_EXCEEDED')
@@ -371,7 +391,7 @@ function processLatest(app: AppRec, actor: string | null = null) {
   const company = companyById(app.company_id)!
   const fin = rev.financial_snapshot as { financial_months: FinancialMonth[]; purchase_from_bank_partner?: boolean }
   const runNo = app.assessments.filter((a) => a.revision_id === rev.id).length + 1
-  const res = evaluate({ company, months: fin.financial_months, amount: Number(rev.requested_amount), term: rev.term_months, purpose: rev.purpose_code, partner: !!fin.purchase_from_bank_partner, revisionNo: rev.revision_no, runNo })
+  const res = evaluate({ company, months: fin.financial_months, amount: Number(rev.requested_amount), term: rev.term_months, purpose: rev.purpose_code, partner: !!fin.purchase_from_bank_partner, revisionNo: rev.revision_no, runNo, exposure: serviceTotals(app.company_id,app.id) })
   const reasons = res.reason_codes.map(reason)
   const done = now()
   const assessment: BankAssessment = {
@@ -393,6 +413,7 @@ function processLatest(app: AppRec, actor: string | null = null) {
   app.assessments.push(assessment)
   const msg = reasons[0]?.message ?? 'Проверки завершены'
   if (res.routing === 'APPROVE' || res.routing === 'REJECT') {
+    app.decision_exposure = serviceTotals(app.company_id,app.id)
     const outcome = res.routing === 'APPROVE' ? 'APPROVED' : 'REJECTED'
     setStatus(app, outcome, { event_type: 'CHECKS_COMPLETED', message: msg, actor, details: { run_no: runNo, assessment_id: assessment.id } })
     app.decision = {
@@ -501,6 +522,7 @@ function clientDraft(app: AppRec): Draft {
     provenance: provenance(app),
     allowed_actions: editable ? ['EDIT_DRAFT', 'SUBMIT'] : app.status === 'APPROVED' ? ['SIGN_AGREEMENT', 'DECLINE_AGREEMENT'] : [],
     signature: app.agreement?.signature ?? null,
+    credit_review_required: app.status === 'MANUAL_REVIEW' && !!app.credit_review_required,
     decline: app.decline ?? null,
     open_information_request: open ? { id: open.id, message_to_client: open.message_to_client, requested_fields: open.requested_fields } : null,
     decision: d
@@ -520,6 +542,7 @@ function bankActions(app: AppRec): BankQueueItem['allowed_actions'] {
   const a = latestAssessment(app)
   if (app.status === 'SUBMITTED' || app.status === 'CHECKING') return ['RETRY_PROCESSING']
   if (app.status !== 'MANUAL_REVIEW' || !a) return []
+  if (app.credit_review_required) return ['REQUEST_INFO', 'APPROVE', 'REJECT']
   const codes = a.reasons.map((r) => r.code)
   if (RETRY_REASONS.includes(codes[0])) return ['RETRY_PROCESSING']
   if (codes[0] === 'BORDERLINE_RISK' && a.risk_score !== null && a.risk_score >= 30 && a.risk_score <= 59) return ['REQUEST_INFO', 'APPROVE', 'REJECT']
@@ -559,9 +582,12 @@ function queueItem(app: AppRec): BankQueueItem {
 
 function bankCard(app: AppRec): BankCard {
   const rev = app.revisions.at(-1)!
+  const current = app.status === 'MANUAL_REVIEW' ? currentEvaluation(app) : null
   return {
     ...queueItem(app),
+    current_credit_check: current ? { calculation_details: current.details, can_approve_original: approvable(current), reasons: current.reason_codes.map(reason) } : null,
     signature: app.agreement?.signature ?? null,
+    credit_review_required: app.status === 'MANUAL_REVIEW' && !!app.credit_review_required,
     decline: app.decline ?? null,
     revision: rev,
     assessment: latestAssessment(app),
@@ -618,7 +644,7 @@ function scenarioCandidates(app: AppRec, preview: boolean): Candidate[] | Transp
     })
     .map(([id, a, t]) => {
       const res = preview
-        ? evaluate({ company, months: app.financial_months, amount: a, term: t, purpose: app.purpose_code ?? 'OTHER', partner: app.purchase_from_bank_partner, revisionNo: (app.revisions.at(-1)?.revision_no ?? 0) + 1, runNo: 1, saved: binding ? latestAssessment(app)?.checks : undefined })
+        ? evaluate({ company, months: app.financial_months, amount: a, term: t, purpose: app.purpose_code ?? 'OTHER', partner: app.purchase_from_bank_partner, revisionNo: (app.revisions.at(-1)?.revision_no ?? 0) + 1, runNo: 1, exposure: binding ? app.decision_exposure : serviceTotals(app.company_id,app.id), saved: binding ? latestAssessment(app)?.checks : undefined })
         : null
       const pricing = (binding?.offer?.pricing as { annual_rate_percent: string } | undefined) ?? (res?.details.pricing as { annual_rate_percent: string } | undefined) ?? unpriced('CONSENT_REQUIRED')
       const pay = annuity(a, t, Number(pricing.annual_rate_percent))
@@ -647,7 +673,7 @@ function scenarioCandidates(app: AppRec, preview: boolean): Candidate[] | Transp
 function optionContext(app: AppRec) {
   return hash([app.company_id, companyById(app.company_id), DEMO_PRODUCT, app.purpose_code,
     app.purchase_from_bank_partner, app.financial_months, app.fin_declared,
-    app.confirmations.credit_history_check_allowed, app.revisions.at(-1)?.id, latestAssessment(app)?.id])
+    app.confirmations.credit_history_check_allowed, app.revisions.at(-1)?.id, latestAssessment(app)?.id, serviceTotals(app.company_id,app.id)])
 }
 
 function optionView(app: AppRec): ScenarioSet | null {
@@ -824,6 +850,15 @@ on('POST', new RegExp(`^/api/applications/${U}/agreement/sign$`), async (m, body
   if (body.decision_id !== document.content.decision_id || body.content_sha256 !== document.content_sha256) return err(409, 'AGREEMENT_CHANGED', 'Получите актуальный документ')
   if (app.status === 'SIGNED') return ok(clientDraft(app))
   if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Заявка изменилась; обновите страницу')
+  const checked = currentEvaluation(app, true)
+  if (!approvable(checked, app.decision?.source === 'MANUAL')) {
+    addEvent(app, { event_type: 'DECISION_MADE', message: 'Прежнее одобрение сохранено в истории', visibility: 'BANK', details: { superseded_decision: clone(app.decision) } })
+    app.decision = null
+    app.credit_review_required = true
+    setStatus(app, 'MANUAL_REVIEW', { event_type: 'PROCESSING_RETRIED', message: 'Обязательства компании изменились или требуют проверки. Заявка возвращена сотруднику, резерв освобождён.', actor: user!.id, details: { reason_code: 'COMPANY_EXPOSURE_CHANGED' } })
+    save()
+    return err(409, 'COMPANY_EXPOSURE_CHANGED', 'Подписание отменено: нагрузка компании изменилась, заявка возвращена сотруднику банка')
+  }
   app.agreement = { ...document, signature: { decision_id: body.decision_id, content_sha256: body.content_sha256, signed_at: now(), signed_by_display_name: user!.display_name, method: 'DEMO' } }
   setStatus(app, 'SIGNED', { event_type: 'AGREEMENT_SIGNED', message: 'Демо-документ подписан: электронная подпись имитирована, выдача средств не выполнялась.', actor: user!.id })
   save()
@@ -880,7 +915,9 @@ on('GET', /^\/api\/companies$/, (_m, _b, _q, user) => {
 on('GET', new RegExp(`^/api/companies/${U}$`), (m, _b, _q, user) => {
   const c = companyById(m[1])
   if (!c || !c.members.includes(user!.id)) return err(404, 'COMPANY_NOT_FOUND', 'Компания не найдена')
-  return ok({ ...companyPublic(c), financial_months: monthsOf(c), provenance: { company: { source: 'DEMO_PROFILE', as_of_date: CALCULATION_DATE, checked_at: null }, financial_months: { source: 'DEMO_PROFILE', as_of_date: '2026-09-30', checked_at: null }, credit_history: null } })
+  const e = serviceTotals(c.id), reported = monthsOf(c).at(-1)?.existing_debt_payment ?? null
+  const current = reported === null ? null : Number(reported) + Number(e.signed_payment)
+  return ok({ ...companyPublic(c), credit_exposure: { ...e, reported_payment: reported, current_payment: current === null ? null : money2(current), committed_payment: current === null ? null : money2(current + Number(e.reserved_payment)) }, financial_months: monthsOf(c), provenance: { company: { source: 'DEMO_PROFILE', as_of_date: CALCULATION_DATE, checked_at: null }, financial_months: { source: 'DEMO_PROFILE', as_of_date: '2026-09-30', checked_at: null }, credit_history: null } })
 }, { auth: 'CLIENT' })
 on('GET', /^\/api\/products$/, () => ok({ items: [DEMO_PRODUCT], total: 1, limit: 100, offset: 0 }), { auth: 'CLIENT' })
 
@@ -1026,6 +1063,7 @@ on('POST', new RegExp(`^/api/applications/${U}/advisor$`), (m, body, _q, user) =
   if (!Array.isArray(c)) return c
   if (!['BALANCED', 'KEEP_AMOUNT', 'LOWER_PAYMENT', 'LOWER_OVERPAYMENT'].includes(body.priority ?? 'BALANCED')) return err(422, 'VALIDATION_ERROR', 'Неизвестный приоритет')
   app.advisor = advisorReport(app, body.mode ?? 'EXPLAIN', c, body.priority ?? 'BALANCED')
+  app.advisor_context = optionContext(app)
   save()
   return ok(app.advisor)
 }, { auth: 'CLIENT' })
@@ -1071,7 +1109,7 @@ on('POST', new RegExp(`^/api/applications/${U}/scenario-set/select$`), (m, body,
 on('GET', new RegExp(`^/api/applications/${U}/advisor$`), (m, _b, _q, user) => {
   const app = ownApp(m[1], user!)
   if (!app?.advisor) return err(404, 'ADVISOR_REPORT_NOT_FOUND', 'Разбора пока нет')
-  return ok({ ...app.advisor, is_current: app.advisor.draft_lock_version === app.version })
+  return ok({ ...app.advisor, is_current: app.advisor.draft_lock_version === app.version && app.advisor_context === optionContext(app) })
 }, { auth: 'CLIENT' })
 
 on('GET', new RegExp(`^/api/documents/${U}$`), (m, _b, _q, user) => {
@@ -1143,7 +1181,7 @@ function offerPreview(app: AppRec, body: { amount: string; term_months: number }
   if (amount === Number(rev.requested_amount) && term === rev.term_months) return err(422, 'OFFER_UNCHANGED', 'Используйте обычное одобрение')
   const fin = rev.financial_snapshot as { financial_months: FinancialMonth[]; purchase_from_bank_partner?: boolean }
   const company = { ...companyById(app.company_id)!, ...rev.company_snapshot } as DemoCompany
-  const res = evaluate({ company, months: fin.financial_months, amount, term, purpose: rev.purpose_code, partner: !!fin.purchase_from_bank_partner, revisionNo: rev.revision_no, runNo: a.run_no, saved: a.checks })
+  const res = evaluate({ company, months: fin.financial_months, amount, term, purpose: rev.purpose_code, partner: !!fin.purchase_from_bank_partner, revisionNo: rev.revision_no, runNo: a.run_no, saved: a.checks, exposure: serviceTotals(app.company_id,app.id) })
   const pricing = res.details.pricing as { annual_rate_percent: string }
   const terms: OfferPreview['terms'] = {
     original_amount: rev.requested_amount, original_term_months: rev.term_months,
@@ -1155,7 +1193,7 @@ function offerPreview(app: AppRec, body: { amount: string; term_months: number }
   }
   const result = { application_version: app.version, terms, risk_score: res.risk_score, risk_band: bandOf(res.risk_score), routing: res.routing,
     reasons: res.reason_codes.map(reason), can_approve: res.routing === 'APPROVE' || (res.routing === 'MANUAL_REVIEW' && res.reason_codes[0] === 'BORDERLINE_RISK'), preview_hash: '' }
-  result.preview_hash = hash(result)
+  result.preview_hash = hash([result, serviceTotals(app.company_id,app.id)])
   return result
 }
 
@@ -1186,6 +1224,10 @@ on('POST', new RegExp(`^/api/bank/applications/${U}/decision$`), (m, body, _q, u
     if (preview.preview_hash !== body.offer.preview_hash) return err(409, 'OFFER_PREVIEW_CHANGED', 'Пересчитайте предложение')
     if (!preview.can_approve) return err(422, 'OFFER_NOT_APPROVABLE', 'Новые условия не проходят обязательные ограничения')
   }
+  const checked = currentEvaluation(app)
+  if (outcome === 'APPROVED' && !preview && !approvable(checked)) return err(422, 'COMPANY_EXPOSURE_CHANGED', 'Текущая нагрузка не позволяет одобрить исходные условия')
+  app.credit_review_required = false
+  app.decision_exposure = serviceTotals(app.company_id,app.id)
   app.decision = {
     id: uid(),
     revision_id: rev.id,
