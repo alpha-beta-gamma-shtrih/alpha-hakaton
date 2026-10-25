@@ -6,14 +6,16 @@ import { Link } from 'react-router-dom'
 import { applications } from '../../api/endpoints'
 import type { Assessment, CheckSource, Draft, EventItem } from '../../api/types'
 import { PixelArt, type PixelShape } from '../../components/pixel'
-import { Arrow, Button, Notice, ProvenanceBadge, Reasons, RiskMeter, SectionTitle, Skeleton, StatusChip } from '../../components/ui'
+import { Arrow, Button, Notice, ProvenanceBadge, Reasons, SectionTitle, Skeleton, StatusChip } from '../../components/ui'
 import { dateTime, money, months, percent, shortId } from '../../lib/format'
 import { CHECK_SOURCE, CHECK_STATUS, eventLabel, PURPOSE, requestedFieldLabel, STATUS } from '../../lib/labels'
 import { useCompanies, useProducts, useStartApplication } from '../../lib/queries'
 import { DocumentsCard } from './wizard/steps'
+import { AgreementDialog } from './AgreementDialog'
 
 const HERO: Record<string, { panel: string; shape: PixelShape; pix: string; title: string }> = {
   APPROVED: { panel: 'lime', shape: 'smile', pix: 'var(--ink)', title: 'Одобрено' },
+  SIGNED: { panel: 'lime', shape: 'check', pix: 'var(--ink)', title: 'Документ подписан' },
   REJECTED: { panel: 'red', shape: 'cross', pix: '#fff', title: 'Отказано' },
   MANUAL_REVIEW: { panel: 'violet', shape: 'hourglass', pix: 'var(--lime)', title: 'Заявку изучает специалист' },
   NEEDS_INFO: { panel: 'ink', shape: 'question', pix: 'var(--amber)', title: 'Нужны уточнения' },
@@ -23,10 +25,11 @@ const HERO: Record<string, { panel: string; shape: PixelShape; pix: string; titl
 
 const PIPE = ['Черновик', 'Отправлена', 'Проверки', 'Оценка', 'Решение']
 function pipeIndex(s: Draft['status']) {
-  return { DRAFT: 0, SUBMITTED: 1, CHECKING: 2, NEEDS_INFO: 3, MANUAL_REVIEW: 3, APPROVED: 4, REJECTED: 4 }[s]
+  return { DRAFT: 0, SUBMITTED: 1, CHECKING: 2, NEEDS_INFO: 3, MANUAL_REVIEW: 3, APPROVED: 4, REJECTED: 4, SIGNED: 5 }[s]
 }
 
 export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSubmitted: boolean; onEdit: () => void }) {
+  const [showAgreement, setShowAgreement] = useState(false)
   const events = useQuery({ queryKey: ['events', app.id, app.version], queryFn: () => applications.events(app.id), placeholderData: (p) => p })
   const rev = useQuery({
     queryKey: ['revision', app.id, app.latest_revision_no],
@@ -59,7 +62,7 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
       </div>
 
       <div className="pipe" aria-label="Этапы заявки">
-        {PIPE.map((p, i) => (
+        {(app.decision?.outcome === 'APPROVED' ? [...PIPE, 'Подписание'] : PIPE).map((p, i) => (
           <div key={p} className={`pipe-step ${i < pi ? 'done' : i === pi ? 'cur' : ''} ${i === pi ? `t-${STATUS[app.status].tone}` : ''}`}>
             <i />
             <span>{p}</span>
@@ -89,7 +92,11 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
                 </div>
               </div>
               <p className="st-text">{d.public_explanation}</p>
-              <p className="st-foot">Демо-версия: подписание документов и выдача средств не выполняются.</p>
+              <p className="st-foot">Демо-версия: электронная подпись имитируется, средства не выдаются.</p>
+              {app.signature && <p className="st-text">Подписано {dateTime(app.signature.signed_at)} · {app.signature.signed_by_display_name}</p>}
+              <div style={{ marginTop: 20 }}>
+                <Button variant="ink" size="lg" onClick={() => setShowAgreement(true)}>{app.status === 'SIGNED' ? 'Посмотреть подписанные условия' : 'Подписать документ'}</Button>
+              </div>
             </>
           ) : d?.outcome === 'REJECTED' ? (
             <>
@@ -133,6 +140,7 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
         </div>
       </section>
 
+      {showAgreement && <AgreementDialog app={app} onClose={() => setShowAgreement(false)} />}
       <div className="st-grid">
         <div className="stack-lg">
           <ChecksCard a={a} animate={justSubmitted} />
@@ -214,41 +222,25 @@ function ChecksCard({ a, animate }: { a: Assessment | null | undefined; animate:
 
 function AssessmentCard({ a }: { a: Assessment }) {
   const cd = a.calculation_details as Record<string, unknown>
-  const factors = (cd.factors as { factor_id: string; points: number }[] | undefined) ?? []
   return (
     <div className="card">
       <SectionTitle n="02" color="red" aside={<span className="hint">правила {a.rules_version}</span>}>
         Оценка
       </SectionTitle>
-      <div className="assess">
+      <div className="assess-stats">
         <div>
-          <span className="label">Риск-балл</span>
-          <RiskMeter score={a.risk_score} band={a.risk_band} />
+          <span>Платёж</span>
+          <b className="num">{money(cd.monthly_payment as string)}</b>
         </div>
-        <div className="assess-stats">
-          <div>
-            <span>Платёж</span>
-            <b className="num">{money(cd.monthly_payment as string)}</b>
-          </div>
-          <div>
-            <span>Нагрузка</span>
-            <b className="num">{percent(cd.load_ratio as string)}</b>
-          </div>
-          <div>
-            <span>Поток в месяц</span>
-            <b className="num">{money(cd.average_operating_cashflow as string)}</b>
-          </div>
+        <div>
+          <span>Нагрузка</span>
+          <b className="num">{percent(cd.load_ratio as string)}</b>
+        </div>
+        <div>
+          <span>Поток в месяц</span>
+          <b className="num">{money(cd.average_operating_cashflow as string)}</b>
         </div>
       </div>
-      {factors.length > 0 && (
-        <div className="factor-row">
-          {factors.map((f) => (
-            <span key={f.factor_id} className="factor">
-              {f.factor_id} <b>+{f.points}</b>
-            </span>
-          ))}
-        </div>
-      )}
       <div style={{ marginTop: 16 }}>
         <Reasons items={a.reasons} />
       </div>

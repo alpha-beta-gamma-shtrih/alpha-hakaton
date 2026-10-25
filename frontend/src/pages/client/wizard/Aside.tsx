@@ -8,6 +8,7 @@ import type { AdvisorMode, AdvisorPriority, AdvisorReport, Candidate, FormStep, 
 import { PixelArt } from '../../../components/pixel'
 import { AnimatedNumber, Button, Checkbox, CheckIcon, useToast } from '../../../components/ui'
 import { money, months, percent, relative } from '../../../lib/format'
+import { clientExplanation } from '../../../lib/clientText'
 import { ADVISOR_CANDIDATE, ROUTING } from '../../../lib/labels'
 import type { readiness, useDraftEditor } from './useDraftEditor'
 
@@ -93,7 +94,6 @@ export function CalcPanel({ ed, ready, scen, locked }: { ed: Editor; ready: Read
               </div>
               <div className="row between" style={{ marginTop: 12 }}>
                 <span className={`route r-${base.preliminary_route}`}>{base.preliminary_route ? ROUTING[base.preliminary_route] : '—'}</span>
-                <span className="calc-score">риск-балл {base.risk_score ?? '—'}</span>
               </div>
             </div>
           ) : (
@@ -297,7 +297,7 @@ export function AdvisorReportView({ report, light }: { report: AdvisorReport; li
       {report.mode === 'COMPARE' && <p className="hint">Приоритет разбора: {PRIORITIES[report.priority ?? 'BALANCED']}. {report.preferred_candidate_ids?.length
         ? `По демо-правилам и этому критерию: ${report.preferred_candidate_ids.map((id) => ADVISOR_CANDIDATE[id as Candidate['candidate_id']]?.label ?? id).join(', ')}. Выбор остаётся за вами.`
         : 'Победитель не выбран: сравнение условное, проверьте ограничения каждого варианта.'}</p>}
-      <p className="advisor-summary">{ex.summary.text}</p>
+      <p className="advisor-summary">{clientExplanation(ex.summary.text)}</p>
       {ex.comparisons.length > 0 && (
         <div className="advisor-cmp">
           {ex.comparisons.map((c) => {
@@ -307,7 +307,7 @@ export function AdvisorReportView({ report, light }: { report: AdvisorReport; li
                 <span className="variant-tag" style={{ ['--vc' as string]: meta.color }}>
                   {meta.label}
                 </span>
-                <p>{c.text}</p>
+                <p>{clientExplanation(c.text)}</p>
               </div>
             )
           })}
@@ -315,10 +315,10 @@ export function AdvisorReportView({ report, light }: { report: AdvisorReport; li
       )}
       {ex.next_step?.text && (
         <div className="advisor-next">
-          <b>Дальше:</b> {ex.next_step.text}
+          <b>Дальше:</b> {clientExplanation(ex.next_step.text)}
         </div>
       )}
-      <p className="advisor-notice">{ex.notice}</p>
+      <p className="advisor-notice">{clientExplanation(ex.notice)}</p>
     </div>
   )
 }

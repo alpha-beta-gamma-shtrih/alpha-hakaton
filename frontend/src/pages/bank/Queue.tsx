@@ -15,8 +15,9 @@ const ACTIVE_FILTERS: { id: string; label: string; statuses: ApplicationStatus[]
   { id: 'proc', label: 'В обработке', statuses: ['SUBMITTED', 'CHECKING'] },
 ]
 const FINAL_FILTERS: { id: string; label: string; statuses: ApplicationStatus[] }[] = [
-  { id: 'all', label: 'Все решения', statuses: ['APPROVED', 'REJECTED'] },
-  { id: 'ok', label: 'Одобрено', statuses: ['APPROVED'] },
+  { id: 'all', label: 'Все решения', statuses: ['APPROVED', 'REJECTED', 'SIGNED'] },
+  { id: 'ok', label: 'Одобрено', statuses: ['APPROVED', 'SIGNED'] },
+  { id: 'signed', label: 'Подписано', statuses: ['SIGNED'] },
   { id: 'no', label: 'Отказано', statuses: ['REJECTED'] },
 ]
 
@@ -53,7 +54,7 @@ export function QueuePage({ mode }: { mode: 'active' | 'final' }) {
             </>
           ) : (
             <>
-              <Kpi v={count(['APPROVED'])} k="одобрено" accent />
+              <Kpi v={count(['APPROVED', 'SIGNED'])} k="одобрено" accent />
               <Kpi v={count(['REJECTED'])} k="отказано" />
             </>
           )}

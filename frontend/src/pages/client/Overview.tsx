@@ -131,8 +131,8 @@ export function OverviewPage() {
         {[
           { n: '1', t: 'Потребность', d: 'Цель, сумма и срок. Платёж считаем сразу.', c: 'red' },
           { n: '2', t: 'Сведения', d: 'Реквизиты и финансы уже заполнены из профиля компании.', c: 'red' },
-          { n: '3', t: 'Проверки', d: 'Юридический статус, кредитная история и правила продукта.', c: 'violet' },
-          { n: '4', t: 'Решение', d: 'Одобрение, отказ, уточнение или разбор специалистом.', c: 'violet' },
+          { n: '3', t: 'Проверки', d: 'Юридический статус, кредитная история и правила продукта.', c: 'red' },
+          { n: '4', t: 'Решение', d: 'Одобрение, отказ, уточнение или разбор специалистом.', c: 'red' },
         ].map((s) => (
           <div key={s.n} className="card path-card">
             <span className={`big-n ${s.c}`}>{s.n}</span>
@@ -231,7 +231,7 @@ export function AppCard({ app }: { app: Draft }) {
         <span>·</span>
         <span>{app.purpose_code ? PURPOSE[app.purpose_code].label : 'Цель не выбрана'}</span>
       </div>
-      {app.decision?.monthly_payment && app.status === 'APPROVED' && (
+      {app.decision?.monthly_payment && (app.status === 'APPROVED' || app.status === 'SIGNED') && (
         <div className="app-card-pay">
           Платёж <b className="num">{money(app.decision.monthly_payment)}</b> / мес
         </div>

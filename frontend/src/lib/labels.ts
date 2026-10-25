@@ -8,10 +8,11 @@ export const STATUS: Record<ApplicationStatus, { label: string; tone: string; co
   NEEDS_INFO: { label: 'Нужны уточнения', tone: 'needs_info', color: 'var(--amber)', hint: 'Дополните сведения и отправьте заявку снова.' },
   MANUAL_REVIEW: { label: 'На рассмотрении специалиста', tone: 'manual_review', color: 'var(--violet)', hint: 'Заявку изучает сотрудник банка.' },
   APPROVED: { label: 'Одобрено', tone: 'approved', color: 'var(--lime)', hint: 'Решение принято. Условия ниже.' },
+  SIGNED: { label: 'Подписано', tone: 'approved', color: 'var(--lime)', hint: 'Демо-документ подписан. Электронная подпись имитирована, средства не выдаются.' },
   REJECTED: { label: 'Отказано', tone: 'rejected', color: 'var(--red)', hint: 'Решение принято. Причины ниже.' },
 }
 
-export const FINAL_STATUSES: ApplicationStatus[] = ['APPROVED', 'REJECTED']
+export const FINAL_STATUSES: ApplicationStatus[] = ['APPROVED', 'REJECTED', 'SIGNED']
 export const EDITABLE_STATUSES: ApplicationStatus[] = ['DRAFT', 'NEEDS_INFO']
 export const PROCESSING_STATUSES: ApplicationStatus[] = ['SUBMITTED', 'CHECKING']
 
@@ -101,6 +102,7 @@ export const EVENT_LABELS: Record<string, string> = {
   PROCESSING_STARTED: 'Начата обработка',
   CHECKS_COMPLETED: 'Проверки завершены',
   DECISION_MADE: 'Решение зафиксировано',
+  AGREEMENT_SIGNED: 'Демо-документ подписан',
   INFO_REQUESTED: 'Запрошены уточнения',
   INFORMATION_REQUESTED: 'Запрошены уточнения',
   MANUAL_DECISION: 'Решение сотрудника',

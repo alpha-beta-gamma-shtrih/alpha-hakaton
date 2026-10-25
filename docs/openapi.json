@@ -439,6 +439,216 @@
         }
       }
     },
+    "/api/applications/{application_id}/agreement": {
+      "get": {
+        "tags": [
+          "agreements"
+        ],
+        "summary": "Read Agreement",
+        "operationId": "read_agreement_api_applications__application_id__agreement_get",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgreementResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/applications/{application_id}/agreement/sign": {
+      "post": {
+        "tags": [
+          "agreements"
+        ],
+        "summary": "Sign Agreement",
+        "operationId": "sign_agreement_api_applications__application_id__agreement_sign_post",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignAgreementRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
     "/api/companies": {
       "get": {
         "tags": [
@@ -1988,7 +2198,8 @@
                       "NEEDS_INFO",
                       "MANUAL_REVIEW",
                       "APPROVED",
-                      "REJECTED"
+                      "REJECTED",
+                      "SIGNED"
                     ],
                     "type": "string"
                   }
@@ -4155,6 +4366,128 @@
         ],
         "title": "AdvisorResponse"
       },
+      "AgreementContent": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "DEMO-1",
+            "title": "Schema Version",
+            "default": "DEMO-1"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          },
+          "issued_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Issued At"
+          },
+          "application_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Application Id"
+          },
+          "revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Revision Id"
+          },
+          "decision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Decision Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "inn": {
+            "type": "string",
+            "title": "Inn"
+          },
+          "purpose_code": {
+            "$ref": "#/components/schemas/Purpose"
+          },
+          "approved_amount": {
+            "type": "string",
+            "title": "Approved Amount"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "annual_rate_percent": {
+            "type": "string",
+            "title": "Annual Rate Percent"
+          },
+          "monthly_payment": {
+            "type": "string",
+            "title": "Monthly Payment"
+          },
+          "estimated_total_payment": {
+            "type": "string",
+            "title": "Estimated Total Payment"
+          },
+          "estimated_overpayment": {
+            "type": "string",
+            "title": "Estimated Overpayment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "notice",
+          "issued_at",
+          "application_id",
+          "revision_id",
+          "decision_id",
+          "company_name",
+          "inn",
+          "purpose_code",
+          "approved_amount",
+          "term_months",
+          "annual_rate_percent",
+          "monthly_payment",
+          "estimated_total_payment",
+          "estimated_overpayment"
+        ],
+        "title": "AgreementContent"
+      },
+      "AgreementResponse": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/AgreementContent"
+          },
+          "content_sha256": {
+            "type": "string",
+            "title": "Content Sha256"
+          },
+          "signature": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SignatureResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "content_sha256",
+          "signature"
+        ],
+        "title": "AgreementResponse"
+      },
       "ApplicationStatus": {
         "type": "string",
         "enum": [
@@ -4164,6 +4497,7 @@
           "NEEDS_INFO",
           "MANUAL_REVIEW",
           "APPROVED",
+          "SIGNED",
           "REJECTED"
         ],
         "title": "ApplicationStatus"
@@ -4442,6 +4776,16 @@
             },
             "type": "array",
             "title": "Allowed Actions"
+          },
+          "signature": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SignatureResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "revision": {
             "$ref": "#/components/schemas/RevisionResponse"
@@ -6065,11 +6409,22 @@
               "type": "string",
               "enum": [
                 "EDIT_DRAFT",
-                "SUBMIT"
+                "SUBMIT",
+                "SIGN_AGREEMENT"
               ]
             },
             "type": "array",
             "title": "Allowed Actions"
+          },
+          "signature": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SignatureResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "open_information_request": {
             "anyOf": [
@@ -7258,6 +7613,75 @@
           "idle_expires_at"
         ],
         "title": "SessionResponse"
+      },
+      "SignAgreementRequest": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Expected Version"
+          },
+          "decision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Decision Id"
+          },
+          "content_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Content Sha256"
+          },
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "decision_id",
+          "content_sha256",
+          "accepted"
+        ],
+        "title": "SignAgreementRequest"
+      },
+      "SignatureResponse": {
+        "properties": {
+          "decision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Decision Id"
+          },
+          "content_sha256": {
+            "type": "string",
+            "title": "Content Sha256"
+          },
+          "signed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Signed At"
+          },
+          "signed_by_display_name": {
+            "type": "string",
+            "title": "Signed By Display Name"
+          },
+          "method": {
+            "type": "string",
+            "const": "DEMO",
+            "title": "Method",
+            "default": "DEMO"
+          }
+        },
+        "type": "object",
+        "required": [
+          "decision_id",
+          "content_sha256",
+          "signed_at",
+          "signed_by_display_name"
+        ],
+        "title": "SignatureResponse"
       },
       "SubmissionResponse": {
         "properties": {

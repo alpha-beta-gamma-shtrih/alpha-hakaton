@@ -187,7 +187,7 @@ export function Tabs<T extends string>({ value, onChange, items }: { value: T; o
 }
 
 /* ---------------- Modal ---------------- */
-export function Modal({ open, onClose, children, width }: { open: boolean; onClose: () => void; children: ReactNode; width?: number }) {
+export function Modal({ open, onClose, children, width, labelledBy }: { open: boolean; onClose: () => void; children: ReactNode; width?: number; labelledBy?: string }) {
   useEffect(() => {
     if (!open) return
     const h = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -202,7 +202,7 @@ export function Modal({ open, onClose, children, width }: { open: boolean; onClo
   if (!open) return null
   return createPortal(
     <div className="modal-back" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" role="dialog" aria-modal="true" style={width ? { width: `min(${width}px, 100%)` } : undefined}>
+      <div className="modal" role="dialog" aria-modal="true" aria-labelledby={labelledBy} style={width ? { width: `min(${width}px, 100%)` } : undefined}>
         {children}
       </div>
     </div>,

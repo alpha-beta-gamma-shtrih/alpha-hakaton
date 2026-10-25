@@ -1,4 +1,4 @@
-SCHEMA_REVISION = "0006_scenario_sets"
+SCHEMA_REVISION = "0007_demo_signing"
 SESSION_COOKIE = "credit_session"
 LOGIN_COOKIE = "credit_login"
 CSRF_HEADER = "X-CSRF-Token"

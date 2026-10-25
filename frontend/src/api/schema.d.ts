@@ -89,6 +89,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/applications/{application_id}/agreement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Agreement */
+        get: operations["read_agreement_api_applications__application_id__agreement_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/applications/{application_id}/agreement/sign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign Agreement */
+        post: operations["sign_agreement_api_applications__application_id__agreement_sign_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/companies": {
         parameters: {
             query?: never;
@@ -631,11 +665,68 @@ export interface components {
              */
             created_at: string;
         };
+        /** AgreementContent */
+        AgreementContent: {
+            /**
+             * Schema Version
+             * @default DEMO-1
+             * @constant
+             */
+            schema_version?: "DEMO-1";
+            /** Title */
+            title: string;
+            /** Notice */
+            notice: string;
+            /**
+             * Issued At
+             * Format: date-time
+             */
+            issued_at: string;
+            /**
+             * Application Id
+             * Format: uuid
+             */
+            application_id: string;
+            /**
+             * Revision Id
+             * Format: uuid
+             */
+            revision_id: string;
+            /**
+             * Decision Id
+             * Format: uuid
+             */
+            decision_id: string;
+            /** Company Name */
+            company_name: string;
+            /** Inn */
+            inn: string;
+            purpose_code: components["schemas"]["Purpose"];
+            /** Approved Amount */
+            approved_amount: string;
+            /** Term Months */
+            term_months: number;
+            /** Annual Rate Percent */
+            annual_rate_percent: string;
+            /** Monthly Payment */
+            monthly_payment: string;
+            /** Estimated Total Payment */
+            estimated_total_payment: string;
+            /** Estimated Overpayment */
+            estimated_overpayment: string;
+        };
+        /** AgreementResponse */
+        AgreementResponse: {
+            content: components["schemas"]["AgreementContent"];
+            /** Content Sha256 */
+            content_sha256: string;
+            signature: components["schemas"]["SignatureResponse"] | null;
+        };
         /**
          * ApplicationStatus
          * @enum {string}
          */
-        ApplicationStatus: "DRAFT" | "SUBMITTED" | "CHECKING" | "NEEDS_INFO" | "MANUAL_REVIEW" | "APPROVED" | "REJECTED";
+        ApplicationStatus: "DRAFT" | "SUBMITTED" | "CHECKING" | "NEEDS_INFO" | "MANUAL_REVIEW" | "APPROVED" | "SIGNED" | "REJECTED";
         /** AssessmentResponse */
         AssessmentResponse: {
             /**
@@ -767,6 +858,7 @@ export interface components {
             submitted_at: string;
             /** Allowed Actions */
             allowed_actions: ("REQUEST_INFO" | "APPROVE" | "REJECT" | "RETRY_PROCESSING")[];
+            signature?: components["schemas"]["SignatureResponse"] | null;
             revision: components["schemas"]["RevisionResponse"];
             assessment: components["schemas"]["BankAssessmentResponse"] | null;
             decision: components["schemas"]["BankDecisionResponse"] | null;
@@ -1369,7 +1461,8 @@ export interface components {
             policy_version: string;
             provenance: components["schemas"]["ProvenanceResponse"];
             /** Allowed Actions */
-            allowed_actions: ("EDIT_DRAFT" | "SUBMIT")[];
+            allowed_actions: ("EDIT_DRAFT" | "SUBMIT" | "SIGN_AGREEMENT")[];
+            signature?: components["schemas"]["SignatureResponse"] | null;
             open_information_request?: components["schemas"]["InformationRequestResponse"] | null;
             decision?: components["schemas"]["DecisionResponse"] | null;
             /** Latest Revision Id */
@@ -1814,6 +1907,43 @@ export interface components {
              */
             idle_expires_at: string;
         };
+        /** SignAgreementRequest */
+        SignAgreementRequest: {
+            /** Expected Version */
+            expected_version: number;
+            /**
+             * Decision Id
+             * Format: uuid
+             */
+            decision_id: string;
+            /** Content Sha256 */
+            content_sha256: string;
+            /** Accepted */
+            accepted: boolean;
+        };
+        /** SignatureResponse */
+        SignatureResponse: {
+            /**
+             * Decision Id
+             * Format: uuid
+             */
+            decision_id: string;
+            /** Content Sha256 */
+            content_sha256: string;
+            /**
+             * Signed At
+             * Format: date-time
+             */
+            signed_at: string;
+            /** Signed By Display Name */
+            signed_by_display_name: string;
+            /**
+             * Method
+             * @default DEMO
+             * @constant
+             */
+            method?: "DEMO";
+        };
         /** SubmissionResponse */
         SubmissionResponse: {
             application: components["schemas"]["DraftResponse"];
@@ -2187,6 +2317,148 @@ export interface operations {
             };
             /** @description Service Unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    read_agreement_api_applications__application_id__agreement_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-CSRF-Token"?: string | null;
+            };
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgreementResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sign_agreement_api_applications__application_id__agreement_sign_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-CSRF-Token"?: string | null;
+            };
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignAgreementRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3234,7 +3506,7 @@ export interface operations {
     queue_api_bank_applications_get: {
         parameters: {
             query?: {
-                status?: ("SUBMITTED" | "CHECKING" | "NEEDS_INFO" | "MANUAL_REVIEW" | "APPROVED" | "REJECTED")[] | null;
+                status?: ("SUBMITTED" | "CHECKING" | "NEEDS_INFO" | "MANUAL_REVIEW" | "APPROVED" | "REJECTED" | "SIGNED")[] | null;
                 company_id?: string | null;
                 limit?: number;
                 offset?: number;

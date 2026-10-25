@@ -294,7 +294,8 @@ class DraftResponse(BaseModel):
     calculation_date: date
     policy_version: str
     provenance: ProvenanceResponse
-    allowed_actions: list[Literal["EDIT_DRAFT", "SUBMIT"]]
+    allowed_actions: list[Literal["EDIT_DRAFT", "SUBMIT", "SIGN_AGREEMENT"]]
+    signature: "SignatureResponse | None" = None
     open_information_request: InformationRequestResponse | None = None
     decision: DecisionResponse | None = None
     latest_revision_id: UUID | None = None
@@ -324,3 +325,14 @@ class EventResponse(BaseModel):
 
 class EventList(BaseModel):
     items: list[EventResponse]
+
+
+class SignatureResponse(BaseModel):
+    decision_id: UUID
+    content_sha256: str
+    signed_at: datetime
+    signed_by_display_name: str
+    method: Literal["DEMO"] = "DEMO"
+
+
+DraftResponse.model_rebuild()

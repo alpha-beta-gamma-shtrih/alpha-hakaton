@@ -2,6 +2,8 @@ import { get, patch, post, qs, resetCsrf, request } from './client'
 import type {
   AdvisorMode,
   AdvisorPriority,
+  Agreement,
+  SignAgreementRequest,
   AdvisorReport,
   BankCard,
   BankEvent,
@@ -54,6 +56,8 @@ export const catalog = {
 export const applications = {
   list: (companyId?: string) => get<Page<Draft>>(`/api/applications${qs({ limit: 100, company_id: companyId })}`),
   get: (id: string) => get<Draft>(`/api/applications/${id}`),
+  agreement: (id: string) => get<Agreement>(`/api/applications/${id}/agreement`),
+  signAgreement: (id: string, body: SignAgreementRequest) => post<Draft>(`/api/applications/${id}/agreement/sign`, body),
   create: (company_id: string, product_id: string) => post<Draft>('/api/applications', { company_id, product_id }),
   patch: (id: string, body: DraftPatch) => patch<Draft>(`/api/applications/${id}`, body),
   /** Deletes a never-submitted draft (the backend archives it). */

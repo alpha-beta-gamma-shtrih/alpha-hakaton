@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 
 from credit_cabinet.api import (
     advisor,
+    agreements,
     auth,
     bank,
     business,
@@ -99,6 +100,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             request_id_context.reset(context_token)
 
     app.include_router(auth.router)
+    app.include_router(agreements.router)
     app.include_router(business.router)
     app.include_router(submissions.router)
     app.include_router(bank.router)

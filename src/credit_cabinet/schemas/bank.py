@@ -14,12 +14,15 @@ from credit_cabinet.schemas.business import (
     MoneyOutput,
     PositiveInteger,
     ReasonResponse,
+    SignatureResponse,
     StrictModel,
 )
 from credit_cabinet.schemas.submissions import RevisionResponse
 
 BankAction = Literal["REQUEST_INFO", "APPROVE", "REJECT", "RETRY_PROCESSING"]
-BankStatus = Literal["SUBMITTED", "CHECKING", "NEEDS_INFO", "MANUAL_REVIEW", "APPROVED", "REJECTED"]
+BankStatus = Literal[
+    "SUBMITTED", "CHECKING", "NEEDS_INFO", "MANUAL_REVIEW", "APPROVED", "REJECTED", "SIGNED"
+]
 ACTIVE_BANK_STATUSES = ("SUBMITTED", "CHECKING", "NEEDS_INFO", "MANUAL_REVIEW")
 REQUESTABLE_FIELDS = frozenset(
     {
@@ -113,6 +116,7 @@ class BankQueuePage(BaseModel):
 
 
 class BankCard(BankQueueItem):
+    signature: SignatureResponse | None = None
     revision: RevisionResponse
     assessment: BankAssessmentResponse | None
     decision: BankDecisionResponse | None

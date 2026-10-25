@@ -1,10 +1,12 @@
 # База данных: спецификация для demo-0.2
 
-> Обновление demo-0.3: для нового продукта WC_DEMO/version=3 действуют [PRICING.md](PRICING.md) и [PRICING_CHECK.md](PRICING_CHECK.md): 20% минимум, 6–60 месяцев, пять целей и персональные скидки. Числа demo-0.2 ниже относятся к историческому продукту v2. Условия добавила 0005_personal_pricing; текущая вершина — 0006_scenario_sets.
+> Обновление demo-0.3: для нового продукта WC_DEMO/version=3 действуют [PRICING.md](PRICING.md) и [PRICING_CHECK.md](PRICING_CHECK.md): 20% минимум, 6–60 месяцев, пять целей и персональные скидки. Числа demo-0.2 ниже относятся к историческому продукту v2. Условия добавила 0005_personal_pricing; текущая вершина — 0007_demo_signing.
 
 > Рабочий seed теперь содержит 144 компании и 146 аккаунтов; схема БД и 15 таблиц остались прежними. Что импортируется в PostgreSQL, что остаётся файлами и как обновлять заполненную БД — [DATA_VALIDATION.md](DATA_VALIDATION.md).
 
-> Обновление 25 октября: актуальная вершина — 0006_scenario_sets. В applications добавлено nullable JSONB-поле scenario_set: id/дата набора, рассчитанные кандидаты, выбранный candidate_id, хеш расчётного контекста и признак ручной правки суммы/срока. Поле меняет только backend; PATCH черновика его не принимает. Оно не входит в неизменяемый снимок: снимок фиксирует выбранные параметры. Таблиц остаётся 15. Подробности — [SCENARIO_SETS_CHECK.md](SCENARIO_SETS_CHECK.md).
+> Сохранённые предложения добавила 0006_scenario_sets. В applications добавлено nullable JSONB-поле scenario_set: id/дата набора, рассчитанные кандидаты, выбранный candidate_id, хеш расчётного контекста и признак ручной правки суммы/срока. Поле меняет только backend; PATCH черновика его не принимает. Оно не входит в неизменяемый снимок: снимок фиксирует выбранные параметры. Таблиц остаётся 15. Подробности — [SCENARIO_SETS_CHECK.md](SCENARIO_SETS_CHECK.md).
+
+> Демо-подписание добавила 0007_demo_signing: applications.signing_record хранит финальный документ, SHA-256, decision_id, автора, дату и method=DEMO. После подписания статус SIGNED; триггер запрещает менять сохранённую запись. Новых таблиц и внешнего ЭДО нет. Проверка — [SIGNING_CHECK.md](SIGNING_CHECK.md).
 
 Базовая схема demo-0.2 (актуальное расширение — PRICING.md), синхронизированная с [SYNTETIC.md](SYNTETIC.md), schema_version=2 / demo-policy-0.2. Набор и продукт: demo-0.2 / WC_DEMO/version=2. schema_version — версия предметного контракта, не миграция Alembic. Все 15 ORM-моделей реализованы в src/credit_cabinet/models; начальная миграция — migrations/versions/0001_demo_02.py. Импорт, сессии, черновики, отправки/снимки, оценки/проверки, автоматические решения и дозапросы уже работают. Миграция 0002_revision_immutability запрещает UPDATE/DELETE отправленных версий, 0003_document_immutability — метаданных документов. Банковские чтения, ручной дозапрос/решение и retry реализованы по BANK_CHECK.md; документы и права выдачи — DOCUMENTS_CHECK.md. Общая архитектура: [ARCHITECTURE.md](ARCHITECTURE.md). Интерфейсы и жизненный цикл: [USER_FLOWS.md](USER_FLOWS.md).
 
@@ -142,7 +144,7 @@ ui_context — удобство восстановления, а не разре
 | company_id | UUID → companies |
 | created_by_user_id | UUID → users |
 | product_id | UUID → credit_products, конкретная версия |
-| status | DRAFT / SUBMITTED / CHECKING / NEEDS_INFO / MANUAL_REVIEW / APPROVED / REJECTED |
+| status | DRAFT / SUBMITTED / CHECKING / NEEDS_INFO / MANUAL_REVIEW / APPROVED / REJECTED / SIGNED |
 | requested_amount | NUMERIC(18,2)?, сумма черновика |
 | term_months | INTEGER?, срок черновика |
 | purpose_code / purpose_details | TEXT? / TEXT?, цель и пояснение |
@@ -151,13 +153,16 @@ ui_context — удобство восстановления, а не разре
 | lock_version | INTEGER, версия для защиты от параллельного изменения |
 | calculation_date | DATE, дата, на которую рассчитаны демонстрационные финансовые признаки |
 | submitted_at | TIMESTAMPTZ?, время первой отправки |
-| closed_at | TIMESTAMPTZ?, итоговый результат |
+| closed_at | TIMESTAMPTZ?, время финального банковского решения; сохраняется при подписании |
+| signing_record | JSONB?, неизменяемые content, content_sha256, decision_id, signed_by_user_id, signed_by_display_name, signed_at, method=DEMO; заполнено только у SIGNED |
 | archived_at | TIMESTAMPTZ?, мягкое удаление только неотправленного DRAFT; скрыт из кабинета и закрыт для доступа |
 | updated_at | TIMESTAMPTZ |
 
 Черновик может быть неполным. Перед отправкой обязательны базовые параметры и валидные типы; недостаток дополнительных сведений может быть основанием дозапроса. Не создаем отдельную таблицу черновиков. До финала requested_amount и другие рабочие поля могут меняться только в разрешенном статусе. Банк читает отправленный снимок, не эти редактируемые поля. В текущем синхронном обработчике SUBMITTED фиксируется отдельно до проверки, итоговая оценка/статус/решение/события — второй транзакцией; CHECKING зарезервирован для последующего длительного обработчика.
 
 Перед submit проверяются оба confirmations=true; отсутствие подтверждения БКИ — 422, не новая отправка/оценка/кредитный отказ. Клиент не может записать юридический is_bankrupt или назначить provenance=MOCK_BKI. Предпросмотр без подтверждения ограничен платежом/переплатой и не обращается к источникам. /advisor до подтверждения также возвращает 422, не вызывает LLM.
+
+Подписание не создаёт новую отправку или решение. Условия берутся из финального Decision, реквизиты/цель — из его ApplicationRevision. В signing_record.content сохраняется отдельный документ: сумма, срок, ставка, платёж, расчётные выплаты/переплата, компания, цель, ссылки на заявку/решение/отправку, текст демонстрационной оговорки и версия шаблона DEMO-1. SHA-256 охватывает весь документ. Время подписи — серверное UTC. В обычных API клиента и банка signature содержит только дату, имя участника, method, decision_id и хеш; внутренний user_id не раскрывается. Запись события AGREEMENT_SIGNED и переход APPROVED → SIGNED атомарны. Исходные снимки, оценки и решение остаются прежними; дальнейшее редактирование заявки запрещено.
 
 ### 5.2. application_revisions
 
@@ -287,7 +292,7 @@ provenance хранится в существующих JSONB снимков, in
 | revision_id | UUID? → application_revisions |
 | sequence_no | INTEGER, уникален внутри заявки, стабильный порядок |
 | actor_user_id | UUID? → users; null для системного действия |
-| event_type | DRAFT_CREATED / SUBMITTED / CHECKS_COMPLETED / INFO_REQUESTED / INFO_ANSWERED / DECISION_MADE / PROCESSING_RETRIED и согласованные расширения |
+| event_type | DRAFT_CREATED / SUBMITTED / CHECKS_COMPLETED / INFO_REQUESTED / INFO_ANSWERED / DECISION_MADE / PROCESSING_RETRIED / DRAFT_ARCHIVED / AGREEMENT_SIGNED |
 | from_status / to_status | TEXT? / TEXT?, если был переход |
 | visibility | CLIENT / BANK |
 | message | TEXT, подходящее для этой аудитории описание |
@@ -381,6 +386,7 @@ erDiagram
 | Дозапрос | information_request(OPEN), NEEDS_INFO, клиентское событие |
 | Ответ | Новый revision, request(ANSWERED), новая оценка, старые записи сохраняются |
 | Ручное/автоматическое решение | decisions, APPROVED/REJECTED, closed_at, событие |
+| Демо-подписание | applications.signing_record, SIGNED, версия +1 и событие AGREEMENT_SIGNED; решение и closed_at сохраняются |
 | Повторная обработка после сбоя | Тот же revision, новый assessment run, история повтора |
 | Выход/истечение | Отзыв или истечение auth_session; заявка, отчеты и история не удаляются |
 | Удаление неотправленного черновика | archived_at + lock_version + событие DRAFT_ARCHIVED; связанные записи/файлы остаются, доступ по API закрывается |

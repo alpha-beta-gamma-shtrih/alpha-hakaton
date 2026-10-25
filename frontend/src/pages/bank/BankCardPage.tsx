@@ -72,8 +72,8 @@ export function BankCardPage() {
     <div className="page">
       <div className="wz-head">
         <div>
-          <Link to={c.status === 'APPROVED' || c.status === 'REJECTED' ? '/bank/decisions' : '/bank'} className="back">
-            <Arrow dir="left" /> {c.status === 'APPROVED' || c.status === 'REJECTED' ? 'Решения' : 'Очередь'}
+          <Link to={c.status === 'APPROVED' || c.status === 'REJECTED' || c.status === 'SIGNED' ? '/bank/decisions' : '/bank'} className="back">
+            <Arrow dir="left" /> {c.status === 'APPROVED' || c.status === 'REJECTED' || c.status === 'SIGNED' ? 'Решения' : 'Очередь'}
           </Link>
           <h1 className="page-title" style={{ fontSize: 'clamp(26px,3.6vw,42px)' }}>
             {c.company_name}
@@ -125,12 +125,13 @@ export function BankCardPage() {
         </section>
 
         <section className="card bc-actions">
+          {c.signature && <Notice tone="ok">Демо-документ подписан {dateTime(c.signature.signed_at)} · {c.signature.signed_by_display_name}. Выдача средств не выполнялась.</Notice>}
           <h3 className="card-title">Действия</h3>
           {acts.length === 0 ? (
             <p className="muted" style={{ marginTop: 10 }}>
               {c.status === 'NEEDS_INFO'
                 ? 'Ждём ответа клиента. После новой отправки заявка вернётся в очередь.'
-                : c.status === 'APPROVED' || c.status === 'REJECTED'
+                : c.status === 'APPROVED' || c.status === 'REJECTED' || c.status === 'SIGNED'
                   ? 'Заявка завершена. Новое решение по ней не принимается.'
                   : 'Сейчас действий сотрудника не требуется.'}
             </p>
