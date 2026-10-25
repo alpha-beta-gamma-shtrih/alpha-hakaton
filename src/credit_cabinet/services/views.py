@@ -88,7 +88,11 @@ def decision_view(row):
 
 
 def enrich_application(db, application, response):
-    response.signature = SignatureResponse.model_validate(application.signing_record) if application.signing_record else None
+    response.signature = (
+        SignatureResponse.model_validate(application.signing_record)
+        if application.signing_record
+        else None
+    )
     revision = db.scalar(
         select(ApplicationRevision)
         .where(ApplicationRevision.application_id == application.id)

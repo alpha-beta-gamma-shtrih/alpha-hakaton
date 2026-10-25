@@ -107,11 +107,19 @@ def build_facts(comparison, application, mode):
         else "Финансы взяты из синтетического демо-профиля; проверки также демонстрационные.",
     )
     card("PRELIMINARY_ONLY", "Сравнение не является решением банка и не изменяет заявку.")
-    if application.status in (ApplicationStatus.APPROVED, ApplicationStatus.REJECTED, ApplicationStatus.SIGNED):
+    if application.status in (
+        ApplicationStatus.APPROVED,
+        ApplicationStatus.REJECTED,
+        ApplicationStatus.SIGNED,
+    ):
         card(
             "SAVED_DECISION",
             "По отправленной версии уже сохранено решение: "
-            + ("одобрено." if application.status in (ApplicationStatus.APPROVED, ApplicationStatus.SIGNED) else "отказано.")
+            + (
+                "одобрено."
+                if application.status in (ApplicationStatus.APPROVED, ApplicationStatus.SIGNED)
+                else "отказано."
+            )
             + " Предварительные варианты его не заменяют.",
         )
     for candidate in candidates:
@@ -195,9 +203,14 @@ def build_facts(comparison, application, mode):
             else "RETRY_CHECK"
             if any(code.startswith("SOURCE_") for code in reasons)
             else "RESOLVE_RESTRICTION"
-            if set(reasons) & {
-                "COMPANY_NOT_ACTIVE", "COMPANY_BANKRUPTCY", "BUSINESS_TOO_YOUNG",
-                "CURRENT_OVERDUE", "SEVERE_OVERDUE_HISTORY", "LEGAL_STATUS_UNCONFIRMED",
+            if set(reasons)
+            & {
+                "COMPANY_NOT_ACTIVE",
+                "COMPANY_BANKRUPTCY",
+                "BUSINESS_TOO_YOUNG",
+                "CURRENT_OVERDUE",
+                "SEVERE_OVERDUE_HISTORY",
+                "LEGAL_STATUS_UNCONFIRMED",
                 "COMPANY_DATA_MISMATCH",
             }
             else "REVIEW_SUBMISSION"

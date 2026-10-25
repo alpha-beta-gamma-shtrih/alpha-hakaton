@@ -118,7 +118,9 @@ def card(db, application, revision):
         )
     )
     return BankCard(
-        signature=SignatureResponse.model_validate(application.signing_record) if application.signing_record else None,
+        signature=SignatureResponse.model_validate(application.signing_record)
+        if application.signing_record
+        else None,
         **queue_item(db, application, revision, assessment).model_dump(),
         revision=revision_view(revision),
         assessment=bank_assessment_view(db, assessment, revision) if assessment else None,
