@@ -9,6 +9,7 @@ jobs:
     env:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
       ACME_EMAIL: ${{ secrets.ACME_EMAIL }}
     steps:
       - uses: actions/checkout@v3
@@ -20,21 +21,21 @@ jobs:
           known_hosts: just-a-placeholder-so-we-dont-get-errors
 
       - name: Adding Known Hosts
-        run: ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+        run: ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
       - name: Makedir
         run: |
-          ssh "$SSH_USER@$SSH_HOST" "mkdir -p traefik/letsencrypt"
-          ssh "$SSH_USER@$SSH_HOST" 'docker network inspect apps_subnet >/dev/null 2>&1 || docker network create apps_subnet'
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "mkdir -p traefik/letsencrypt"
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'docker network inspect apps_subnet >/dev/null 2>&1 || docker network create apps_subnet'
 
       - name: Deploy docker-compose file
-        run: scp ./traefik/compose.yaml "$SSH_USER@$SSH_HOST:~/traefik/"
+        run: scp -P "$SSH_PORT" ./traefik/compose.yaml "$SSH_USER@$SSH_HOST:~/traefik/"
 
       - name: Start docker-compose
         run: >
-          ssh "$SSH_USER@$SSH_HOST"
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST"
           "ACME_EMAIL=$(printf '%q' "$ACME_EMAIL")
           docker compose -f traefik/compose.yaml up --force-recreate -d"
 
       - name: Prune unused images
-        run: ssh "$SSH_USER@$SSH_HOST" docker image prune -f
+        run: ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" docker image prune -f
