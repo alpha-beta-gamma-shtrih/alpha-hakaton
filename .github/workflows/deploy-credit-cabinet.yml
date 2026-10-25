@@ -40,7 +40,7 @@ jobs:
       - name: Run backend tests with PostgreSQL
         if: inputs.run_tests
         env:
-          POSTGRES_PASSWORD: ci-only-database-password
+          DATABASE_URL: postgresql+psycopg://credit_test:isolated-test-password@postgres-test:5432/credit_test
           DEMO_USER_PASSWORD: ci-only-demo-password
           CSRF_SIGNING_KEY: ci-only-signing-key-with-more-than-32-characters
         run: |
