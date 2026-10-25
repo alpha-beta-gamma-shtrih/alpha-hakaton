@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { FinTable } from '../../components/FinTable'
 import { useEffect, useState } from 'react'
 import { PricingBreakdown } from '../../components/PricingBreakdown'
@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { applications } from '../../api/endpoints'
 import type { Assessment, CheckSource, Draft, EventItem } from '../../api/types'
 import { PixelArt, type PixelShape } from '../../components/pixel'
-import { Arrow, Button, Notice, ProvenanceBadge, Reasons, SectionTitle, Skeleton, StatusChip } from '../../components/ui'
+import { Arrow, Button, ErrorNotice, Notice, ProvenanceBadge, Reasons, SectionTitle, Skeleton, StatusChip, useToast } from '../../components/ui'
 import { dateTime, money, months, percent, shortId } from '../../lib/format'
 import { CHECK_SOURCE, CHECK_STATUS, eventLabel, PURPOSE, requestedFieldLabel, STATUS } from '../../lib/labels'
 import { useCompanies, useProducts, useStartApplication } from '../../lib/queries'
@@ -31,6 +31,23 @@ function pipeIndex(s: Draft['status']) {
 
 export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSubmitted: boolean; onEdit: () => void }) {
   const [showAgreement, setShowAgreement] = useState(false)
+  const qc = useQueryClient()
+  const toast = useToast()
+  const decline = useMutation({
+    mutationFn: () => {
+      if (!app.decision) throw new Error('Предложение банка недоступно')
+      return applications.declineAgreement(app.id, { expected_version: app.version, decision_id: app.decision.id })
+    },
+    onSuccess: (updated) => {
+      qc.setQueryData(['application', app.id], updated)
+      for (const key of [['applications'], ['events', app.id], ['agreement', app.id], ['bank-queue'], ['bank-card', app.id], ['company-documents']]) {
+        void qc.invalidateQueries({ queryKey: key })
+      }
+      setShowAgreement(false)
+      toast.push({ tone: 'ok', title: 'Вы отказались от условий', message: 'Заявка закрыта со статусом «Отказано».' })
+    },
+    onError: () => { void qc.invalidateQueries({ queryKey: ['application', app.id] }) },
+  })
   const events = useQuery({ queryKey: ['events', app.id, app.version], queryFn: () => applications.events(app.id), placeholderData: (p) => p })
   const rev = useQuery({
     queryKey: ['revision', app.id, app.latest_revision_no],
@@ -63,7 +80,7 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
       </div>
 
       <div className="pipe" aria-label="Этапы заявки">
-        {(app.decision?.outcome === 'APPROVED' ? [...PIPE, 'Подписание'] : PIPE).map((p, i) => (
+        {(app.status === 'APPROVED' || app.status === 'SIGNED' ? [...PIPE, 'Подписание'] : PIPE).map((p, i) => (
           <div key={p} className={`pipe-step ${i < pi ? 'done' : i === pi ? 'cur' : ''} ${i === pi ? `t-${STATUS[app.status].tone}` : ''}`}>
             <i />
             <span>{p}</span>
@@ -73,9 +90,9 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
 
       <section className={`panel ${hero.panel} dots st-hero ${justSubmitted ? 'just' : ''}`}>
         <div className="st-hero-main">
-          <span className={`tag ${hero.panel === 'lime' ? 'ink' : 'white'}`}>{d ? (d.source === 'MANUAL' ? 'Решение специалиста' : 'Автоматическое решение') : STATUS[app.status].label}</span>
+          <span className={`tag ${hero.panel === 'lime' ? 'ink' : 'white'}`}>{app.decline ? 'Отказ клиента' : d ? (d.source === 'MANUAL' ? 'Решение специалиста' : 'Автоматическое решение') : STATUS[app.status].label}</span>
           <h2 className="st-title">{d?.offer && app.status === 'APPROVED' ? 'Одобрено на изменённых условиях' : hero.title}</h2>
-          {d?.outcome === 'APPROVED' ? (
+          {d?.outcome === 'APPROVED' && (app.status === 'APPROVED' || app.status === 'SIGNED') ? (
             <>
               <div className="st-amount display num">{money(d.approved_amount)}</div>
               <div className="st-terms">
@@ -95,13 +112,15 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
               <p className="st-text">{d.public_explanation}</p>
               <p className="st-foot">Демо-версия: электронная подпись имитируется, средства не выдаются.</p>
               {app.signature && <p className="st-text">Подписано {dateTime(app.signature.signed_at)} · {app.signature.signed_by_display_name}</p>}
-              <div style={{ marginTop: 20 }}>
-                <Button variant="ink" size="lg" onClick={() => setShowAgreement(true)}>{app.status === 'SIGNED' ? 'Посмотреть подписанные условия' : 'Подписать документ'}</Button>
+              <div className="row wrap" style={{ marginTop: 20 }}>
+                <Button variant="ink" size="lg" disabled={decline.isPending} onClick={() => setShowAgreement(true)}>{app.status === 'SIGNED' ? 'Посмотреть подписанные условия' : 'Подписать документ'}</Button>
+                {app.status === 'APPROVED' && app.allowed_actions.includes('DECLINE_AGREEMENT') && <Button variant="red" size="lg" loading={decline.isPending} onClick={() => decline.mutate()}>Отказаться</Button>}
               </div>
+              <ErrorNotice error={decline.error} />
             </>
-          ) : d?.outcome === 'REJECTED' ? (
+          ) : app.status === 'REJECTED' ? (
             <>
-              <p className="st-text">{d.public_explanation}</p>
+              <p className="st-text">{app.decline ? `Вы отказались от предложенных условий ${dateTime(app.decline.declined_at)}. Заявка закрыта без подписания.` : d?.public_explanation}</p>
               <div className="row wrap" style={{ marginTop: 22 }}>
                 <Button
                   variant="white"
@@ -141,9 +160,9 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
         </div>
       </section>
 
-      {showAgreement && <AgreementDialog app={app} onClose={() => setShowAgreement(false)} />}
+      {showAgreement && (app.status === 'APPROVED' || app.status === 'SIGNED') && <AgreementDialog app={app} onClose={() => setShowAgreement(false)} />}
       {d?.offer && <section className="card" style={{ marginBottom: 24 }}>
-        <Notice tone="plain" title="Одобрено на изменённых условиях">Банк предложил другую сумму или срок. Проверьте предложение перед подписанием. Исходный запрос сохранён в отправленных данных.</Notice>
+        <Notice tone="plain" title={app.decline ? 'Предложение банка · клиент отказался' : 'Одобрено на изменённых условиях'}>{app.decline ? 'Условия сохранены для истории. Заявка закрыта, подписать это предложение уже нельзя.' : 'Банк предложил другую сумму или срок. Проверьте предложение перед подписанием. Исходный запрос сохранён в отправленных данных.'}</Notice>
         <OfferComparison terms={d.offer} />
       </section>}
       <div className="st-grid">

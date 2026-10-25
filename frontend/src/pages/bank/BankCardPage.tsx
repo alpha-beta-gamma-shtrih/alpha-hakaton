@@ -127,6 +127,7 @@ export function BankCardPage() {
         </section>
 
         <section className="card bc-actions">
+          {c.decline && <Notice tone="warn" title="Клиент отказался от условий">Заявка закрыта без подписания {dateTime(c.decline.declined_at)} · {c.decline.declined_by_display_name}. Решение банка ниже сохранено для истории.</Notice>}
           {c.signature && <Notice tone="ok">Демо-документ подписан {dateTime(c.signature.signed_at)} · {c.signature.signed_by_display_name}. Выдача средств не выполнялась.</Notice>}
           <h3 className="card-title">Действия</h3>
           {acts.length === 0 ? (

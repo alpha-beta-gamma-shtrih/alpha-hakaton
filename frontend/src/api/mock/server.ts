@@ -58,6 +58,7 @@ interface AppRec {
   archived?: boolean
   scenario_set?: { value: ScenarioSet; context: string; manually_changed: boolean }
   agreement?: Agreement
+  decline?: Draft['decline']
 }
 
 interface State {
@@ -498,8 +499,9 @@ function clientDraft(app: AppRec): Draft {
     calculation_date: CALCULATION_DATE,
     policy_version: DEMO_PRODUCT.policy_version,
     provenance: provenance(app),
-    allowed_actions: editable ? ['EDIT_DRAFT', 'SUBMIT'] : app.status === 'APPROVED' ? ['SIGN_AGREEMENT'] : [],
+    allowed_actions: editable ? ['EDIT_DRAFT', 'SUBMIT'] : app.status === 'APPROVED' ? ['SIGN_AGREEMENT', 'DECLINE_AGREEMENT'] : [],
     signature: app.agreement?.signature ?? null,
+    decline: app.decline ?? null,
     open_information_request: open ? { id: open.id, message_to_client: open.message_to_client, requested_fields: open.requested_fields } : null,
     decision: d
       ? (({ decided_by_user_id: _u, internal_comment: _c, offer_risk_score: _s, offer_risk_band: _b, ...pub }) => pub)(d)
@@ -560,6 +562,7 @@ function bankCard(app: AppRec): BankCard {
   return {
     ...queueItem(app),
     signature: app.agreement?.signature ?? null,
+    decline: app.decline ?? null,
     revision: rev,
     assessment: latestAssessment(app),
     decision: app.decision,
@@ -798,6 +801,19 @@ on('GET', new RegExp(`^/api/applications/${U}/agreement$`), async (m, _b, _q, us
   if (!app) return notFound()
   const document = await mockAgreement(app)
   return document ? ok(document) : err(409, 'AGREEMENT_NOT_AVAILABLE', 'Документ доступен после одобрения заявки')
+}, { auth: 'CLIENT' })
+on('POST', new RegExp(`^/api/applications/${U}/agreement/decline$`), (m, body, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  if (!Number.isInteger(body.expected_version) || body.expected_version < 1 || typeof body.decision_id !== 'string' || !/^[0-9a-f-]{36}$/i.test(body.decision_id) || Object.keys(body).some((key) => !['expected_version', 'decision_id'].includes(key))) return err(422, 'VALIDATION_ERROR', 'Проверьте версию заявки и идентификатор решения')
+  if (app.decline) return app.decline.decision_id === body.decision_id ? ok(clientDraft(app)) : err(409, 'AGREEMENT_CHANGED', 'Предложение банка изменилось')
+  if (app.status !== 'APPROVED' || app.decision?.outcome !== 'APPROVED') return err(409, 'AGREEMENT_NOT_AVAILABLE', 'Отказ доступен после одобрения, до подписания')
+  if (app.decision.id !== body.decision_id) return err(409, 'AGREEMENT_CHANGED', 'Получите актуальное предложение банка')
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Заявка изменилась; обновите страницу')
+  app.decline = { decision_id: app.decision.id, declined_at: now(), declined_by_display_name: user!.display_name }
+  setStatus(app, 'REJECTED', { event_type: 'AGREEMENT_DECLINED', message: 'Клиент отказался от предложенных условий. Заявка закрыта без подписания.', actor: user!.id })
+  save()
+  return ok(clientDraft(app))
 }, { auth: 'CLIENT' })
 on('POST', new RegExp(`^/api/applications/${U}/agreement/sign$`), async (m, body, _q, user) => {
   const app = ownApp(m[1], user!)

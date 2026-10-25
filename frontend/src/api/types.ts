@@ -45,6 +45,7 @@ export type AdvisorMode = NonNullable<S['AdvisorRequest']['mode']>
 export type AdvisorPriority = NonNullable<S['AdvisorRequest']['priority']>
 export type Agreement = S['AgreementResponse']
 export type SignAgreementRequest = S['SignAgreementRequest']
+export type DeclineAgreementRequest = S['DeclineAgreementRequest']
 
 export type BankQueueItem = S['BankQueueItem']
 export type BankCard = S['BankCard']

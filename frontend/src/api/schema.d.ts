@@ -123,6 +123,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/applications/{application_id}/agreement/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Decline Agreement */
+        post: operations["decline_agreement_api_applications__application_id__agreement_decline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/companies": {
         parameters: {
             query?: never;
@@ -931,6 +948,7 @@ export interface components {
             /** Allowed Actions */
             allowed_actions: ("REQUEST_INFO" | "APPROVE" | "REJECT" | "RETRY_PROCESSING")[];
             signature?: components["schemas"]["SignatureResponse"] | null;
+            decline?: components["schemas"]["DeclineResponse"] | null;
             revision: components["schemas"]["RevisionResponse"];
             assessment: components["schemas"]["BankAssessmentResponse"] | null;
             decision: components["schemas"]["BankDecisionResponse"] | null;
@@ -1446,6 +1464,31 @@ export interface components {
          * @enum {string}
          */
         DecisionSource: "AUTO" | "MANUAL";
+        /** DeclineAgreementRequest */
+        DeclineAgreementRequest: {
+            /** Expected Version */
+            expected_version: number;
+            /**
+             * Decision Id
+             * Format: uuid
+             */
+            decision_id: string;
+        };
+        /** DeclineResponse */
+        DeclineResponse: {
+            /**
+             * Decision Id
+             * Format: uuid
+             */
+            decision_id: string;
+            /**
+             * Declined At
+             * Format: date-time
+             */
+            declined_at: string;
+            /** Declined By Display Name */
+            declined_by_display_name: string;
+        };
         /** DocumentResponse */
         DocumentResponse: {
             /**
@@ -1601,8 +1644,9 @@ export interface components {
             policy_version: string;
             provenance: components["schemas"]["ProvenanceResponse"];
             /** Allowed Actions */
-            allowed_actions: ("EDIT_DRAFT" | "SUBMIT" | "SIGN_AGREEMENT")[];
+            allowed_actions: ("EDIT_DRAFT" | "SUBMIT" | "SIGN_AGREEMENT" | "DECLINE_AGREEMENT")[];
             signature?: components["schemas"]["SignatureResponse"] | null;
+            decline?: components["schemas"]["DeclineResponse"] | null;
             open_information_request?: components["schemas"]["InformationRequestResponse"] | null;
             decision?: components["schemas"]["DecisionResponse"] | null;
             /** Latest Revision Id */
@@ -2615,6 +2659,79 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["SignAgreementRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    decline_agreement_api_applications__application_id__agreement_decline_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-CSRF-Token"?: string | null;
+            };
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeclineAgreementRequest"];
             };
         };
         responses: {

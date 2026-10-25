@@ -4,6 +4,7 @@ import type {
   AdvisorPriority,
   Agreement,
   SignAgreementRequest,
+  DeclineAgreementRequest,
   AdvisorReport,
   BankCard,
   BankEvent,
@@ -64,6 +65,7 @@ export const applications = {
   get: (id: string) => get<Draft>(`/api/applications/${id}`),
   agreement: (id: string) => get<Agreement>(`/api/applications/${id}/agreement`),
   signAgreement: (id: string, body: SignAgreementRequest) => post<Draft>(`/api/applications/${id}/agreement/sign`, body),
+  declineAgreement: (id: string, body: DeclineAgreementRequest) => post<Draft>(`/api/applications/${id}/agreement/decline`, body),
   create: (company_id: string, product_id: string) => post<Draft>('/api/applications', { company_id, product_id }),
   patch: (id: string, body: DraftPatch) => patch<Draft>(`/api/applications/${id}`, body),
   /** Deletes a never-submitted draft (the backend archives it). */
