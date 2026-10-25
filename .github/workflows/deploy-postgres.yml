@@ -1,0 +1,39 @@
+name: Deploy PostgreSQL
+
+on: workflow_dispatch
+
+jobs:
+  deployment:
+    name: Deploy PostgreSQL
+    runs-on: ubuntu-latest
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: just-a-placeholder-so-we-dont-get-errors
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Makedir
+        run: ssh "$SSH_USER@$SSH_HOST" mkdir -p credit-cabinet
+
+      - name: Deploy Compose file
+        run: scp compose.postgres.yaml "$SSH_USER@$SSH_HOST:~/credit-cabinet/"
+
+      - name: Start docker-compose
+        run: >
+          ssh "$SSH_USER@$SSH_HOST"
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          docker compose --env-file /dev/null -f credit-cabinet/compose.postgres.yaml up --force-recreate -d
+
+      - name: Prune unused images
+        run: ssh "$SSH_USER@$SSH_HOST" docker image prune -f

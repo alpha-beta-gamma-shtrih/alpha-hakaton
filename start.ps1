@@ -21,6 +21,16 @@ finally {
 if ($testExitCode -ne 0) { exit $testExitCode }
 if ($cleanupExitCode -ne 0) { exit $cleanupExitCode }
 
+Write-Host "Starting PostgreSQL..."
+docker compose -f compose.postgres.yaml up -d --wait postgres
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Write-Host "Starting Ollama and downloading model..."
+docker compose -f compose.ollama.yaml up -d --wait ollama
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+docker compose -f compose.ollama.yaml run --rm ollama-model
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
 docker compose -f compose.yaml up -d frontend
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 

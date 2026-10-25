@@ -42,6 +42,13 @@ docker compose -f compose.yaml --profile test up --exit-code-from tests tests
 cleanup_tests
 trap - EXIT INT TERM
 
+echo "Starting PostgreSQL..."
+docker compose -f compose.postgres.yaml up -d --wait postgres
+
+echo "Starting Ollama and downloading model..."
+docker compose -f compose.ollama.yaml up -d --wait ollama
+docker compose -f compose.ollama.yaml run --rm ollama-model
+
 echo "Starting application..."
 docker compose -f compose.yaml up -d frontend
 docker compose -f compose.yaml ps
