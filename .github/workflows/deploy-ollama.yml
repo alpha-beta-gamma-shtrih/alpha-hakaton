@@ -1,0 +1,42 @@
+name: Deploy Ollama
+
+on: workflow_dispatch
+
+jobs:
+  deployment:
+    name: Deploy Ollama
+    runs-on: ubuntu-latest
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: just-a-placeholder-so-we-dont-get-errors
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Makedir
+        run: ssh "$SSH_USER@$SSH_HOST" mkdir -p credit-cabinet
+
+      - name: Deploy Compose file
+        run: scp compose.ollama.yaml "$SSH_USER@$SSH_HOST:~/credit-cabinet/"
+
+      - name: Start docker-compose
+        run: >
+          ssh "$SSH_USER@$SSH_HOST"
+          docker compose --env-file /dev/null -f credit-cabinet/compose.ollama.yaml up --force-recreate -d --wait ollama
+
+      - name: Download model
+        run: >
+          ssh "$SSH_USER@$SSH_HOST"
+          LLM_MODEL=${{ vars.LLM_MODEL || 'qwen2.5:1.5b' }}
+          docker compose --env-file /dev/null -f credit-cabinet/compose.ollama.yaml run --rm ollama-model
+
+      - name: Prune unused images
+        run: ssh "$SSH_USER@$SSH_HOST" docker image prune -f
