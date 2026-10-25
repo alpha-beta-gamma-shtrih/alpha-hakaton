@@ -23,7 +23,7 @@ from credit_cabinet.schemas.bank import (
     BankQueueItem,
     BankRevisionDetail,
 )
-from credit_cabinet.schemas.business import SignatureResponse
+from credit_cabinet.schemas.business import DeclineResponse, SignatureResponse
 from credit_cabinet.services.access import bank_application, submitted_query
 from credit_cabinet.services.bank_policy import bank_actions
 from credit_cabinet.services.reasons import public_reasons
@@ -122,6 +122,9 @@ def card(db, application, revision):
         )
     )
     return BankCard(
+        decline=DeclineResponse.model_validate(application.decline_record)
+        if application.decline_record
+        else None,
         signature=SignatureResponse.model_validate(application.signing_record)
         if application.signing_record
         else None,

@@ -103,6 +103,7 @@ export const EVENT_LABELS: Record<string, string> = {
   CHECKS_COMPLETED: 'Проверки завершены',
   DECISION_MADE: 'Решение зафиксировано',
   AGREEMENT_SIGNED: 'Демо-документ подписан',
+  AGREEMENT_DECLINED: 'Клиент отказался от условий',
   INFO_REQUESTED: 'Запрошены уточнения',
   INFORMATION_REQUESTED: 'Запрошены уточнения',
   MANUAL_DECISION: 'Решение сотрудника',

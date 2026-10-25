@@ -116,7 +116,9 @@ def build_facts(comparison, application, mode):
             "SAVED_DECISION",
             "По отправленной версии уже сохранено решение: "
             + (
-                "одобрено."
+                "банк одобрил условия, затем клиент отказался от предложения; заявка закрыта без подписания."
+                if application.decline_record
+                else "одобрено."
                 if application.status in (ApplicationStatus.APPROVED, ApplicationStatus.SIGNED)
                 else "отказано."
             )

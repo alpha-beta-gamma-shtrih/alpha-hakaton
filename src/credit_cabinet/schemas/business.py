@@ -310,8 +310,9 @@ class DraftResponse(BaseModel):
     calculation_date: date
     policy_version: str
     provenance: ProvenanceResponse
-    allowed_actions: list[Literal["EDIT_DRAFT", "SUBMIT", "SIGN_AGREEMENT"]]
+    allowed_actions: list[Literal["EDIT_DRAFT", "SUBMIT", "SIGN_AGREEMENT", "DECLINE_AGREEMENT"]]
     signature: "SignatureResponse | None" = None
+    decline: "DeclineResponse | None" = None
     open_information_request: InformationRequestResponse | None = None
     decision: DecisionResponse | None = None
     latest_revision_id: UUID | None = None
@@ -349,6 +350,12 @@ class SignatureResponse(BaseModel):
     signed_at: datetime
     signed_by_display_name: str
     method: Literal["DEMO"] = "DEMO"
+
+
+class DeclineResponse(BaseModel):
+    decision_id: UUID
+    declined_at: datetime
+    declined_by_display_name: str
 
 
 DraftResponse.model_rebuild()

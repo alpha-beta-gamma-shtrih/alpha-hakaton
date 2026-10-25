@@ -35,6 +35,29 @@ def offered(preview):
     }
 
 
+def test_client_can_decline_changed_bank_offer_without_overwriting_it(seeded, client):
+    from tests.test_agreement_decline import decline
+
+    submitted = review_application(client)
+    app = submitted["application"]
+    login(client, "bank@example.com")
+    preview = quote(client, app).json()
+    card = command(
+        client, submitted, "decision", decision_body(app["version"], offer=offered(preview))
+    ).json()
+    login(client)
+    approved = client.get(f"/api/applications/{app['id']}").json()
+    response = decline(client, approved)
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "REJECTED"
+    assert response.json()["decision"] == approved["decision"]
+    login(client, "bank@example.com")
+    closed = client.get(f"/api/bank/applications/{app['id']}").json()
+    assert closed["decision"] == card["decision"]
+    assert closed["revision"] == card["revision"]
+    assert closed["decline"] and closed["signature"] is None
+
+
 def test_offer_preview_approval_signature_and_frozen_original(seeded, client):
     submitted = review_application(client)
     app = submitted["application"]

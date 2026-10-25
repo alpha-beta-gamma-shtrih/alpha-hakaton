@@ -10,6 +10,7 @@ from credit_cabinet.schemas.business import (
     AssessmentResponse,
     CheckResponse,
     DecisionResponse,
+    DeclineResponse,
     EventResponse,
     MoneyInput,
     MoneyOutput,
@@ -124,6 +125,7 @@ class BankQueuePage(BaseModel):
 
 class BankCard(BankQueueItem):
     signature: SignatureResponse | None = None
+    decline: DeclineResponse | None = None
     revision: RevisionResponse
     assessment: BankAssessmentResponse | None
     decision: BankDecisionResponse | None

@@ -88,7 +88,7 @@ def draft_view(application: Application, product: CreditProduct, db: Session) ->
         provenance=provenance,
         allowed_actions=(["EDIT_DRAFT", "SUBMIT"] if product.is_active else ["EDIT_DRAFT"])
         if application.status in (ApplicationStatus.DRAFT, ApplicationStatus.NEEDS_INFO)
-        else ["SIGN_AGREEMENT"]
+        else ["SIGN_AGREEMENT", "DECLINE_AGREEMENT"]
         if application.status == ApplicationStatus.APPROVED
         else [],
         created_at=application.created_at,

@@ -44,3 +44,8 @@ class SignAgreementRequest(StrictModel):
     decision_id: UUID
     content_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
     accepted: bool = Field(strict=True)
+
+
+class DeclineAgreementRequest(StrictModel):
+    expected_version: PositiveInteger
+    decision_id: UUID

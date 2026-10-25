@@ -14,7 +14,7 @@
 .\.venv\Scripts\python.exe -m credit_cabinet
 ```
 
-`alembic current` и GET http://localhost:8000/health/ready должны показывать 0008_bank_offers. В другом терминале:
+`alembic current` и GET http://localhost:8000/health/ready должны показывать 0009_client_decline. В другом терминале:
 
 ```powershell
 cd frontend
