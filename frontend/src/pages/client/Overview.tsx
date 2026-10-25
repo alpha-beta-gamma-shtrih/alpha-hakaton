@@ -231,7 +231,7 @@ export function AppCard({ app }: { app: Draft }) {
         <span>·</span>
         <span>{app.purpose_code ? PURPOSE[app.purpose_code].label : 'Цель не выбрана'}</span>
       </div>
-      {app.decision?.monthly_payment && app.status === 'APPROVED' && (
+      {app.decision?.monthly_payment && (app.status === 'APPROVED' || app.status === 'SIGNED') && (
         <div className="app-card-pay">
           Платёж <b className="num">{money(app.decision.monthly_payment)}</b> / мес
         </div>

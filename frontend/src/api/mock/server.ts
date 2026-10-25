@@ -6,6 +6,7 @@
 import type { TransportResponse } from '../client'
 import type {
   AdvisorReport,
+  Agreement,
   ApplicationStatus,
   BankAssessment,
   BankCard,
@@ -55,6 +56,7 @@ interface AppRec {
   updated_at: string
   archived?: boolean
   scenario_set?: { value: ScenarioSet; context: string; manually_changed: boolean }
+  agreement?: Agreement
 }
 
 interface State {
@@ -495,7 +497,8 @@ function clientDraft(app: AppRec): Draft {
     calculation_date: CALCULATION_DATE,
     policy_version: DEMO_PRODUCT.policy_version,
     provenance: provenance(app),
-    allowed_actions: editable ? ['EDIT_DRAFT', 'SUBMIT'] : [],
+    allowed_actions: editable ? ['EDIT_DRAFT', 'SUBMIT'] : app.status === 'APPROVED' ? ['SIGN_AGREEMENT'] : [],
+    signature: app.agreement?.signature ?? null,
     open_information_request: open ? { id: open.id, message_to_client: open.message_to_client, requested_fields: open.requested_fields } : null,
     decision: d
       ? (({ decided_by_user_id: _u, internal_comment: _c, ...pub }) => pub)(d)
@@ -552,6 +555,7 @@ function bankCard(app: AppRec): BankCard {
   const rev = app.revisions.at(-1)!
   return {
     ...queueItem(app),
+    signature: app.agreement?.signature ?? null,
     revision: rev,
     assessment: latestAssessment(app),
     decision: app.decision,
@@ -559,6 +563,26 @@ function bankCard(app: AppRec): BankCard {
     information_requests: app.info_requests,
     revisions: app.revisions.map((r) => ({ id: r.id, revision_no: r.revision_no, input_hash: r.input_hash, created_at: r.created_at })),
   }
+}
+
+async function mockAgreement(app: AppRec): Promise<Agreement | null> {
+  if (app.status === 'SIGNED' && app.agreement) return clone(app.agreement)
+  const d = app.decision
+  const revision = app.revisions.at(-1)
+  if (app.status !== 'APPROVED' || d?.outcome !== 'APPROVED' || !revision) return null
+  const company = companyById(app.company_id)!
+  const total = Number(d.monthly_payment) * d.approved_term_months!
+  const content: Agreement['content'] = {
+    schema_version: 'DEMO-1', title: 'Демонстрационные условия кредитного договора',
+    notice: 'Демонстрационный документ хакатона. Кнопка «Подписать» имитирует электронную подпись; юридически значимая электронная подпись не создаётся, договор с реальным банком не заключается, средства не выдаются.',
+    issued_at: d.created_at, application_id: app.id, revision_id: revision.id, decision_id: d.id,
+    company_name: company.legal_name, inn: company.inn, purpose_code: revision.purpose_code,
+    approved_amount: d.approved_amount!, term_months: d.approved_term_months!,
+    annual_rate_percent: d.annual_rate_percent!, monthly_payment: d.monthly_payment!,
+    estimated_total_payment: money2(total), estimated_overpayment: money2(total - Number(d.approved_amount)),
+  }
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(content)))
+  return { content, content_sha256: Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join(''), signature: null }
 }
 
 function scenarioCandidates(app: AppRec, preview: boolean): Candidate[] | TransportResponse {
@@ -756,11 +780,32 @@ function seed(s: State) {
 }
 
 /* ---------------- router ---------------- */
-type Handler = (m: RegExpMatchArray, body: any, q: URLSearchParams, user: DemoUser | null) => TransportResponse
+type Handler = (m: RegExpMatchArray, body: any, q: URLSearchParams, user: DemoUser | null) => TransportResponse | Promise<TransportResponse>
 
 const routes: [string, RegExp, Handler, { auth?: 'any' | 'CLIENT' | 'BANK_STAFF' }][] = []
 const on = (method: string, re: RegExp, h: Handler, opts: { auth?: 'any' | 'CLIENT' | 'BANK_STAFF' } = { auth: 'any' }) => routes.push([method, re, h, opts])
 const U = '([0-9a-f-]{36})'
+
+on('GET', new RegExp(`^/api/applications/${U}/agreement$`), async (m, _b, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  const document = await mockAgreement(app)
+  return document ? ok(document) : err(409, 'AGREEMENT_NOT_AVAILABLE', 'Документ доступен после одобрения заявки')
+}, { auth: 'CLIENT' })
+on('POST', new RegExp(`^/api/applications/${U}/agreement/sign$`), async (m, body, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  const document = await mockAgreement(app)
+  if (!document) return err(409, 'AGREEMENT_NOT_AVAILABLE', 'Документ доступен после одобрения заявки')
+  if (body.accepted !== true) return err(422, 'SIGNING_CONFIRMATION_REQUIRED', 'Нужно подтвердить подписание демо-документа')
+  if (body.decision_id !== document.content.decision_id || body.content_sha256 !== document.content_sha256) return err(409, 'AGREEMENT_CHANGED', 'Получите актуальный документ')
+  if (app.status === 'SIGNED') return ok(clientDraft(app))
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Заявка изменилась; обновите страницу')
+  app.agreement = { ...document, signature: { decision_id: body.decision_id, content_sha256: body.content_sha256, signed_at: now(), signed_by_display_name: user!.display_name, method: 'DEMO' } }
+  setStatus(app, 'SIGNED', { event_type: 'AGREEMENT_SIGNED', message: 'Демо-документ подписан: электронная подпись имитирована, выдача средств не выполнялась.', actor: user!.id })
+  save()
+  return ok(clientDraft(app))
+}, { auth: 'CLIENT' })
 
 function session(user: DemoUser) {
   const t = Date.now()
@@ -1107,7 +1152,7 @@ export async function mockTransport(method: string, path: string, body: unknown,
       const expected = state.session?.csrf ?? state.loginCsrf
       if (!expected || headers['X-CSRF-Token'] !== expected) return err(403, 'CSRF_INVALID', 'CSRF-токен устарел')
     }
-    const res = h(match, body ?? {}, q, user)
+    const res = await h(match, body ?? {}, q, user)
     if (method !== 'GET') save()
     return res
   }

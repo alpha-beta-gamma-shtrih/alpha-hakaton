@@ -11,9 +11,11 @@ import { dateTime, money, months, percent, shortId } from '../../lib/format'
 import { CHECK_SOURCE, CHECK_STATUS, eventLabel, PURPOSE, requestedFieldLabel, STATUS } from '../../lib/labels'
 import { useCompanies, useProducts, useStartApplication } from '../../lib/queries'
 import { DocumentsCard } from './wizard/steps'
+import { AgreementDialog } from './AgreementDialog'
 
 const HERO: Record<string, { panel: string; shape: PixelShape; pix: string; title: string }> = {
   APPROVED: { panel: 'lime', shape: 'smile', pix: 'var(--ink)', title: 'Одобрено' },
+  SIGNED: { panel: 'lime', shape: 'check', pix: 'var(--ink)', title: 'Документ подписан' },
   REJECTED: { panel: 'red', shape: 'cross', pix: '#fff', title: 'Отказано' },
   MANUAL_REVIEW: { panel: 'violet', shape: 'hourglass', pix: 'var(--lime)', title: 'Заявку изучает специалист' },
   NEEDS_INFO: { panel: 'ink', shape: 'question', pix: 'var(--amber)', title: 'Нужны уточнения' },
@@ -23,10 +25,11 @@ const HERO: Record<string, { panel: string; shape: PixelShape; pix: string; titl
 
 const PIPE = ['Черновик', 'Отправлена', 'Проверки', 'Оценка', 'Решение']
 function pipeIndex(s: Draft['status']) {
-  return { DRAFT: 0, SUBMITTED: 1, CHECKING: 2, NEEDS_INFO: 3, MANUAL_REVIEW: 3, APPROVED: 4, REJECTED: 4 }[s]
+  return { DRAFT: 0, SUBMITTED: 1, CHECKING: 2, NEEDS_INFO: 3, MANUAL_REVIEW: 3, APPROVED: 4, REJECTED: 4, SIGNED: 5 }[s]
 }
 
 export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSubmitted: boolean; onEdit: () => void }) {
+  const [showAgreement, setShowAgreement] = useState(false)
   const events = useQuery({ queryKey: ['events', app.id, app.version], queryFn: () => applications.events(app.id), placeholderData: (p) => p })
   const rev = useQuery({
     queryKey: ['revision', app.id, app.latest_revision_no],
@@ -59,7 +62,7 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
       </div>
 
       <div className="pipe" aria-label="Этапы заявки">
-        {PIPE.map((p, i) => (
+        {(app.decision?.outcome === 'APPROVED' ? [...PIPE, 'Подписание'] : PIPE).map((p, i) => (
           <div key={p} className={`pipe-step ${i < pi ? 'done' : i === pi ? 'cur' : ''} ${i === pi ? `t-${STATUS[app.status].tone}` : ''}`}>
             <i />
             <span>{p}</span>
@@ -89,7 +92,11 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
                 </div>
               </div>
               <p className="st-text">{d.public_explanation}</p>
-              <p className="st-foot">Демо-версия: подписание документов и выдача средств не выполняются.</p>
+              <p className="st-foot">Демо-версия: электронная подпись имитируется, средства не выдаются.</p>
+              {app.signature && <p className="st-text">Подписано {dateTime(app.signature.signed_at)} · {app.signature.signed_by_display_name}</p>}
+              <div style={{ marginTop: 20 }}>
+                <Button variant="ink" size="lg" onClick={() => setShowAgreement(true)}>{app.status === 'SIGNED' ? 'Посмотреть подписанные условия' : 'Подписать документ'}</Button>
+              </div>
             </>
           ) : d?.outcome === 'REJECTED' ? (
             <>
@@ -133,6 +140,7 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
         </div>
       </section>
 
+      {showAgreement && <AgreementDialog app={app} onClose={() => setShowAgreement(false)} />}
       <div className="st-grid">
         <div className="stack-lg">
           <ChecksCard a={a} animate={justSubmitted} />

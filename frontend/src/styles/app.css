@@ -880,6 +880,10 @@ a.ov-draft:hover { transform: translateY(-4px) rotate(-0.4deg); }
 .advisor-title { font-size: 21px; font-weight: 700; margin-top: 16px; letter-spacing: -0.03em; }
 .advisor-sub { font-size: 13px; opacity: 0.8; margin-top: 8px; }
 .advisor-priority { display: grid; gap: 8px; margin-top: 18px; font-size: 13px; font-weight: 650; }
+.agreement-dialog { padding: 28px; display: grid; gap: 18px; }
+.agreement-dialog h2 { margin: 0; }
+.agreement-terms { padding: 18px; border-radius: 16px; background: var(--bg); }
+.agreement-actions { display: grid; gap: 16px; padding-top: 12px; border-top: 1px solid var(--line); }
 .advisor-priority select { width: 100%; min-width: 0; padding: 12px; border: 2px solid var(--ink); border-radius: 12px; background: white; color: var(--ink); font: inherit; }
 .advisor-priority select:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
 .advisor-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
