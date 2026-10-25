@@ -149,7 +149,7 @@ export function BankCardPage() {
                   Отказать
                 </Button>
               )}
-              {acts.includes('APPROVE') && <Button variant="blue" block onClick={() => setModal('offer')}>Одобрить с изменением условий</Button>}
+              {acts.includes('APPROVE') && <Button variant="violet" block onClick={() => setModal('offer')}>Изменить условия</Button>}
               {acts.includes('REQUEST_INFO') && (
                 <Button variant="white" block onClick={() => setModal('info')}>
                   Запросить уточнение
