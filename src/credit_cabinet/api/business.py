@@ -20,7 +20,9 @@ from credit_cabinet.schemas.business import (
     FinancialMonthResponse,
     ProductPage,
 )
+from credit_cabinet.schemas.company_files import CompanyAgreementPage, CompanyDocumentPage
 from credit_cabinet.schemas.errors import ErrorResponse
+from credit_cabinet.services import company_files
 from credit_cabinet.services.access import client_application, client_company
 from credit_cabinet.services.auth import Principal
 from credit_cabinet.services.drafts import (
@@ -66,6 +68,24 @@ def company(company_id: UUID, db: Database, principal: Client):
             declared=any(month.source == FinancialSource.DECLARED for month in months)
         ),
     )
+
+
+@router.get(
+    "/companies/{company_id}/agreements", response_model=CompanyAgreementPage, tags=["companies"]
+)
+def company_agreements(
+    company_id: UUID, db: Database, principal: Client, limit: Limit = 20, offset: Offset = 0
+):
+    return company_files.list_agreements(db, principal.user.id, company_id, limit, offset)
+
+
+@router.get(
+    "/companies/{company_id}/documents", response_model=CompanyDocumentPage, tags=["companies"]
+)
+def company_documents(
+    company_id: UUID, db: Database, principal: Client, limit: Limit = 20, offset: Offset = 0
+):
+    return company_files.list_documents(db, principal.user.id, company_id, limit, offset)
 
 
 @router.get("/products", response_model=ProductPage, tags=["products"])
