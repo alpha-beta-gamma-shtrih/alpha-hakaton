@@ -15,7 +15,7 @@ from credit_cabinet.services.product_policy import evaluation_options, supported
 from credit_cabinet.services.submissions import can_retry
 
 
-def saved_evaluation(db, revision, assessment):
+def saved_evaluation(db, revision, assessment, *, amount=None, term=None):
     """Recheck mandatory conditions locally, with no source calls and no new assessment."""
     if (
         assessment is None
@@ -81,8 +81,8 @@ def saved_evaluation(db, revision, assessment):
         result = evaluate(
             company=revision.company_snapshot,
             financials=revision.financial_snapshot["financial_months"],
-            amount=revision.requested_amount,
-            term=revision.term_months,
+            amount=revision.requested_amount if amount is None else amount,
+            term=revision.term_months if term is None else term,
             annual_rate=Decimal(product["annual_rate_percent"]),
             calculation_date=CALCULATION_DATE,
             source=source,
@@ -95,11 +95,15 @@ def saved_evaluation(db, revision, assessment):
             ),
         )
         if (
-            result.routing != assessment.routing
-            or result.risk_score != assessment.risk_score
-            or result.risk_band != assessment.risk_band
-            or result.reason_codes != assessment.reason_codes
-            or result.calculation_details != assessment.calculation_details
+            amount is None
+            and term is None
+            and (
+                result.routing != assessment.routing
+                or result.risk_score != assessment.risk_score
+                or result.risk_band != assessment.risk_band
+                or result.reason_codes != assessment.reason_codes
+                or result.calculation_details != assessment.calculation_details
+            )
         ):
             return None
         return result

@@ -2924,6 +2924,126 @@
         }
       }
     },
+    "/api/bank/applications/{application_id}/offer-preview": {
+      "post": {
+        "tags": [
+          "bank"
+        ],
+        "summary": "Offer Preview",
+        "operationId": "offer_preview_api_bank_applications__application_id__offer_preview_post",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfferPreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferPreviewResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
     "/api/applications/{application_id}/scenarios": {
       "post": {
         "tags": [
@@ -4133,6 +4253,37 @@
   },
   "components": {
     "schemas": {
+      "AdjustedOffer": {
+        "properties": {
+          "amount": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,15})\\.[0-9]{2}$",
+            "title": "Amount",
+            "examples": [
+              "1000000.00"
+            ]
+          },
+          "term_months": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Term Months"
+          },
+          "preview_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Preview Hash"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount",
+          "term_months",
+          "preview_hash"
+        ],
+        "title": "AdjustedOffer"
+      },
       "AdvisorExplanation": {
         "properties": {
           "summary": {
@@ -4998,6 +5149,16 @@
             ],
             "title": "Monthly Payment"
           },
+          "offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OfferTermsResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "reasons": {
             "items": {
               "$ref": "#/components/schemas/ReasonResponse"
@@ -5040,6 +5201,27 @@
               }
             ],
             "title": "Internal Comment"
+          },
+          "offer_risk_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Risk Score"
+          },
+          "offer_risk_band": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RiskBand"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -5975,6 +6157,16 @@
             ],
             "title": "Monthly Payment"
           },
+          "offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OfferTermsResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "reasons": {
             "items": {
               "$ref": "#/components/schemas/ReasonResponse"
@@ -6909,6 +7101,16 @@
               }
             ],
             "title": "Internal Comment"
+          },
+          "offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdjustedOffer"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -6982,6 +7184,170 @@
           "requested_fields"
         ],
         "title": "ManualInformationRequest"
+      },
+      "OfferPreviewRequest": {
+        "properties": {
+          "amount": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,15})\\.[0-9]{2}$",
+            "title": "Amount",
+            "examples": [
+              "1000000.00"
+            ]
+          },
+          "term_months": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Term Months"
+          },
+          "expected_version": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Expected Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount",
+          "term_months",
+          "expected_version"
+        ],
+        "title": "OfferPreviewRequest"
+      },
+      "OfferPreviewResponse": {
+        "properties": {
+          "application_version": {
+            "type": "integer",
+            "title": "Application Version"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/OfferTermsResponse"
+          },
+          "risk_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Score"
+          },
+          "risk_band": {
+            "$ref": "#/components/schemas/RiskBand"
+          },
+          "routing": {
+            "type": "string",
+            "title": "Routing"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReasonResponse"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "can_approve": {
+            "type": "boolean",
+            "title": "Can Approve"
+          },
+          "preview_hash": {
+            "type": "string",
+            "title": "Preview Hash"
+          }
+        },
+        "type": "object",
+        "required": [
+          "application_version",
+          "terms",
+          "risk_score",
+          "risk_band",
+          "routing",
+          "reasons",
+          "can_approve",
+          "preview_hash"
+        ],
+        "title": "OfferPreviewResponse"
+      },
+      "OfferTermsResponse": {
+        "properties": {
+          "original_amount": {
+            "type": "string",
+            "title": "Original Amount"
+          },
+          "original_term_months": {
+            "type": "integer",
+            "title": "Original Term Months"
+          },
+          "original_annual_rate_percent": {
+            "type": "string",
+            "title": "Original Annual Rate Percent"
+          },
+          "original_monthly_payment": {
+            "type": "string",
+            "title": "Original Monthly Payment"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "annual_rate_percent": {
+            "type": "string",
+            "title": "Annual Rate Percent"
+          },
+          "monthly_payment": {
+            "type": "string",
+            "title": "Monthly Payment"
+          },
+          "estimated_total_payment": {
+            "type": "string",
+            "title": "Estimated Total Payment"
+          },
+          "estimated_overpayment": {
+            "type": "string",
+            "title": "Estimated Overpayment"
+          },
+          "load_ratio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Load Ratio"
+          },
+          "pricing": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Pricing"
+          }
+        },
+        "type": "object",
+        "required": [
+          "original_amount",
+          "original_term_months",
+          "original_annual_rate_percent",
+          "original_monthly_payment",
+          "amount",
+          "term_months",
+          "annual_rate_percent",
+          "monthly_payment",
+          "estimated_total_payment",
+          "estimated_overpayment",
+          "load_ratio",
+          "pricing"
+        ],
+        "title": "OfferTermsResponse"
       },
       "ProductPage": {
         "properties": {

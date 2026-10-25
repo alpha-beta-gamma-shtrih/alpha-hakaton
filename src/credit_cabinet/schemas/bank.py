@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, StringConstraints, field_validator
+from pydantic import BaseModel, Field, StringConstraints, field_validator, model_validator
 
 from credit_cabinet.core.demo import FINANCIAL_MONTHS
 from credit_cabinet.models.enums import ApplicationStatus, InfoStatus, Purpose, RiskBand, Visibility
@@ -11,7 +11,9 @@ from credit_cabinet.schemas.business import (
     CheckResponse,
     DecisionResponse,
     EventResponse,
+    MoneyInput,
     MoneyOutput,
+    OfferTermsResponse,
     PositiveInteger,
     ReasonResponse,
     SignatureResponse,
@@ -62,6 +64,8 @@ class BankAssessmentResponse(AssessmentResponse):
 class BankDecisionResponse(DecisionResponse):
     decided_by_user_id: UUID | None
     internal_comment: str | None
+    offer_risk_score: int | None = None
+    offer_risk_band: RiskBand | None = None
 
 
 class BankInformationRequest(BaseModel):
@@ -163,6 +167,30 @@ class ManualInformationRequest(StrictModel):
         return value
 
 
+class OfferParameters(StrictModel):
+    amount: MoneyInput
+    term_months: PositiveInteger
+
+
+class OfferPreviewRequest(OfferParameters):
+    expected_version: PositiveInteger
+
+
+class AdjustedOffer(OfferParameters):
+    preview_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class OfferPreviewResponse(BaseModel):
+    application_version: int
+    terms: OfferTermsResponse
+    risk_score: int | None
+    risk_band: RiskBand
+    routing: str
+    reasons: list[ReasonResponse]
+    can_approve: bool
+    preview_hash: str
+
+
 class ManualDecision(StrictModel):
     expected_version: PositiveInteger
     outcome: Literal["APPROVED", "REJECTED"]
@@ -170,3 +198,10 @@ class ManualDecision(StrictModel):
         examples=["Показатели изучены, риск оценен в рамках демонстрационной политики."]
     )
     internal_comment: InternalText | None = None
+    offer: AdjustedOffer | None = None
+
+    @model_validator(mode="after")
+    def offer_only_for_approval(self):
+        if self.offer is not None and self.outcome != "APPROVED":
+            raise ValueError("Changed terms require APPROVED")
+        return self

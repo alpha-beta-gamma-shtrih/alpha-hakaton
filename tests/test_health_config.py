@@ -7,7 +7,7 @@ from credit_cabinet.main import create_app
 
 def test_health_and_readiness(app, client):
     assert client.get("/health/live").json() == {"status": "ok"}
-    assert client.get("/health/ready").json()["schema_revision"] == "0007_demo_signing"
+    assert client.get("/health/ready").json()["schema_revision"] == "0008_bank_offers"
 
 
 def test_startup_does_not_create_tables(settings):

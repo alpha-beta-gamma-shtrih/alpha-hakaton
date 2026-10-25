@@ -10,7 +10,7 @@ from credit_cabinet.models import Decision
 from credit_cabinet.models.enums import ApplicationStatus
 from credit_cabinet.schemas.advisor import ModelSelection
 from credit_cabinet.services.policy import canonical_hash
-from credit_cabinet.services.scenarios import revision_payload
+from credit_cabinet.services.scenarios import final_payload
 from credit_cabinet.services.snapshots import application_input, financial_input_hash
 from credit_cabinet.services.submissions import latest_assessment, latest_revision
 
@@ -54,15 +54,15 @@ def require_confirmation(application):
 
 def basis_hash(db, application, *, payload=None, assessment_id=None):
     revision = latest_revision(db, application.id)
+    decision = db.scalar(select(Decision).where(Decision.application_id == application.id))
     if payload is None:
         payload = (
-            revision_payload(revision)
+            final_payload(revision, decision)
             if revision and application.status not in EDITABLE
             else application_input(db, application, require_confirmation=False)
         )
         assessment = latest_assessment(db, revision.id) if revision else None
         assessment_id = assessment.id if assessment else None
-    decision = db.scalar(select(Decision).where(Decision.application_id == application.id))
     return financial_input_hash(
         {
             "input": payload,

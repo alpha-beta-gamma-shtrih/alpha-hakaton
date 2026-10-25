@@ -128,6 +128,12 @@ def card(db, application, revision):
             **decision_view(decision).model_dump(),
             decided_by_user_id=decision.decided_by_user_id,
             internal_comment=decision.internal_comment,
+            offer_risk_score=decision.offer_snapshot["risk_score"]
+            if decision.offer_snapshot
+            else None,
+            offer_risk_band=decision.offer_snapshot["risk_band"]
+            if decision.offer_snapshot
+            else None,
         )
         if decision
         else None,
