@@ -111,10 +111,17 @@ def exercise_scenarios(client, original_password=PASSWORD):
     client.app.state.auth.limiter.limit = 1000
     first_document = None
     scenarios = json.loads((DATA / "scenarios.json").read_text(encoding="utf-8"))
+    credentials = {row.email: row.password.get_secret_value() for row in load_bundle(DATA).users}
     for scenario in scenarios:
         key = scenario["company_key"]
         email = "client@example.com" if key == "C01" else f"client{int(key[1:])}@example.com"
-        password = original_password if key == "C01" else SEED_PASSWORD
+        password = (
+            original_password
+            if key == "C01"
+            else SEED_PASSWORD
+            if key == "C02"
+            else credentials[email]
+        )
         assert login(client, email, password).status_code == 200
         companies = client.get("/api/companies").json()["items"]
         assert len(companies) == 1
