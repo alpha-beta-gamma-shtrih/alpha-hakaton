@@ -1,9 +1,12 @@
+from datetime import datetime
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
 from credit_cabinet.models.enums import Routing
 from credit_cabinet.schemas.business import (
+    DraftResponse,
     MoneyOutput,
     PositiveInteger,
     ProvenanceResponse,
@@ -41,3 +44,25 @@ class ScenariosResponse(BaseModel):
     mode: Literal["CALCULATION_ONLY", "PREVIEW"]
     application_version: int
     candidates: list[CandidateResponse]
+
+
+class ScenarioSetRequest(ScenariosRequest):
+    refresh: bool = Field(default=False, strict=True)
+
+
+class ScenarioSelectRequest(ScenariosRequest):
+    scenario_set_id: UUID
+    candidate_id: Literal["REQUESTED", "LOWER_AMOUNT", "LONGER_TERM"]
+
+
+class ScenarioSetResponse(ScenariosResponse):
+    id: UUID
+    created_at: datetime
+    is_current: bool
+    stale_reason: str | None
+    selected_candidate_id: Literal["REQUESTED", "LOWER_AMOUNT", "LONGER_TERM"] | None
+
+
+class ScenarioSetUpdate(BaseModel):
+    application: DraftResponse
+    scenario_set: ScenarioSetResponse

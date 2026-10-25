@@ -1,8 +1,10 @@
 # База данных: спецификация для demo-0.2
 
-> Обновление demo-0.3: для нового продукта WC_DEMO/version=3 действуют [PRICING.md](PRICING.md) и [PRICING_CHECK.md](PRICING_CHECK.md): 20% минимум, 6–60 месяцев, пять целей и персональные скидки. Числа demo-0.2 ниже относятся к историческому продукту v2. Текущая миграция — 0005_personal_pricing.
+> Обновление demo-0.3: для нового продукта WC_DEMO/version=3 действуют [PRICING.md](PRICING.md) и [PRICING_CHECK.md](PRICING_CHECK.md): 20% минимум, 6–60 месяцев, пять целей и персональные скидки. Числа demo-0.2 ниже относятся к историческому продукту v2. Условия добавила 0005_personal_pricing; текущая вершина — 0006_scenario_sets.
 
 > Рабочий seed теперь содержит 144 компании и 146 аккаунтов; схема БД и 15 таблиц остались прежними. Что импортируется в PostgreSQL, что остаётся файлами и как обновлять заполненную БД — [DATA_VALIDATION.md](DATA_VALIDATION.md).
+
+> Обновление 25 октября: актуальная вершина — 0006_scenario_sets. В applications добавлено nullable JSONB-поле scenario_set: id/дата набора, рассчитанные кандидаты, выбранный candidate_id, хеш расчётного контекста и признак ручной правки суммы/срока. Поле меняет только backend; PATCH черновика его не принимает. Оно не входит в неизменяемый снимок: снимок фиксирует выбранные параметры. Таблиц остаётся 15. Подробности — [SCENARIO_SETS_CHECK.md](SCENARIO_SETS_CHECK.md).
 
 Базовая схема demo-0.2 (актуальное расширение — PRICING.md), синхронизированная с [SYNTETIC.md](SYNTETIC.md), schema_version=2 / demo-policy-0.2. Набор и продукт: demo-0.2 / WC_DEMO/version=2. schema_version — версия предметного контракта, не миграция Alembic. Все 15 ORM-моделей реализованы в src/credit_cabinet/models; начальная миграция — migrations/versions/0001_demo_02.py. Импорт, сессии, черновики, отправки/снимки, оценки/проверки, автоматические решения и дозапросы уже работают. Миграция 0002_revision_immutability запрещает UPDATE/DELETE отправленных версий, 0003_document_immutability — метаданных документов. Банковские чтения, ручной дозапрос/решение и retry реализованы по BANK_CHECK.md; документы и права выдачи — DOCUMENTS_CHECK.md. Общая архитектура: [ARCHITECTURE.md](ARCHITECTURE.md). Интерфейсы и жизненный цикл: [USER_FLOWS.md](USER_FLOWS.md).
 

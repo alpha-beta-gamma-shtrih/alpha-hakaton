@@ -186,6 +186,11 @@ def patch_draft(
         )
     if application.lock_version != body.expected_version:
         raise APIError(409, "VERSION_CONFLICT", "Черновик уже изменён. Получите актуальную версию")
+    if application.scenario_set and any(
+        field in body.model_fields_set and getattr(application, field) != getattr(body, field)
+        for field in ("requested_amount", "term_months")
+    ):
+        application.scenario_set = {**application.scenario_set, "manually_changed": True}
     for field in ("requested_amount", "term_months", "purpose_code", "purpose_details", "ui_step"):
         if field in body.model_fields_set:
             setattr(application, field, getattr(body, field))

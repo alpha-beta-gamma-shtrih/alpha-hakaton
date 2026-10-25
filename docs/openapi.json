@@ -2833,6 +2833,362 @@
         }
       }
     },
+    "/api/applications/{application_id}/scenario-set": {
+      "get": {
+        "tags": [
+          "scenarios"
+        ],
+        "summary": "Scenario Set",
+        "operationId": "scenario_set_api_applications__application_id__scenario_set_get",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ScenarioSetResponse"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Scenario Set Api Applications  Application Id  Scenario Set Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "scenarios"
+        ],
+        "summary": "Create Scenario Set",
+        "operationId": "create_scenario_set_api_applications__application_id__scenario_set_post",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioSetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioSetUpdate"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/applications/{application_id}/scenario-set/select": {
+      "post": {
+        "tags": [
+          "scenarios"
+        ],
+        "summary": "Select Scenario",
+        "operationId": "select_scenario_api_applications__application_id__scenario_set_select_post",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioSelectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioSetUpdate"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
     "/api/documents/{document_id}": {
       "get": {
         "tags": [
@@ -6658,6 +7014,151 @@
           "MANUAL_REVIEW"
         ],
         "title": "Routing"
+      },
+      "ScenarioSelectRequest": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Expected Version"
+          },
+          "scenario_set_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Scenario Set Id"
+          },
+          "candidate_id": {
+            "type": "string",
+            "enum": [
+              "REQUESTED",
+              "LOWER_AMOUNT",
+              "LONGER_TERM"
+            ],
+            "title": "Candidate Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "scenario_set_id",
+          "candidate_id"
+        ],
+        "title": "ScenarioSelectRequest"
+      },
+      "ScenarioSetRequest": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Expected Version"
+          },
+          "refresh": {
+            "type": "boolean",
+            "title": "Refresh",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version"
+        ],
+        "title": "ScenarioSetRequest"
+      },
+      "ScenarioSetResponse": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "CALCULATION_ONLY",
+              "PREVIEW"
+            ],
+            "title": "Mode"
+          },
+          "application_version": {
+            "type": "integer",
+            "title": "Application Version"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateResponse"
+            },
+            "type": "array",
+            "title": "Candidates"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "is_current": {
+            "type": "boolean",
+            "title": "Is Current"
+          },
+          "stale_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stale Reason"
+          },
+          "selected_candidate_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "REQUESTED",
+                  "LOWER_AMOUNT",
+                  "LONGER_TERM"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Candidate Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode",
+          "application_version",
+          "candidates",
+          "id",
+          "created_at",
+          "is_current",
+          "stale_reason",
+          "selected_candidate_id"
+        ],
+        "title": "ScenarioSetResponse"
+      },
+      "ScenarioSetUpdate": {
+        "properties": {
+          "application": {
+            "$ref": "#/components/schemas/DraftResponse"
+          },
+          "scenario_set": {
+            "$ref": "#/components/schemas/ScenarioSetResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "application",
+          "scenario_set"
+        ],
+        "title": "ScenarioSetUpdate"
       },
       "ScenariosRequest": {
         "properties": {

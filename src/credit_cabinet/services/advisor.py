@@ -22,6 +22,7 @@ from credit_cabinet.services.advisor_context import (
     valid_selection,
 )
 from credit_cabinet.services.policy import canonical_hash
+from credit_cabinet.services.scenario_sets import use_saved_comparison
 from credit_cabinet.services.scenarios import prepare_comparison
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,14 @@ logger = logging.getLogger(__name__)
 
 def current(db, application, report, settings):
     try:
+        if report.context_snapshot.get("mode") == "COMPARE":
+            set_id = (
+                (application.scenario_set or {}).get("id")
+                if application.status in {"DRAFT", "NEEDS_INFO"}
+                else None
+            )
+            if report.context_snapshot.get("scenario_set_id") != set_id:
+                return False
         if report.context_snapshot["basis_hash"] != basis_hash(db, application):
             return False
         if report.context_snapshot["assessment_id"] is None:
@@ -68,7 +77,14 @@ def generate(db, principal, application_id, body, auth, sources, model, session_
     application = client_application(db, principal.user.id, application_id)
     require_confirmation(application)  # Before checks, their cache, or a model call.
     comparison = prepare_comparison(db, principal.user.id, application_id, body, sources)
+    if body.mode == "COMPARE":
+        comparison = use_saved_comparison(db, application, comparison, auth.settings)
     context = build_facts(comparison, application, body.mode)
+    context["scenario_set_id"] = (
+        (application.scenario_set or {}).get("id")
+        if body.mode == "COMPARE" and application.status in {"DRAFT", "NEEDS_INFO"}
+        else None
+    )
     context["basis_hash"] = basis_hash(
         db, application, payload=comparison.payload, assessment_id=comparison.assessment_id
     )
@@ -90,6 +106,7 @@ def generate(db, principal, application_id, body, auth, sources, model, session_
             "candidates": [row["input_hash"] for row in scenarios],
             "mode": body.mode,
             "prompt_version": PROMPT_VERSION,
+            "scenario_set_id": context["scenario_set_id"],
         }
     )
     revision_id = comparison.revision_id

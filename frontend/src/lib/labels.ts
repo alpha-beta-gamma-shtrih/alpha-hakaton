@@ -112,7 +112,7 @@ export const EVENT_LABELS: Record<string, string> = {
 export const eventLabel = (t: string) => EVENT_LABELS[t] ?? t.replace(/_/g, ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase())
 
 export const ADVISOR_CANDIDATE: Record<string, { label: string; color: string }> = {
-  REQUESTED: { label: 'Как в заявке', color: 'var(--ink)' },
-  LOWER_AMOUNT: { label: 'Сумма −20%', color: 'var(--blue)' },
-  LONGER_TERM: { label: 'Срок +12 мес', color: 'var(--violet)' },
+  REQUESTED: { label: 'Исходный запрос', color: 'var(--ink)' },
+  LOWER_AMOUNT: { label: 'Меньше сумма', color: 'var(--blue)' },
+  LONGER_TERM: { label: 'Дольше срок', color: 'var(--violet)' },
 }

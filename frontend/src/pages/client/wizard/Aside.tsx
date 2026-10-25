@@ -3,10 +3,10 @@ import { AiDockShell, useClaimAiDock } from '../../../components/AiDock'
 import { ApiError } from '../../../api/client'
 import { PricingBreakdown } from '../../../components/PricingBreakdown'
 import { applications } from '../../../api/endpoints'
-import type { AdvisorMode, AdvisorReport, Candidate, FormStep } from '../../../api/types'
+import type { AdvisorMode, AdvisorReport, Candidate, FormStep, ScenarioSetUpdate } from '../../../api/types'
 import { PixelArt } from '../../../components/pixel'
 import { AnimatedNumber, Button, Checkbox, CheckIcon, useToast } from '../../../components/ui'
-import { groupDigits, money, months, percent, relative } from '../../../lib/format'
+import { money, months, percent, relative } from '../../../lib/format'
 import { ADVISOR_CANDIDATE, ROUTING } from '../../../lib/labels'
 import type { readiness, useDraftEditor } from './useDraftEditor'
 
@@ -104,33 +104,79 @@ export function CalcPanel({ ed, ready, scen, locked }: { ed: Editor; ready: Read
 }
 
 export function Variants({ ed, scen, locked, onAskAi }: { ed: Editor; scen: ReturnType<typeof useScenarios>; locked?: boolean; onAskAi?: () => void }) {
-  const cands = !ed.busy && ed.state !== 'conflict' && ed.state !== 'error' && !scen.isPlaceholderData && scen.data?.application_version === ed.server.version && (ed.form.bkiAllowed || scen.data.mode === 'CALCULATION_ONLY') ? scen.data.candidates : []
-  if (cands.length < 2) return null
-  const base = cands[0]
-  const pick = (c: Candidate) => ed.update({ amount: groupDigits(String(Number(c.requested_amount))), term: c.term_months }, ['amount', 'term'], true)
+  const qc = useQueryClient()
+  const toast = useToast()
+  const id = ed.server.id
+  const canCreate = !ed.busy && ed.state !== 'conflict' && ed.state !== 'error' && !scen.isPlaceholderData && scen.data?.application_version === ed.server.version
+  const cache = (result: ScenarioSetUpdate) => {
+    for (const ready of [true, false]) qc.setQueryData(['scenario-set', id, result.application.version, ready], result.scenario_set)
+  }
+  const options = useQuery({
+    queryKey: ['scenario-set', id, ed.server.version, canCreate],
+    enabled: !ed.busy,
+    queryFn: async () => {
+      const saved = await applications.scenarioSet(id)
+      if (saved || !canCreate) return saved
+      const result = await ed.command((version) => applications.createScenarioSet(id, version))
+      cache(result)
+      return result.scenario_set
+    },
+    placeholderData: (previous) => previous,
+    staleTime: Infinity,
+    retry: false,
+  })
+  const mutate = useMutation({
+    mutationFn: (candidate: Candidate['candidate_id'] | null) => ed.command((version) => candidate && options.data
+      ? applications.selectScenario(id, version, options.data.id, candidate)
+      : applications.createScenarioSet(id, version, true)),
+    onSuccess: cache,
+    onError: (error) => {
+      toast.error(error, 'Не удалось сохранить вариант')
+      void qc.invalidateQueries({ queryKey: ['scenario-set', id] })
+    },
+  })
+  const saved = options.data
+  const fresh = !!saved && saved.is_current && saved.application_version === ed.server.version && !options.isPlaceholderData
+  const busy = ed.busy || mutate.isPending || options.isFetching
+  const blocked = busy || ed.state === 'conflict' || ed.state === 'error'
+  // Never retain credit-derived calculations in the UI after consent is withdrawn,
+  // including the brief interval before the refreshed server response arrives.
+  const cands = saved && (ed.form.bkiAllowed || saved.mode === 'CALCULATION_ONLY') ? saved.candidates : []
+  if (!saved && !canCreate && !options.error) return null
+  const base = cands.find((c) => c.candidate_id === 'REQUESTED')
   return (
     <section className="card variants">
       <div className="card-head" style={{ marginBottom: 12 }}>
         <div>
-          <h3 className="card-title">Варианты</h3>
-          <span className="hint">не меняют заявку, пока вы не выберете</span>
+          <h3 className="card-title">Варианты финансирования</h3>
+          <span className="hint">набор сохраняется; выбор меняет только условия заявки</span>
         </div>
         {onAskAi && (
-          <button type="button" className="ask-ai" onClick={onAskAi}>
+          <button type="button" className="ask-ai" onClick={onAskAi} disabled={!fresh || blocked}>
             Спросить ИИ
           </button>
         )}
       </div>
+      {saved && !saved.is_current && <p className="hint" role="status">{saved.stale_reason} Сохранённые карточки ниже не применяются до обновления.</p>}
+      {options.error && <p className="calc-err" role="alert">{options.error instanceof ApiError ? options.error.message : 'Варианты недоступны'}</p>}
+      {locked && <p className="hint">Для выбора другого варианта откройте «Потребность» и нажмите «Редактировать».</p>}
+      {!ed.form.bkiAllowed && saved?.mode === 'PREVIEW' && <p className="hint">Прежняя оценка скрыта: согласие на проверку истории отозвано.</p>}
+      <div style={{ marginBottom: 16 }}>
+        <Button size="sm" variant="white" disabled={!canCreate || blocked} onClick={() => mutate.mutate(null)}>
+          {saved ? 'Обновить варианты' : 'Рассчитать варианты'}
+        </Button>
+        {saved && <p className="hint" style={{ marginTop: 8 }}>Обновление построит новый набор от текущей суммы и срока. Переключение карточек набор не меняет.</p>}
+      </div>
       <div className="stack">
         {cands.map((c) => {
           const meta = ADVISOR_CANDIDATE[c.candidate_id]
-          const diff = Number(c.monthly_payment) - Number(base.monthly_payment)
-          const isCurrent = c.candidate_id === 'REQUESTED'
+          const diff = Number(c.monthly_payment) - Number(base?.monthly_payment ?? c.monthly_payment)
+          const isCurrent = fresh && saved?.selected_candidate_id === c.candidate_id
           return (
             <div key={c.candidate_id} className={`variant ${isCurrent ? 'cur' : ''}`} style={{ ['--vc' as string]: meta.color }}>
               <div className="variant-top">
                 <span className="variant-tag">{meta.label}</span>
-                {c.preliminary_route && <span className={`route sm r-${c.preliminary_route}`}>{ROUTING[c.preliminary_route]}</span>}
+                {fresh && c.preliminary_route && <span className={`route sm r-${c.preliminary_route}`}>{ROUTING[c.preliminary_route]}</span>}
               </div>
               <div className="variant-main">
                 <div>
@@ -143,17 +189,17 @@ export function Variants({ ed, scen, locked, onAskAi }: { ed: Editor; scen: Retu
                   <span>/мес</span>
                 </div>
               </div>
-              {!isCurrent && (
-                <div className="variant-foot">
+              <div className="variant-foot">
+                {c.candidate_id !== 'REQUESTED' ? (
                   <span className="hint num">
                     {diff < 0 ? '−' : '+'}
-                    {money(Math.abs(diff))} в месяц · переплата {money(c.estimated_overpayment)}
+                    {money(Math.abs(diff))} в месяц к исходному запросу · переплата {money(c.estimated_overpayment)}
                   </span>
-                  <Button size="sm" variant="white" disabled={locked} title={locked ? 'Шаг «Потребность» подтверждён — нажмите «Редактировать»' : undefined} onClick={() => pick(c)}>
-                    Выбрать
+                ) : <span className="hint">Сохранённая отправная точка сравнения</span>}
+                  <Button size="sm" variant="white" disabled={locked || blocked || !fresh || isCurrent} title={locked ? 'Шаг «Потребность» подтверждён — нажмите «Редактировать»' : undefined} onClick={() => mutate.mutate(c.candidate_id)}>
+                    {isCurrent ? 'Выбран' : 'Выбрать'}
                   </Button>
                 </div>
-              )}
             </div>
           )
         })}

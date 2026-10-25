@@ -36,6 +36,8 @@ export type Revision = S['RevisionResponse']
 export type Submission = S['SubmissionResponse']
 export type Scenarios = S['ScenariosResponse']
 export type Candidate = S['CandidateResponse']
+export type ScenarioSet = S['ScenarioSetResponse']
+export type ScenarioSetUpdate = S['ScenarioSetUpdate']
 export type AdvisorReport = S['AdvisorResponse']
 export type AdvisorMode = NonNullable<S['AdvisorRequest']['mode']>
 

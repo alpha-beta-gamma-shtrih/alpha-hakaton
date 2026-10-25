@@ -39,13 +39,13 @@ function MoneyField({ value, onChange, invalid, label, id, big, placeholder, onE
           onKeyDown={(e) => {
             if (e.key === 'Enter' && onEnter) {
               const p = parseMoney(e.currentTarget.value)
-              if (p && p !== 'invalid') onChange(moneyToInput(p))
+              if (p && p !== 'invalid' && moneyToInput(p) !== value) onChange(moneyToInput(p))
               onEnter()
             }
           }}
           onBlur={(e) => {
             const p = parseMoney(e.target.value)
-            if (p && p !== 'invalid') onChange(moneyToInput(p))
+            if (p && p !== 'invalid' && moneyToInput(p) !== value) onChange(moneyToInput(p))
           }}
         />
         <span className="cur">₽</span>
