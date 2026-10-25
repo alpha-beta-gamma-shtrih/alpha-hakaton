@@ -76,6 +76,7 @@ class Application(IdentityMixin, UpdatedMixin, Base):
     closed_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     archived_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     scenario_set: Mapped[dict | None] = mapped_column(JSON_VALUE)
+    signing_record: Mapped[dict | None] = mapped_column(JSON_VALUE)
     __mapper_args__ = {"version_id_col": lock_version}
     __table_args__ = (
         CheckConstraint(
@@ -85,9 +86,14 @@ class Application(IdentityMixin, UpdatedMixin, Base):
         CheckConstraint("term_months > 0", name="positive_term"),
         CheckConstraint("lock_version > 0", name="positive_lock_version"),
         CheckConstraint(
-            "(status IN ('APPROVED', 'REJECTED') AND closed_at IS NOT NULL) OR "
-            "(status NOT IN ('APPROVED', 'REJECTED') AND closed_at IS NULL)",
+            "(status IN ('APPROVED', 'REJECTED', 'SIGNED') AND closed_at IS NOT NULL) OR "
+            "(status NOT IN ('APPROVED', 'REJECTED', 'SIGNED') AND closed_at IS NULL)",
             name="final_closed_at",
+        ),
+        CheckConstraint(
+            "(status = 'SIGNED' AND signing_record IS NOT NULL) OR "
+            "(status <> 'SIGNED' AND signing_record IS NULL)",
+            name="signing_presence",
         ),
         Index("ix_applications_company_updated", "company_id", "updated_at"),
         Index("ix_applications_bank_queue", "status", "submitted_at"),

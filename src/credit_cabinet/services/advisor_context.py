@@ -107,11 +107,11 @@ def build_facts(comparison, application, mode):
         else "Финансы взяты из синтетического демо-профиля; проверки также демонстрационные.",
     )
     card("PRELIMINARY_ONLY", "Сравнение не является решением банка и не изменяет заявку.")
-    if application.status in (ApplicationStatus.APPROVED, ApplicationStatus.REJECTED):
+    if application.status in (ApplicationStatus.APPROVED, ApplicationStatus.REJECTED, ApplicationStatus.SIGNED):
         card(
             "SAVED_DECISION",
             "По отправленной версии уже сохранено решение: "
-            + ("одобрено." if application.status == ApplicationStatus.APPROVED else "отказано.")
+            + ("одобрено." if application.status in (ApplicationStatus.APPROVED, ApplicationStatus.SIGNED) else "отказано.")
             + " Предварительные варианты его не заменяют.",
         )
     for candidate in candidates:
@@ -185,6 +185,7 @@ def build_facts(comparison, application, mode):
         ApplicationStatus.MANUAL_REVIEW: "CONTACT_BANK",
         ApplicationStatus.APPROVED: "REVIEW_DECISION",
         ApplicationStatus.REJECTED: "REVIEW_DECISION",
+        ApplicationStatus.SIGNED: "REVIEW_DECISION",
     }.get(application.status)
     if next_step is None:
         reasons = candidates[0]["reason_codes"]
