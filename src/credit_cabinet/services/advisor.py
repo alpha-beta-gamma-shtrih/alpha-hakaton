@@ -22,6 +22,7 @@ from credit_cabinet.services.advisor_context import (
     valid_selection,
 )
 from credit_cabinet.services.policy import canonical_hash
+from credit_cabinet.services.scenario_sets import use_saved_comparison
 from credit_cabinet.services.scenarios import prepare_comparison
 
 logger = logging.getLogger(__name__)
@@ -68,6 +69,8 @@ def generate(db, principal, application_id, body, auth, sources, model, session_
     application = client_application(db, principal.user.id, application_id)
     require_confirmation(application)  # Before checks, their cache, or a model call.
     comparison = prepare_comparison(db, principal.user.id, application_id, body, sources)
+    if body.mode == "COMPARE":
+        comparison = use_saved_comparison(db, application, comparison, auth.settings)
     context = build_facts(comparison, application, body.mode)
     context["basis_hash"] = basis_hash(
         db, application, payload=comparison.payload, assessment_id=comparison.assessment_id

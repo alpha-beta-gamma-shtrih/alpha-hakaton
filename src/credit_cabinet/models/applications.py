@@ -75,6 +75,7 @@ class Application(IdentityMixin, UpdatedMixin, Base):
     submitted_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     closed_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     archived_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    scenario_set: Mapped[dict | None] = mapped_column(JSON_VALUE)
     __mapper_args__ = {"version_id_col": lock_version}
     __table_args__ = (
         CheckConstraint(
