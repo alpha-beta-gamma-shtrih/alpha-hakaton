@@ -18,6 +18,7 @@ export function useStartApplication() {
     onSuccess: (d) => {
       qc.setQueryData(['application', d.id], d)
       qc.invalidateQueries({ queryKey: ['applications'] })
+      qc.invalidateQueries({ queryKey: ['company-documents'] })
       nav(`/applications/${d.id}`)
     },
     onError: (e) => toast.error(e, 'Не удалось создать заявку'),

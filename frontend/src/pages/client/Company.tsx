@@ -5,6 +5,7 @@ import { ErrorNotice, ProvenanceBadge, SectionTitle, Skeleton, Stat } from '../.
 import { date, money, moneyShort, monthName, monthShort } from '../../lib/format'
 import { LEGAL_FORM } from '../../lib/labels'
 import { useCompanies, useCompany } from '../../lib/queries'
+import { CompanyFiles } from './CompanyFiles'
 
 /** Inflow vs outflow bars with the operating cash flow line, per month. */
 export function CashflowBars({ months, height = 220 }: { months: FinancialMonth[]; height?: number }) {
@@ -123,6 +124,7 @@ export function CompanyPage() {
           </p>
         </div>
       </div>
+      {company && <CompanyFiles key={company.id} companyId={company.id} />}
     </div>
   )
 }

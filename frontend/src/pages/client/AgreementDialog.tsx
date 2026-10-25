@@ -8,16 +8,24 @@ import { dateTime, money, months, shortId } from '../../lib/format'
 import { PURPOSE } from '../../lib/labels'
 
 export function AgreementDialog({ app, onClose }: { app: Draft; onClose: () => void }) {
+  return <AgreementView app={app} applicationId={app.id} onClose={onClose} />
+}
+
+export function SignedAgreementDialog({ applicationId, onClose }: { applicationId: string; onClose: () => void }) {
+  return <AgreementView applicationId={applicationId} onClose={onClose} />
+}
+
+function AgreementView({ app, applicationId, onClose }: { app?: Draft; applicationId: string; onClose: () => void }) {
   const qc = useQueryClient()
   const nav = useNavigate()
   const toast = useToast()
   const titleId = useId()
   const title = useRef<HTMLHeadingElement>(null)
   useEffect(() => { title.current?.focus() }, [])
-  const document = useQuery({ queryKey: ['agreement', app.id, app.version], queryFn: () => applications.agreement(app.id), retry: false })
+  const document = useQuery({ queryKey: ['agreement', applicationId, app?.version ?? 'signed'], queryFn: () => applications.agreement(applicationId), retry: false })
   const sign = useMutation({
     mutationFn: () => {
-      if (!document.data) throw new Error('Документ ещё не получен')
+      if (!document.data || !app) throw new Error('Документ недоступен для подписания')
       return applications.signAgreement(app.id, {
         expected_version: app.version,
         decision_id: document.data.content.decision_id,
@@ -26,18 +34,20 @@ export function AgreementDialog({ app, onClose }: { app: Draft; onClose: () => v
       })
     },
     onSuccess: (updated) => {
-      qc.setQueryData(['application', app.id], updated)
+      qc.setQueryData(['application', applicationId], updated)
       void qc.invalidateQueries({ queryKey: ['applications'] })
-      void qc.invalidateQueries({ queryKey: ['events', app.id] })
+      void qc.invalidateQueries({ queryKey: ['events', applicationId] })
+      void qc.invalidateQueries({ queryKey: ['company-agreements'] })
+      void qc.invalidateQueries({ queryKey: ['company-documents'] })
       void qc.invalidateQueries({ queryKey: ['bank-queue'] })
-      void qc.invalidateQueries({ queryKey: ['agreement', app.id] })
+      void qc.invalidateQueries({ queryKey: ['agreement', applicationId] })
       toast.push({ tone: 'ok', title: 'Демо-документ подписан', message: 'Электронная подпись имитирована. Средства не выдавались.' })
       onClose()
       nav('/applications')
     },
     onError: () => {
-      void qc.invalidateQueries({ queryKey: ['application', app.id] })
-      void qc.invalidateQueries({ queryKey: ['agreement', app.id] })
+      void qc.invalidateQueries({ queryKey: ['application', applicationId] })
+      void qc.invalidateQueries({ queryKey: ['agreement', applicationId] })
     },
   })
   const content = document.data?.content
@@ -53,8 +63,8 @@ export function AgreementDialog({ app, onClose }: { app: Draft; onClose: () => v
         <ErrorNotice error={document.error} onRetry={() => document.refetch()} />
         {document.isLoading && <Skeleton h={240} />}
         {content && <>
-          <p className="hint">Заявка № {shortId(app.id)} · условия одобрены {dateTime(content.issued_at)}</p>
-          {app.decision?.offer && <Notice tone="plain">Вы подписываете предложение банка с изменёнными условиями. Проверьте новые сумму и срок перед подписанием.</Notice>}
+          <p className="hint">Заявка № {shortId(applicationId)} · условия одобрены {dateTime(content.issued_at)}</p>
+          {app?.decision?.offer && !signature && <Notice tone="plain">Вы подписываете предложение банка с изменёнными условиями. Проверьте новые сумму и срок перед подписанием.</Notice>}
           <h3>{content.company_name}</h3>
           <p className="hint">ИНН {content.inn} · {PURPOSE[content.purpose_code].label}</p>
           <dl className="kv agreement-terms">
@@ -69,7 +79,7 @@ export function AgreementDialog({ app, onClose }: { app: Draft; onClose: () => v
           <Notice tone="plain">{content.notice}</Notice>
           {signature && <Notice tone="ok">Подписано в демо-режиме {dateTime(signature.signed_at)}. Участник: {signature.signed_by_display_name}.</Notice>}
           <ErrorNotice error={sign.error} />
-          {!signature && <div className="agreement-actions">
+          {app && !signature && <div className="agreement-actions">
             <p className="hint">Нажимая «Подписать», вы подтверждаете просмотр этих условий и запускаете эмуляцию электронной подписи.</p>
             <Button variant="lime" size="lg" loading={sign.isPending} disabled={document.isFetching || !!document.error} onClick={() => sign.mutate()}>Подписать</Button>
           </div>}

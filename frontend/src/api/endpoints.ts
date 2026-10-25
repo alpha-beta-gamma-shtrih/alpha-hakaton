@@ -11,6 +11,8 @@ import type {
   BankRevisionDetail,
   Company,
   CompanyDetail,
+  CompanyDocument,
+  SignedAgreement,
   Decision,
   Draft,
   DraftPatch,
@@ -52,6 +54,8 @@ export const auth = {
 export const catalog = {
   companies: () => get<Page<Company>>('/api/companies?limit=100'),
   company: (id: string) => get<CompanyDetail>(`/api/companies/${id}`),
+  companyAgreements: (id: string, limit = 10, offset = 0) => get<Page<SignedAgreement>>(`/api/companies/${id}/agreements${qs({ limit, offset })}`),
+  companyDocuments: (id: string, limit = 10, offset = 0) => get<Page<CompanyDocument>>(`/api/companies/${id}/documents${qs({ limit, offset })}`),
   products: () => get<Page<Product>>('/api/products?limit=100'),
 }
 
