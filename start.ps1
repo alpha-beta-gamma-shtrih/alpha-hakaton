@@ -1,6 +1,19 @@
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
+$postgresId = docker compose -f compose.yaml --profile database ps -q postgres
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+if (-not $postgresId) {
+    Write-Error "Start PostgreSQL first: docker compose --profile database up -d --wait postgres"
+    exit 1
+}
+$postgresHealth = docker inspect --format '{{.State.Health.Status}}' $postgresId
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+if ($postgresHealth -ne "healthy") {
+    Write-Error "Start PostgreSQL first: docker compose --profile database up -d --wait postgres"
+    exit 1
+}
+
 docker build -f Dockerfile -t credit-cabinet-app:local .
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
