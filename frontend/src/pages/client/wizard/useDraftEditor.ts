@@ -70,6 +70,8 @@ export function useDraftEditor(initial: Draft) {
   const [savedAt, setSavedAt] = useState<Date | null>(null)
   const [error, setError] = useState<ApiError | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [commandBusy, setCommandBusy] = useState(false)
+  const commandRunning = useRef(false)
 
   const formRef = useRef(form)
   formRef.current = form
@@ -206,6 +208,16 @@ export function useDraftEditor(initial: Draft) {
 
   const update = useCallback(
     (patch: Partial<FormState>, fields: Field[], immediate = false) => {
+      if (commandRunning.current) return
+      if (fields.length === 1 && fields[0] === 'amount' && patch.amount !== undefined) {
+        const parsed = parseMoney(patch.amount)
+        if (parsed !== 'invalid' && parsed === parseMoney(formRef.current.amount)) {
+          // Formatting on blur must not start autosave and disable the button
+          // that the user is clicking to refresh/select an option.
+          setForm((f) => ({ ...f, ...patch }))
+          return
+        }
+      }
       setForm((f) => ({ ...f, ...patch }))
       fields.forEach((k) => dirty.current.add(k))
       if (blocked.current) return
@@ -265,6 +277,40 @@ export function useDraftEditor(initial: Draft) {
     [id, qc],
   )
 
+  /** Serialize a server command with autosave, then adopt its complete draft.
+      Form edits are paused during the command so its response cannot discard them. */
+  const command = useCallback(async <T extends { application: Draft }>(action: (version: number) => Promise<T>): Promise<T> => {
+    if (commandRunning.current) throw new ApiError(409, null, 'Дождитесь сохранения выбранного варианта')
+    commandRunning.current = true
+    setCommandBusy(true)
+    try {
+      await flush()
+      const result = await action(versionRef.current)
+      const d = result.application
+      versionRef.current = d.version
+      setServer(d)
+      setForm(fromDraft(d))
+      qc.setQueryData(['application', id], d)
+      setSavedAt(new Date())
+      setError(null)
+      setFieldErrors({})
+      setState('saved')
+      return result
+    } catch (e) {
+      if (e instanceof ApiError && (e.code === 'VERSION_CONFLICT' || e.status === 0 || e.status >= 500)) {
+        // A lost response may already have committed the selection. Reload the
+        // server state before another write instead of retrying with an old version.
+        blocked.current = true
+        setError(e)
+        setState('conflict')
+      }
+      throw e
+    } finally {
+      commandRunning.current = false
+      setCommandBusy(false)
+    }
+  }, [flush, id, qc])
+
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current)
   }, [])
@@ -278,8 +324,8 @@ export function useDraftEditor(initial: Draft) {
     return () => document.removeEventListener('visibilitychange', h)
   }, [run])
 
-  const busy = state === 'saving' || state === 'pending'
-  return { form, server, update, flush, retry, reload, adopt, state, savedAt, error, fieldErrors: { ...fieldErrors, ...localErrors }, busy, versionRef }
+  const busy = commandBusy || state === 'saving' || state === 'pending'
+  return { form, server, update, flush, retry, reload, adopt, command, commandBusy, state, savedAt, error, fieldErrors: { ...fieldErrors, ...localErrors }, busy, versionRef }
 }
 
 function fieldOf(path: string): Field {

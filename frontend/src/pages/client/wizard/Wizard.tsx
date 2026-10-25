@@ -69,7 +69,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
 
   /** Opens a step; with an anchor, scrolls to that field, flashes it and puts the cursor in it. */
   const go = (s: FormStep, anchor?: string) => {
-    if (submitting || submitAttempt.current) return
+    if (submitting || submitAttempt.current || ed.commandBusy) return
     if (s !== ed.form.step) ed.update({ step: s }, ['step'], true)
     if (!anchor) {
       topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -217,7 +217,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
               </Button>
             </div>
           )}
-          <fieldset className={`step-fieldset rise ${locked ? 'locked' : ''}`} disabled={locked || submitting || !!submitAttempt.current}>
+          <fieldset className={`step-fieldset rise ${locked ? 'locked' : ''}`} disabled={locked || submitting || ed.commandBusy || !!submitAttempt.current}>
             {step === 'NEED' && <StepNeed ed={ed} product={product} highlight={highlight} />}
             {step === 'COMPANY' && <StepCompany company={company.data} draft={ed.server} />}
             {step === 'FINANCES' && <StepFinances ed={ed} highlight={highlight} />}
@@ -269,7 +269,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
                   Далее: {STEPS[stepIdx + 1].title} <Arrow />
                 </Button>
               ) : !locked ? (
-                <Button variant="lime" loading={confirming} disabled={missing.length > 0 || ed.state === 'conflict'} onClick={confirmStep}>
+                <Button variant="lime" loading={confirming} disabled={missing.length > 0 || ed.state === 'conflict' || ed.commandBusy} onClick={confirmStep}>
                   Подтвердить
                 </Button>
               ) : step !== 'REVIEW' ? (
@@ -277,7 +277,7 @@ export function Wizard({ draft, onSubmitted }: { draft: Draft; onSubmitted: (d: 
                   Далее: {STEPS[stepIdx + 1].title} <Arrow />
                 </Button>
               ) : (
-                <Button variant="red" size="lg" loading={submitting} disabled={!allConfirmed || !ready.canSubmit || Object.keys(ed.fieldErrors).length > 0 || ed.state === 'conflict'} onClick={submit}>
+                <Button variant="red" size="lg" loading={submitting} disabled={!allConfirmed || !ready.canSubmit || Object.keys(ed.fieldErrors).length > 0 || ed.state === 'conflict' || ed.commandBusy} onClick={submit}>
                   {ed.server.status === 'NEEDS_INFO' ? 'Отправить повторно' : 'Отправить заявку'} <Arrow />
                 </Button>
               )}

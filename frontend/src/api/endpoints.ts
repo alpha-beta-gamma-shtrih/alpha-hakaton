@@ -19,6 +19,9 @@ import type {
   RetryResponse,
   Revision,
   Scenarios,
+  ScenarioSet,
+  ScenarioSetUpdate,
+  Candidate,
   SessionResponse,
   Submission,
 } from './types'
@@ -60,6 +63,11 @@ export const applications = {
   revision: (id: string, no: number) => get<Revision>(`/api/applications/${id}/revisions/${no}`),
   decision: (id: string) => get<Decision>(`/api/applications/${id}/decision`),
   scenarios: (id: string, expected_version: number) => post<Scenarios>(`/api/applications/${id}/scenarios`, { expected_version }),
+  scenarioSet: (id: string) => get<ScenarioSet | null>(`/api/applications/${id}/scenario-set`),
+  createScenarioSet: (id: string, expected_version: number, refresh = false) =>
+    post<ScenarioSetUpdate>(`/api/applications/${id}/scenario-set`, { expected_version, refresh }),
+  selectScenario: (id: string, expected_version: number, scenario_set_id: string, candidate_id: Candidate['candidate_id']) =>
+    post<ScenarioSetUpdate>(`/api/applications/${id}/scenario-set/select`, { expected_version, scenario_set_id, candidate_id }),
   advisor: (id: string, expected_version: number, mode: AdvisorMode) =>
     post<AdvisorReport>(`/api/applications/${id}/advisor`, { expected_version, mode }),
   lastAdvisor: (id: string) => get<AdvisorReport>(`/api/applications/${id}/advisor`),

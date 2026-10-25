@@ -22,6 +22,7 @@ import type {
   Revision,
   RiskBand,
   Routing,
+  ScenarioSet,
 } from '../types'
 import { CALCULATION_DATE, DEMO_BKI, DEMO_COMPANIES, DEMO_FNS, DEMO_MONTHS, DEMO_PRODUCT, DEMO_SCENARIOS, DEMO_USERS, FINANCIAL_MONTHS, REASON_TEXT, type DemoCompany, type DemoUser, type SourceFixture } from './data'
 
@@ -53,6 +54,7 @@ interface AppRec {
   created_at: string
   updated_at: string
   archived?: boolean
+  scenario_set?: { value: ScenarioSet; context: string; manually_changed: boolean }
 }
 
 interface State {
@@ -608,6 +610,26 @@ function scenarioCandidates(app: AppRec, preview: boolean): Candidate[] | Transp
     })
 }
 
+function optionContext(app: AppRec) {
+  return hash([app.company_id, companyById(app.company_id), DEMO_PRODUCT, app.purpose_code,
+    app.purchase_from_bank_partner, app.financial_months, app.fin_declared,
+    app.confirmations.credit_history_check_allowed, app.revisions.at(-1)?.id, latestAssessment(app)?.id])
+}
+
+function optionView(app: AppRec): ScenarioSet | null {
+  const stored = app.scenario_set
+  if (!stored) return null
+  const selected = stored.value.candidates.find((c) => c.candidate_id === stored.value.selected_candidate_id)
+  const editable = app.status === 'DRAFT' || app.status === 'NEEDS_INFO'
+  const current = editable && !stored.manually_changed && stored.context === optionContext(app)
+    && selected?.requested_amount === app.requested_amount && selected?.term_months === app.term_months
+  const visible = app.confirmations.credit_history_check_allowed || stored.value.mode === 'CALCULATION_ONLY'
+  return { ...clone(stored.value), application_version: app.version, is_current: current,
+    stale_reason: current ? null : editable ? 'Условия или расчётные данные изменены. Обновите варианты.' : 'Заявка уже отправлена; изменение условий недоступно.',
+    selected_candidate_id: current ? stored.value.selected_candidate_id : null,
+    candidates: visible ? clone(stored.value.candidates) : [], mode: visible ? stored.value.mode : 'CALCULATION_ONLY' }
+}
+
 function advisorReport(app: AppRec, mode: 'EXPLAIN' | 'COMPARE', cands: Candidate[]): AdvisorReport {
   const fmt = (v: string) => Number(v).toLocaleString('ru-RU', { minimumFractionDigits: 2 })
   const factors: AdvisorReport['factors'] = [
@@ -824,6 +846,7 @@ on('PATCH', new RegExp(`^/api/applications/${U}$`), (m, body, _q, user) => {
   const partner = dd && 'purchase_from_bank_partner' in dd ? dd.purchase_from_bank_partner === true : app.purchase_from_bank_partner
   if (partner && !PURCHASE_PURPOSES.includes(purpose))
     return err(422, 'VALIDATION_ERROR', 'Партнёрская программа доступна только для закупочных целей', [{ field: 'draft_data.purchase_from_bank_partner', message: 'Снимите признак партнёрской покупки' }])
+  if (app.scenario_set && (['requested_amount', 'term_months'] as const).some((k) => k in body && body[k] !== app[k])) app.scenario_set.manually_changed = true
   for (const k of ['requested_amount', 'term_months', 'purpose_code', 'purpose_details', 'ui_step'] as const) if (k in body) (app as any)[k] = body[k]
   if (dd?.financial_months) {
     // Same as the backend: the list replaces the stored months as a whole, sorted by month.
@@ -904,11 +927,53 @@ on('POST', new RegExp(`^/api/applications/${U}/advisor$`), (m, body, _q, user) =
   if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Черновик уже изменён. Получите актуальную версию')
   if (!app.confirmations.credit_history_check_allowed)
     return err(422, 'CREDIT_HISTORY_CONFIRMATION_REQUIRED', 'Для разбора подтвердите демонстрационную проверку кредитной истории', [{ field: 'draft_data.confirmations.credit_history_check_allowed', message: 'Требуется подтверждение' }])
-  const c = scenarioCandidates(app, true)
+  const fixed = optionView(app)
+  const compareFixed = body.mode === 'COMPARE' && fixed && (app.status === 'DRAFT' || app.status === 'NEEDS_INFO')
+  if (compareFixed && !fixed.is_current) return err(409, 'SCENARIO_SET_STALE', 'Обновите варианты перед сравнением')
+  const c = compareFixed ? fixed.candidates : scenarioCandidates(app, true)
   if (!Array.isArray(c)) return c
   app.advisor = advisorReport(app, body.mode ?? 'EXPLAIN', c)
   save()
   return ok(app.advisor)
+}, { auth: 'CLIENT' })
+on('GET', new RegExp(`^/api/applications/${U}/scenario-set$`), (m, _body, _q, user) => {
+  const app = ownApp(m[1], user!)
+  return app ? ok(optionView(app)) : notFound()
+}, { auth: 'CLIENT' })
+on('POST', new RegExp(`^/api/applications/${U}/scenario-set$`), (m, body, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  if (!['DRAFT', 'NEEDS_INFO'].includes(app.status)) return err(409, 'APPLICATION_NOT_EDITABLE', 'Условия отправленной заявки менять нельзя')
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Заявка уже изменена')
+  if (app.scenario_set && !body.refresh) return ok({ application: clientDraft(app), scenario_set: optionView(app) })
+  const preview = app.confirmations.credit_history_check_allowed
+  const candidates = scenarioCandidates(app, preview)
+  if (!Array.isArray(candidates)) return candidates
+  app.version++
+  app.updated_at = now()
+  app.scenario_set = { context: optionContext(app), manually_changed: false, value: {
+    id: uid(), created_at: now(), mode: preview ? 'PREVIEW' : 'CALCULATION_ONLY',
+    application_version: app.version, candidates, selected_candidate_id: 'REQUESTED', is_current: true, stale_reason: null,
+  } }
+  return ok({ application: clientDraft(app), scenario_set: optionView(app) })
+}, { auth: 'CLIENT' })
+on('POST', new RegExp(`^/api/applications/${U}/scenario-set/select$`), (m, body, _q, user) => {
+  const app = ownApp(m[1], user!)
+  if (!app) return notFound()
+  if (!['DRAFT', 'NEEDS_INFO'].includes(app.status)) return err(409, 'APPLICATION_NOT_EDITABLE', 'Условия отправленной заявки менять нельзя')
+  if (body.expected_version !== app.version) return err(409, 'VERSION_CONFLICT', 'Заявка уже изменена')
+  if (!app.scenario_set || app.scenario_set.value.id !== body.scenario_set_id) return err(409, 'SCENARIO_SET_CONFLICT', 'Набор вариантов изменился')
+  if (!optionView(app)?.is_current) return err(409, 'SCENARIO_SET_STALE', 'Обновите варианты')
+  const candidate = app.scenario_set.value.candidates.find((c) => c.candidate_id === body.candidate_id)
+  if (!candidate) return err(422, 'SCENARIO_NOT_FOUND', 'В этом наборе нет выбранного варианта')
+  if (body.candidate_id !== app.scenario_set.value.selected_candidate_id) {
+    app.requested_amount = candidate.requested_amount
+    app.term_months = candidate.term_months
+    app.scenario_set.value.selected_candidate_id = candidate.candidate_id
+    app.version++
+    app.updated_at = now()
+  }
+  return ok({ application: clientDraft(app), scenario_set: optionView(app) })
 }, { auth: 'CLIENT' })
 on('GET', new RegExp(`^/api/applications/${U}/advisor$`), (m, _b, _q, user) => {
   const app = ownApp(m[1], user!)
