@@ -44,7 +44,7 @@ export function AdjustedOfferModal({ c, onClose, onDone, onFail }: { c: BankCard
     <p className="hint">Исходная заявка сохраняется. Сумму можно уменьшить; срок — изменить в границах отправленной версии продукта. Ставка рассчитывается автоматически.</p>
     <div className="bank-offer-fields" style={{ marginTop: 16 }}>
       <div className="field"><label htmlFor="offer-amount">Предлагаемая сумма, ₽</label>
-        <input id="offer-amount" className="input" type="number" min={min} max={max} step="0.01" value={amount} disabled={busy} onChange={e => { change(); setAmount(e.target.value) }} />
+        <input id="offer-amount" className="input" type="text" inputMode="decimal" value={amount} disabled={busy} onChange={e => { change(); setAmount(e.target.value.replace(',', '.')) }} />
         <span className="hint">От {money(min)} до {money(max)}</span></div>
       <div className="field"><label htmlFor="offer-term">Предлагаемый срок, месяцев</label>
         <input id="offer-term" className="input" type="number" min={minTerm} max={maxTerm} step="1" value={term} disabled={busy} onChange={e => { change(); setTerm(e.target.value) }} />
