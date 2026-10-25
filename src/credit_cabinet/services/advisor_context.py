@@ -211,29 +211,6 @@ def build_facts(comparison, application, mode):
     }
 
 
-def valid_selection(selection, context):
-    available = {row["factor_id"]: row for row in context["factors"]}
-    summary = selection.summary_factor_ids
-    if len(summary) != len(set(summary)) or not set(summary) <= available.keys():
-        return False
-    if context["mode"] == "EXPLAIN" and any(
-        available[key]["candidate_id"] not in (None, "REQUESTED") for key in summary
-    ):
-        return False
-    expected = set(context["candidate_ids"]) if context["mode"] == "COMPARE" else set()
-    if {row.candidate_id for row in selection.comparisons} != expected or len(
-        selection.comparisons
-    ) != len(expected):
-        return False
-    for row in selection.comparisons:
-        if len(row.factor_ids) != len(set(row.factor_ids)) or any(
-            identifier not in available or available[identifier]["candidate_id"] != row.candidate_id
-            for identifier in row.factor_ids
-        ):
-            return False
-    return selection.next_step_id == context["next_step"]["id"]
-
-
 def fallback_selection(context):
     available = {row["factor_id"] for row in context["factors"]}
     summary = [

@@ -1,7 +1,11 @@
 from copy import deepcopy
+from uuid import UUID
 
 import pytest
 
+from credit_cabinet.integrations.ollama import Generation
+from credit_cabinet.models import Application
+from credit_cabinet.schemas.advisor import ModelNarrative
 from credit_cabinet.services.advisor_narrative import comparison_guidance
 from tests.test_advisor import Model, explain
 from tests.test_drafts import patch
@@ -151,3 +155,50 @@ def test_changed_model_identity_does_not_reuse_success(personal, client):
     model.cache_matches = lambda _: False
     second = explain(client, draft, "COMPARE").json()
     assert first["id"] != second["id"] and len(model.calls) == 2
+
+
+def test_cache_metadata_wait_rechecks_consent_and_releases_transaction(personal, client):
+    from credit_cabinet.api.dependencies import get_db
+
+    draft, _ = fixed(client)
+    model = Model()
+    personal.state.advisor = model
+    explain(client, draft, "COMPARE")
+    active = personal.state.session_factory()
+
+    def dependency():
+        yield active
+
+    def revoked(_):
+        assert not active.in_transaction()
+        with personal.state.session_factory() as db:
+            application = db.get(Application, UUID(draft["id"]))
+            data = deepcopy(application.draft_data)
+            data["confirmations"]["credit_history_check_allowed"] = False
+            application.draft_data = data
+            db.commit()
+        return True
+
+    model.cache_matches = revoked
+    personal.dependency_overrides[get_db] = dependency
+    try:
+        assert explain(client, draft, "COMPARE").status_code == 422
+    finally:
+        personal.dependency_overrides.clear()
+        active.close()
+    assert len(model.calls) == 1
+
+
+@pytest.mark.parametrize("bad", ["overpayment", "funding"])
+def test_inverted_tradeoff_is_rejected_without_changing_calculations(personal, client, bad):
+    draft, options = fixed(client)
+    value = ModelNarrative(
+        benefit="Вся исходная сумма сохраняется, а ежемесячный платёж меньше.",
+        tradeoff="Общая переплата меньше исходной."
+        if bad == "overpayment"
+        else "Недостающую часть финансирования придётся найти самостоятельно.",
+    )
+    personal.state.advisor = Model(Generation(value, None))
+    report = explain(client, draft, "COMPARE", priority="KEEP_AMOUNT").json()
+    assert report["status"] == "FALLBACK" and report["error_code"] == "LLM_RESPONSE_INVALID"
+    assert report["scenarios"] == options["candidates"]

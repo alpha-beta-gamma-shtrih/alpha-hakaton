@@ -96,6 +96,7 @@ def prompt_context(context, scenarios, priority):
                 "NON_POSITIVE_CASHFLOW": "Денежный поток после расходов не позволяет обслуживать новый кредит по демо-правилам.",
                 "COMPANY_DATA_MISMATCH": "Сведения о компании в демо-источниках расходятся.",
                 "LEGAL_STATUS_UNCONFIRMED": "Правовой статус компании не подтверждён демо-источником.",
+                "RISK_SCORE_LIMIT_EXCEEDED": "По совокупности демо-факторов кредитная заявка не проходит предварительную оценку риска.",
             }
             benefit = next((reason_text[code] for code in reasons if code in reason_text), "")
             if not benefit:
@@ -106,6 +107,8 @@ def prompt_context(context, scenarios, priority):
                 )
             if any(code.startswith("SOURCE_") for code in reasons):
                 benefit = "Демо-источник проверки недоступен: это технический сбой, а не установленный отказ в кредите."
+            if "SAVED_DECISION" in cards:
+                benefit = cards["SAVED_DECISION"]
         tradeoff = context["next_step"]["text"]
         if context["mode"] == "EXPLAIN" and any(
             code.startswith("LOAD_") for code in base["reason_codes"]
@@ -123,7 +126,11 @@ def prompt_context(context, scenarios, priority):
             LABELS[alternatives[0]["candidate_id"]]
             + ": "
             + facts(alternatives[0])
-            + " Если сумма меньше нужной, часть задачи придётся финансировать самостоятельно."
+            + (
+                " Часть исходной потребности придётся финансировать самостоятельно."
+                if Decimal(alternatives[0]["requested_amount"]) < Decimal(base["requested_amount"])
+                else " Исходное финансирование сохраняется, но долг возвращается дольше."
+            )
             if alternatives
             else "Есть только исходный уникальный вариант: " + facts(base)
         )
@@ -239,7 +246,8 @@ def valid_narrative(narrative, context):
                 ):
                     return False
             if changes["requested_amount"] == 0 and re.search(
-                r"сумм(?:а|ы|у|е|ой)\b\s+(больш|меньш)|сумм(?:а|ы|у|е|ой)\b[^.;]{0,15}(увелич|уменьш)", clause
+                r"сумм(?:а|ы|у|е|ой)\b\s+(больш|меньш)|сумм(?:а|ы|у|е|ой)\b[^.;]{0,15}(увелич|уменьш)",
+                clause,
             ):
                 return False
         if changes["requested_amount"] == 0 and re.search(
