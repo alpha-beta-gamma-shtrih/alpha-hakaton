@@ -1,0 +1,97 @@
+THIRD_PARTY_NOTICES
+Умный кредитный кабинет / Альфа Хак
+
+Назначение
+Перечень основных сторонних компонентов, модели, источников данных и
+смоделированных интеграций поставки. Это не замена полным лицензиям
+зависимостей: их copyright/license notices сохраняются в соответствующих
+пакетах, исходных репозиториях и контейнерных дистрибутивах.
+Точные версии Python/npm-зависимостей и транзитивные зависимости:
+uv.lock и frontend/package-lock.json. Версии образов: Dockerfile,
+frontend/Dockerfile, compose*.yaml, traefik/compose.yaml.
+
+Модель и инференс
+- Qwen2.5-1.5B-Instruct (Alibaba Qwen), Apache-2.0.
+  https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct
+  https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/blob/main/LICENSE
+  Используется опубликованная сборка Ollama qwen2.5:1.5b, без дообучения.
+  Веса загружаются отдельно, не включены в Git. Runtime сохраняет model_id
+  и model_digest отчёта. Смена содержимого upstream-тега возможна;
+  фактический digest следует фиксировать вместе с демонстрацией.
+- Ollama, MIT; контейнер ollama/ollama:0.40.5.
+  https://github.com/ollama/ollama/blob/main/LICENSE
+  Локальный сервер инференса. Облачные платные LLM API не используются.
+
+Backend и инструменты Python
+- Python 3.12: PSF License, https://docs.python.org/3/license.html
+- FastAPI: MIT, https://github.com/fastapi/fastapi
+- Uvicorn: BSD-3-Clause, https://github.com/Kludex/uvicorn
+- SQLAlchemy, Alembic: MIT, https://github.com/sqlalchemy
+- psycopg 3: LGPL-3.0, https://github.com/psycopg/psycopg
+  Вариант psycopg[binary] включает бинарные компоненты/libpq с собственными
+  лицензиями; см. дистрибутив psycopg-binary и его лицензии.
+- Pydantic / pydantic-settings: MIT, https://github.com/pydantic
+- argon2-cffi: MIT, https://github.com/hynek/argon2-cffi
+- ItsDangerous: BSD-3-Clause, https://github.com/pallets/itsdangerous
+- email-validator: Unlicense, https://github.com/JoshData/python-email-validator
+- pytest: MIT, https://github.com/pytest-dev/pytest
+- Ruff: MIT, https://github.com/astral-sh/ruff
+- httpx2: BSD-3-Clause; метаданные закреплённого пакета в uv.lock.
+  Не следует путать это имя зависимости с пакетом httpx.
+- uv (образ сборки 0.9.5): Apache-2.0 / MIT,
+  https://github.com/astral-sh/uv
+- hatchling: MIT, https://github.com/pypa/hatch
+
+Frontend
+- React / React DOM: MIT, https://github.com/facebook/react
+- React Router: MIT, https://github.com/remix-run/react-router
+- TanStack Query: MIT, https://github.com/TanStack/query
+- TypeScript: Apache-2.0, https://github.com/microsoft/TypeScript
+- Vite / plugin-react: MIT, https://github.com/vitejs
+- openapi-typescript: MIT, https://github.com/openapi-ts/openapi-typescript
+- Шрифты Onest и Unbounded через @fontsource-variable: SIL OFL-1.1.
+  Copyright 2021 The Onest Project Authors (https://github.com/simpals/onest).
+  Copyright 2022 The Unbounded Project Authors (https://github.com/googlefonts/unbounded).
+  https://fontsource.org/fonts/onest
+  https://fontsource.org/fonts/unbounded
+  Полные copyright/OFL notices: LICENSE соответствующих npm-пакетов.
+  Шрифты поставляются локально; обращение к Google Fonts во время работы
+  интерфейса не требуется.
+- Node.js 24: MIT и лицензии встроенных компонентов,
+  https://github.com/nodejs/node/blob/main/LICENSE
+
+Инфраструктура
+- PostgreSQL 17: PostgreSQL License,
+  https://www.postgresql.org/about/licence/
+- Nginx 1.28: BSD-2-Clause, https://nginx.org/LICENSE
+- Traefik v3.7: MIT, https://github.com/traefik/traefik
+- Контейнеры используют Debian Bookworm / Alpine Linux: набор системных
+  пакетов с собственными лицензиями, а не единую лицензию ОС.
+- Docker Engine / Compose: инструменты воспроизведения поставки.
+  https://github.com/moby/moby / https://github.com/docker/compose
+  Docker Desktop — альтернативная пользовательская оболочка с отдельными
+  условиями производителя; проект не требует именно Desktop.
+- GitHub Actions: сборка/тестирование и ручная доставка на собственный сервер.
+- DuckDNS: имя домена демонстрационного сервера, не источник бизнес-данных.
+- Let's Encrypt: сертификат HTTPS через ACME/Traefik.
+  Недоступность этих серверных сервисов не блокирует локальный запуск.
+
+Данные и смоделированные интеграции
+- demo_data/demo_0_3 — синтетический набор команды: вымышленные компании,
+  пользователи, финансы, связи, продукты, документы и сценарии.
+  Сторонний клиентский банковский датасет не поставляется.
+- demo_data/demo_0_2 — прежний синтетический набор для совместимости/тестов.
+- ФНС / ЕГРЮЛ / ЕГРИП: локальные fns_responses.json; реального доступа к
+  государственным реестрам и проверки компаний по сети нет.
+- БКИ: локальные bki_responses.json; история, платежи, просрочки и ошибки
+  синтезированы. Запросов в действующее бюро кредитных историй нет.
+- Отношения с банком: bank_relationships.json, демонстрационный признак.
+- Партнёры/целевые программы: условия команды, без внешней проверки.
+- Документы: синтетические CSV-отчёты. Подписанный договор и электронная
+  подпись воспроизводятся внутри приложения; юридическая подпись,
+  реальная выдача средств и интеграция с АБС отсутствуют.
+- Расчёты/скоринг/ставки: собственные демонстрационные правила команды;
+  не воспроизведение закрытых политик какого-либо банка.
+
+Названия банков/реестров описывают предметную область кейса и эмуляции;
+проект не заявляет официальной интеграции, сертификации или одобрения ими.
