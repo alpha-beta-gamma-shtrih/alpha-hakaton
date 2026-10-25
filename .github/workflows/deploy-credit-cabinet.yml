@@ -15,6 +15,7 @@ jobs:
     env:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
     steps:
       - uses: actions/checkout@v4
 
@@ -55,16 +56,16 @@ jobs:
           known_hosts: just-a-placeholder-so-we-dont-get-errors
 
       - name: Adding Known Hosts
-        run: ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+        run: ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
       - name: Deploy Docker images
-        run: docker save credit-cabinet-app:local credit-cabinet-frontend:local | ssh -C "$SSH_USER@$SSH_HOST" docker load
+        run: docker save credit-cabinet-app:local credit-cabinet-frontend:local | ssh -p "$SSH_PORT" -C "$SSH_USER@$SSH_HOST" docker load
 
       - name: Makedir
-        run: ssh "$SSH_USER@$SSH_HOST" mkdir -p credit-cabinet
+        run: ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" mkdir -p credit-cabinet
 
       - name: Deploy Compose file
-        run: scp compose.yaml compose.https.yaml "$SSH_USER@$SSH_HOST:~/credit-cabinet/"
+        run: scp -P "$SSH_PORT" compose.yaml compose.https.yaml "$SSH_USER@$SSH_HOST:~/credit-cabinet/"
 
       - name: Deploy .env
         env:
@@ -72,13 +73,13 @@ jobs:
         run: |
           test -n "$ENV_FILE"
           printf '%s\n' "$ENV_FILE" |
-            ssh "$SSH_USER@$SSH_HOST" \
+            ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
               'umask 077; cat > ~/credit-cabinet/.env && chmod 600 ~/credit-cabinet/.env'
 
       - name: Start application
         run: >
-          ssh "$SSH_USER@$SSH_HOST"
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST"
           'cd ~/credit-cabinet && docker compose -f compose.yaml -f compose.https.yaml up --force-recreate -d frontend'
       
       - name: Remove unused images
-        run: ssh "$SSH_USER@$SSH_HOST" 'docker image prune -f'
+        run: ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'docker image prune -f'
