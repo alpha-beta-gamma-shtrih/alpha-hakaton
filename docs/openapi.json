@@ -5333,6 +5333,21 @@
             "type": "array",
             "title": "Allowed Actions"
           },
+          "credit_review_required": {
+            "type": "boolean",
+            "title": "Credit Review Required",
+            "default": false
+          },
+          "current_credit_check": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CurrentCreditCheck"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "signature": {
             "anyOf": [
               {
@@ -6342,6 +6357,75 @@
         ],
         "title": "CompanyAgreementPage"
       },
+      "CompanyCreditExposure": {
+        "properties": {
+          "reported_payment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reported Payment"
+          },
+          "signed_payment": {
+            "type": "string",
+            "title": "Signed Payment"
+          },
+          "reserved_payment": {
+            "type": "string",
+            "title": "Reserved Payment"
+          },
+          "current_payment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Payment"
+          },
+          "committed_payment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Committed Payment"
+          },
+          "signed_count": {
+            "type": "integer",
+            "title": "Signed Count"
+          },
+          "reserved_count": {
+            "type": "integer",
+            "title": "Reserved Count"
+          },
+          "basis_hash": {
+            "type": "string",
+            "title": "Basis Hash"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reported_payment",
+          "signed_payment",
+          "reserved_payment",
+          "current_payment",
+          "committed_payment",
+          "signed_count",
+          "reserved_count",
+          "basis_hash"
+        ],
+        "title": "CompanyCreditExposure"
+      },
       "CompanyDetail": {
         "properties": {
           "id": {
@@ -6404,6 +6488,16 @@
           },
           "provenance": {
             "$ref": "#/components/schemas/ProvenanceResponse"
+          },
+          "credit_exposure": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompanyCreditExposure"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -6652,6 +6746,33 @@
           "credit_history_check_allowed"
         ],
         "title": "ConfirmationsResponse"
+      },
+      "CurrentCreditCheck": {
+        "properties": {
+          "calculation_details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Calculation Details"
+          },
+          "can_approve_original": {
+            "type": "boolean",
+            "title": "Can Approve Original"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReasonResponse"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "calculation_details",
+          "can_approve_original",
+          "reasons"
+        ],
+        "title": "CurrentCreditCheck"
       },
       "DecisionOutcome": {
         "type": "string",
@@ -7236,6 +7357,11 @@
                 "type": "null"
               }
             ]
+          },
+          "credit_review_required": {
+            "type": "boolean",
+            "title": "Credit Review Required",
+            "default": false
           },
           "decline": {
             "anyOf": [

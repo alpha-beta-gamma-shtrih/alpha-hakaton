@@ -123,9 +123,15 @@ class BankQueuePage(BaseModel):
     offset: int
 
 
+class CurrentCreditCheck(BaseModel):
+    calculation_details: dict
+    can_approve_original: bool
+    reasons: list[ReasonResponse]
+
+
 class BankCard(BankQueueItem):
     credit_review_required: bool = False
-    current_credit_check: dict | None = None
+    current_credit_check: CurrentCreditCheck | None = None
     signature: SignatureResponse | None = None
     decline: DeclineResponse | None = None
     revision: RevisionResponse

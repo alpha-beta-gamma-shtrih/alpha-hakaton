@@ -4,7 +4,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 
-from credit_cabinet.models import ApplicationRevision, Decision
+from credit_cabinet.models import ApplicationRevision, Assessment, Decision
 from tests.bank_helpers import review_application
 from tests.conftest import csrf_headers, login
 from tests.test_advisor import explain
@@ -185,3 +185,24 @@ def test_new_commitments_invalidate_saved_options_and_ai_cache(seeded, client):
     assert selection.status_code == 409
     cached = client.get(f"/api/applications/{draft['id']}/advisor").json()
     assert not cached["is_current"]
+
+
+def test_existing_assessments_without_exposure_fields_still_allow_signing(seeded, client):
+    app = approved(client)
+    document = client.get(url(app)).json()
+    with seeded.state.session_factory() as db:
+        assessment = db.get(Assessment, UUID(app["assessment"]["id"]))
+        facts, details = deepcopy(assessment.input_facts), deepcopy(assessment.calculation_details)
+        facts.pop("service_exposure")
+        for key in (
+            "base_existing_payment",
+            "service_signed_payment",
+            "service_reserved_payment",
+            "service_exposure",
+        ):
+            details.pop(key)
+        assessment.input_facts, assessment.calculation_details = facts, details
+        db.commit()
+    response = sign(client, app, sign_body(app, document))
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "SIGNED"
