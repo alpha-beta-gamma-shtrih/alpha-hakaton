@@ -77,9 +77,20 @@ export function CompanyPage() {
           <Stat k="Выплаты за 6 мес" v={moneyShort(sum('operating_outflow'))} />
         </div>
         <div className="card">
-          <Stat k="Платежи по долгам" v={moneyShort(fm.at(-1)?.existing_debt_payment)} sub="последний месяц" />
+          <Stat k="Платежи по отчёту" v={moneyShort(fm.at(-1)?.existing_debt_payment)} sub="исторические данные за последний месяц" />
         </div>
       </div>
+
+      {d.data?.credit_exposure && <section className="card" style={{ marginBottom: 24 }}>
+        <SectionTitle color="violet">Кредиты и одобренные предложения</SectionTitle>
+        <div className="grid grid-4" style={{ marginTop: 16 }}>
+          <Stat k="Подписанные в сервисе" v={moneyShort(d.data.credit_exposure.signed_payment)} sub={`Договоров: ${d.data.credit_exposure.signed_count} · платёж в месяц`} />
+          <Stat k="Резерв по одобрениям" v={moneyShort(d.data.credit_exposure.reserved_payment)} sub={`Предложений: ${d.data.credit_exposure.reserved_count} · ещё не подписаны`} />
+          <Stat k="Платежи с учётом сервиса" v={moneyShort(d.data.credit_exposure.current_payment)} sub="по профилю + подписанные в сервисе" />
+          <Stat k="С учётом резервов" v={moneyShort(d.data.credit_exposure.committed_payment)} sub="используется как часть проверки новых заявок" />
+        </div>
+        <p className="hint" style={{ marginTop: 16 }}>При оценке заявки банк дополнительно сверяет исходные платежи с демо-БКИ и берёт большее значение. Резерв освобождается при отказе, а при подписании переходит в действующие демо-платежи. Погашение в MVP не моделируется.</p>
+      </section>}
 
       <div className="grid co-grid">
         <div className="card">

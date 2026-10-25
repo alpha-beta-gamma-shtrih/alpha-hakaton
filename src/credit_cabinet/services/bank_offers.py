@@ -31,7 +31,7 @@ def calculate(db, application, revision, assessment, parameters):
         )
     if amount == revision.requested_amount and term == revision.term_months:
         raise APIError(422, "OFFER_UNCHANGED", "Условия не изменены; используйте обычное одобрение")
-    result = saved_evaluation(db, revision, assessment, amount=amount, term=term)
+    result = saved_evaluation(db, revision, assessment, amount=amount, term=term, current=True)
     original = saved_evaluation(db, revision, assessment)
     if result is None or original is None:
         raise APIError(

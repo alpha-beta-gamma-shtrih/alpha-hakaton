@@ -25,7 +25,8 @@ from credit_cabinet.schemas.bank import (
 )
 from credit_cabinet.schemas.business import DeclineResponse, SignatureResponse
 from credit_cabinet.services.access import bank_application, submitted_query
-from credit_cabinet.services.bank_policy import bank_actions
+from credit_cabinet.services.bank_policy import bank_actions, saved_evaluation
+from credit_cabinet.services.exposure import approvable, review_required
 from credit_cabinet.services.reasons import public_reasons
 from credit_cabinet.services.submissions import latest_assessment
 from credit_cabinet.services.views import assessment_view, decision_view, revision_view
@@ -106,6 +107,11 @@ def bank_assessment_view(db, assessment, revision):
 
 def card(db, application, revision):
     assessment = latest_assessment(db, revision.id)
+    current = (
+        saved_evaluation(db, revision, assessment, current=True)
+        if application.status == "MANUAL_REVIEW"
+        else None
+    )
     decision = db.scalar(select(Decision).where(Decision.application_id == application.id))
     requests = list(
         db.scalars(
@@ -122,6 +128,14 @@ def card(db, application, revision):
         )
     )
     return BankCard(
+        credit_review_required=review_required(db, application, revision.id),
+        current_credit_check={
+            "calculation_details": current.calculation_details,
+            "can_approve_original": approvable(current),
+            "reasons": public_reasons(current.reason_codes),
+        }
+        if current
+        else None,
         decline=DeclineResponse.model_validate(application.decline_record)
         if application.decline_record
         else None,

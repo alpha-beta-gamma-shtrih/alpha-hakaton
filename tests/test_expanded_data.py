@@ -127,6 +127,23 @@ def exercise_scenarios(client, original_password=PASSWORD):
         assert len(companies) == 1
         company_id = str(uuid5(DEMO_NAMESPACE, f"company:{key}"))
         assert companies[0]["id"] == company_id
+        # Fixture expectations describe independent cases with no new service loans.
+        # Release previous offers through the real client command; cumulative and
+        # concurrent portfolios have dedicated credit-exposure acceptance tests.
+        previous = client.get(f"/api/applications?company_id={company_id}&limit=100").json()[
+            "items"
+        ]
+        for application in previous:
+            if application["status"] == "APPROVED":
+                refused = client.post(
+                    f"/api/applications/{application['id']}/agreement/decline",
+                    headers=csrf_headers(client),
+                    json={
+                        "expected_version": application["version"],
+                        "decision_id": application["decision"]["id"],
+                    },
+                )
+                assert refused.status_code == 200, refused.text
         if first_document and key != "C01":
             assert client.get(first_document).status_code == 404
         product = client.get("/api/products").json()["items"][0]

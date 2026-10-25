@@ -1,5 +1,7 @@
 # Действующий контракт формы, синтетики и решений: demo-0.2
 
+Дополнение к расчёту действующего сервиса: existing_payment включает max(анкета, БКИ) плюс платежи по другим SIGNED и резервы APPROVED компании. Исходные синтетические месяцы/БКИ остаются прежними. Независимые ожидаемые сценарии предполагают пустой портфель новых обязательств. [Актуальные правила](CREDIT_EXPOSURE_CHECK.md).
+
 Дополнение от 25 октября: ручное решение поддерживает необязательный offer с уменьшенной суммой, новым сроком и preview_hash. Ставку и ограничения считает backend на отправленном снимке; исходная синтетика и скоринг не меняются. Клиент принимает предложение через существующее подписание. Контракт расширения — [BANK_OFFERS_CHECK.md](BANK_OFFERS_CHECK.md).
 
 > Обновление demo-0.3: для нового продукта WC_DEMO/version=3 действуют [PRICING.md](PRICING.md) и [PRICING_CHECK.md](PRICING_CHECK.md): 20% минимум, 6–60 месяцев, пять целей и персональные скидки. Числа и примеры demo-0.2 ниже относятся к историческому продукту v2; новые заявки проверять по PRICING_CHECK.md. Текущая миграция — 0009_client_decline.
@@ -268,7 +270,7 @@ API отображает только разрешенные группы. До 
 | average_operating_cashflow | Среднее за 6 месяцев от cash_inflow минус operating_outflow, до обслуживания долга |
 | declared_current_payment | existing_debt_payment последнего месяца, 2026-09-01 |
 | confirmed_current_payment | current_monthly_payment успешного ответа БКИ |
-| existing_payment | Максимум declared_current_payment и confirmed_current_payment, если они согласованы; не сумма двух описаний одного долга |
+| existing_payment | Максимум declared_current_payment и confirmed_current_payment, если они согласованы, плюс платежи SIGNED и резервы APPROVED других заявок компании; исходный долг не дублируется |
 | new_monthly_payment | Аннуитетный расчет ниже, округленный до копеек ROUND_HALF_UP |
 | load_ratio | (existing_payment + new_monthly_payment) / average_operating_cashflow при положительном знаменателе |
 | inflow_trend | Средние поступления июля–сентября / средние поступления апреля–июня минус 1 |

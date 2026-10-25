@@ -4,7 +4,7 @@ import { applications, catalog } from '../api/endpoints'
 import { useToast } from '../components/ui'
 
 export const useCompanies = () => useQuery({ queryKey: ['companies'], queryFn: catalog.companies, staleTime: 60_000 })
-export const useCompany = (id?: string) => useQuery({ queryKey: ['company', id], queryFn: () => catalog.company(id!), enabled: !!id, staleTime: 60_000 })
+export const useCompany = (id?: string) => useQuery({ queryKey: ['company', id], queryFn: () => catalog.company(id!), enabled: !!id, staleTime: 0, refetchInterval: 15_000 })
 export const useProducts = () => useQuery({ queryKey: ['products'], queryFn: catalog.products, staleTime: 300_000 })
 export const useApplications = () => useQuery({ queryKey: ['applications'], queryFn: () => applications.list() })
 

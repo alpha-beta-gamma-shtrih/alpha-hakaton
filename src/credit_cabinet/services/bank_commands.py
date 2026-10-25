@@ -14,6 +14,7 @@ from credit_cabinet.models.enums import ApplicationStatus, InfoStatus, Role
 from credit_cabinet.services.access import bank_application
 from credit_cabinet.services.bank_offers import calculate as calculate_offer
 from credit_cabinet.services.bank_policy import bank_actions, saved_evaluation
+from credit_cabinet.services.exposure import approvable
 from credit_cabinet.services.submissions import event, latest_assessment
 
 logger = logging.getLogger(__name__)
@@ -102,8 +103,14 @@ def decide(db, principal, application_id, body, auth):
     application, revision, assessment = command_context(
         db, principal, application_id, body.expected_version, action
     )
-    result = saved_evaluation(db, revision, assessment)
+    result = saved_evaluation(db, revision, assessment, current=True)
     approved = body.outcome == "APPROVED"
+    if approved and body.offer is None and not approvable(result):
+        raise APIError(
+            422,
+            "COMPANY_EXPOSURE_CHANGED",
+            "Текущая нагрузка компании не позволяет одобрить исходные условия. Измените условия, запросите уточнение или откажите.",
+        )
     offer = None
     if body.offer is not None:
         preview, offer = calculate_offer(db, application, revision, assessment, body.offer)
@@ -145,7 +152,7 @@ def decide(db, principal, application_id, body, auth):
             monthly_payment=Decimal(details["monthly_payment"]) if approved else None,
             reason_codes=[
                 "MANUAL_APPROVED" if approved else "MANUAL_REJECTED",
-                *[row["factor_id"] for row in details["factors"]],
+                *[row["factor_id"] for row in details.get("factors", [])],
             ],
             public_explanation=body.public_explanation,
             internal_comment=body.internal_comment,
@@ -168,6 +175,7 @@ def decide(db, principal, application_id, body, auth):
                 "decision_id": str(decision.id),
                 "source": "MANUAL",
                 "terms_changed": offer is not None,
+                "service_exposure": result.input_facts.get("service_exposure"),
             },
         )
         auth.activity(db, principal, commit=False)

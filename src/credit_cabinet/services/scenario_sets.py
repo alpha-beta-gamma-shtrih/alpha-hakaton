@@ -18,6 +18,7 @@ from credit_cabinet.schemas.scenarios import (
 from credit_cabinet.services.access import client_application
 from credit_cabinet.services.advisor_context import fixture_stamp
 from credit_cabinet.services.drafts import draft_view, remember_draft
+from credit_cabinet.services.exposure import service_exposure
 from credit_cabinet.services.scenarios import prepare_comparison
 from credit_cabinet.services.snapshots import application_input, financial_input_hash
 from credit_cabinet.services.submissions import latest_assessment, latest_revision
@@ -41,6 +42,9 @@ def context_hash(db, application, settings):
     return financial_input_hash(
         {
             "input": payload,
+            "service_exposure": service_exposure(
+                db, application.company_id, exclude_application_id=application.id
+            ),
             "sources": fixture_stamp(settings.demo_dataset_dir),
             "revision_id": str(revision.id) if revision else None,
             "assessment_id": str(assessment.id) if assessment else None,

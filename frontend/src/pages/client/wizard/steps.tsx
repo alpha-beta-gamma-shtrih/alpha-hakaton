@@ -341,10 +341,11 @@ export function StepFinances({ ed, highlight }: { ed: Editor; highlight: Set<str
             <b className="num">{avg === null ? '—' : money(avg)}</b>
           </div>
           <div>
-            <span>Платежи по долгам в месяц</span>
+            <span>Платежи по отчёту за последний месяц</span>
             <b className="num">{money(debt)}</b>
           </div>
         </div>
+        <p className="hint" style={{ marginTop: 12 }}>Подписанные в сервисе кредиты и резервы по другим одобрениям банк добавляет автоматически. В исторические месяцы их вписывать не нужно.</p>
       </div>
 
       <div className="card" data-anchor="months">

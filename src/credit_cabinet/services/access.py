@@ -33,6 +33,11 @@ def find_client_application(db: Session, user_id: UUID, application_id: UUID, *,
         )
     )
     if lock:
+        company_id = db.scalar(query.with_only_columns(Application.company_id))
+        if company_id is None:
+            return None
+        # Every commitment-changing command locks company -> application, in this order.
+        db.scalar(select(Company.id).where(Company.id == company_id).with_for_update())
         query = query.with_for_update(of=Application).execution_options(populate_existing=True)
     return db.scalar(query)
 
@@ -96,6 +101,10 @@ def submitted_query():
 def bank_application(db, application_id, *, lock=False):
     query = submitted_query().where(Application.id == application_id)
     if lock:
+        company_id = db.scalar(query.with_only_columns(Application.company_id))
+        if company_id is None:
+            raise APIError(404, "APPLICATION_NOT_FOUND", "Отправленная заявка не найдена")
+        db.scalar(select(Company.id).where(Company.id == company_id).with_for_update())
         query = query.with_for_update(of=Application).execution_options(populate_existing=True)
     row = db.execute(query).one_or_none()
     if row is None:

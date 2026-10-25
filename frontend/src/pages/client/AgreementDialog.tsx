@@ -39,13 +39,18 @@ function AgreementView({ app, applicationId, onClose }: { app?: Draft; applicati
       void qc.invalidateQueries({ queryKey: ['events', applicationId] })
       void qc.invalidateQueries({ queryKey: ['company-agreements'] })
       void qc.invalidateQueries({ queryKey: ['company-documents'] })
+      void qc.invalidateQueries({ queryKey: ['company'] })
       void qc.invalidateQueries({ queryKey: ['bank-queue'] })
       void qc.invalidateQueries({ queryKey: ['agreement', applicationId] })
       toast.push({ tone: 'ok', title: 'Демо-документ подписан', message: 'Электронная подпись имитирована. Средства не выдавались.' })
       onClose()
       nav('/applications')
     },
-    onError: () => {
+    onError: (error) => {
+      toast.error(error, 'Подписание не выполнено')
+      void qc.invalidateQueries({ queryKey: ['applications'] })
+      void qc.invalidateQueries({ queryKey: ['bank-queue'] })
+      void qc.invalidateQueries({ queryKey: ['company'] })
       void qc.invalidateQueries({ queryKey: ['application', applicationId] })
       void qc.invalidateQueries({ queryKey: ['agreement', applicationId] })
     },

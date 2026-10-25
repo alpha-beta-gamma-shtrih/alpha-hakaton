@@ -1,5 +1,7 @@
 # База данных: спецификация для demo-0.2
 
+Учёт портфеля добавлен без изменения схемы: SIGNED учитывается как действующий демо-платёж, APPROVED — как резерв по финальному Decision. Состав и суммы сохраняются в Assessment.input_facts/calculation_details. При недопустимой подписи старое одобрение целиком архивируется в BANK-событии application_events, текущий Decision снимается, заявка возвращается в MANUAL_REVIEW. Новое решение получает новый id. [Подробности](CREDIT_EXPOSURE_CHECK.md).
+
 Отказ клиента добавила **0009_client_decline**: `applications.decline_record` (nullable JSONB) хранит decision_id, автора и дату отказа. Запись неизменяема; при её наличии статус только REJECTED. Банк сохраняет прежнее APPROVED-решение, отправленный снимок и расчёт. Событие AGREEMENT_DECLINED фиксирует APPROVED → REJECTED. Подписать после отказа нельзя, новых таблиц нет. [Контракт и проверка](DECLINE_CHECK.md).
 
 Разделы профиля «Кредитные договоры» и «Документы по заявкам» — представления уже сохранённых данных, без новых таблиц. Договоры читаются из applications.signing_record только при SIGNED; документы выбираются через documents.application_id → applications.company_id с исключением архивированных черновиков. Доступ ограничен membership компании. Подробности — [COMPANY_FILES_CHECK.md](COMPANY_FILES_CHECK.md).

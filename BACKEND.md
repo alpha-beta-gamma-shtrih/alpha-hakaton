@@ -1,5 +1,7 @@
 # Backend: запуск и контракты
 
+Текущие обязательства компании вычисляются из SIGNED/APPROVED других заявок. Окончательные команды блокируют компанию перед заявкой, проверки выполняются перед авто/ручным одобрением и подписью. Новых endpoint нет; CompanyDetail.credit_exposure и BankCard.current_credit_check дополняют контракт. Особый 409 COMPANY_EXPOSURE_CHANGED при подписи сохраняет возврат на ручной разбор и освобождает резерв. [Контракт и приёмка](CREDIT_EXPOSURE_CHECK.md).
+
 `POST /api/applications/{id}/agreement/decline` принимает expected_version и decision_id, требует CLIENT/membership/CSRF и возвращает обновлённую заявку. APPROVED → REJECTED с отдельным decline; банковское решение не меняется. Повтор идемпотентен; отказ и подпись сериализуются одной блокировкой. [Полный контракт](DECLINE_CHECK.md).
 
 Профиль компании: GET `/api/companies/{id}/agreements` возвращает подписанные снимки условий, GET `/api/companies/{id}/documents` — документы неудалённых заявок. Оба списка поддерживают limit/offset и требуют CLIENT с membership компании. Просмотр и скачивание используют существующие защищённые маршруты; новых миграций нет. [Контракт и проверка](COMPANY_FILES_CHECK.md).

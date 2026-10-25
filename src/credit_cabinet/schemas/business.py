@@ -180,9 +180,21 @@ class CompanyResponse(BaseModel):
     business_description: str | None
 
 
+class CompanyCreditExposure(BaseModel):
+    reported_payment: MoneyOutput | None
+    signed_payment: MoneyOutput
+    reserved_payment: MoneyOutput
+    current_payment: MoneyOutput | None
+    committed_payment: MoneyOutput | None
+    signed_count: int
+    reserved_count: int
+    basis_hash: str
+
+
 class CompanyDetail(CompanyResponse):
     financial_months: list[FinancialMonthResponse]
     provenance: ProvenanceResponse
+    credit_exposure: CompanyCreditExposure | None = None
 
 
 class CompanyPage(BaseModel):
@@ -312,6 +324,7 @@ class DraftResponse(BaseModel):
     provenance: ProvenanceResponse
     allowed_actions: list[Literal["EDIT_DRAFT", "SUBMIT", "SIGN_AGREEMENT", "DECLINE_AGREEMENT"]]
     signature: "SignatureResponse | None" = None
+    credit_review_required: bool = False
     decline: "DeclineResponse | None" = None
     open_information_request: InformationRequestResponse | None = None
     decision: DecisionResponse | None = None

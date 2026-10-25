@@ -40,7 +40,7 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
     },
     onSuccess: (updated) => {
       qc.setQueryData(['application', app.id], updated)
-      for (const key of [['applications'], ['events', app.id], ['agreement', app.id], ['bank-queue'], ['bank-card', app.id], ['company-documents']]) {
+      for (const key of [['applications'], ['events', app.id], ['agreement', app.id], ['bank-queue'], ['bank-card', app.id], ['company-documents'], ['company']]) {
         void qc.invalidateQueries({ queryKey: key })
       }
       setShowAgreement(false)
@@ -150,7 +150,7 @@ export function StatusView({ app, justSubmitted, onEdit }: { app: Draft; justSub
               </div>
             </>
           ) : app.status === 'MANUAL_REVIEW' ? (
-            <p className="st-text">Правила не дают однозначного ответа, поэтому заявку смотрит сотрудник банка. Он может запросить уточнения — тогда они появятся здесь. Ничего делать не нужно.</p>
+            <p className="st-text">{app.credit_review_required ? 'Обязательства компании изменились или требуют проверки. Прежнее одобрение и резерв сняты, подписание недоступно. Сотрудник банка рассмотрит заявку заново; история отправки и прежних условий сохранена.' : 'Правила не дают однозначного ответа, поэтому заявку смотрит сотрудник банка. Он может запросить уточнения — тогда они появятся здесь. Ничего делать не нужно.'}</p>
           ) : (
             <p className="st-text">Данные зафиксированы. Идут проверки — страница обновится сама.</p>
           )}

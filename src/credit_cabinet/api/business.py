@@ -34,6 +34,7 @@ from credit_cabinet.services.drafts import (
     patch_draft,
     profile_provenance,
 )
+from credit_cabinet.services.exposure import company_summary
 
 Client = Annotated[Principal, Depends(require_client)]
 Limit = Annotated[int, Query(ge=1, le=100)]
@@ -62,6 +63,7 @@ def company(company_id: UUID, db: Database, principal: Client):
     row = client_company(db, principal.user.id, company_id)
     months = financial_profile(db, row.id)
     return CompanyDetail(
+        credit_exposure=company_summary(db, row.id, months),
         **CompanyResponse.model_validate(row).model_dump(),
         financial_months=[FinancialMonthResponse.model_validate(month) for month in months],
         provenance=profile_provenance(
