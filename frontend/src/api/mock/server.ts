@@ -868,6 +868,23 @@ on('GET', new RegExp(`^/api/companies/${U}$`), (m, _b, _q, user) => {
 }, { auth: 'CLIENT' })
 on('GET', /^\/api\/products$/, () => ok({ items: [DEMO_PRODUCT], total: 1, limit: 100, offset: 0 }), { auth: 'CLIENT' })
 
+on('GET', new RegExp(`^/api/companies/${U}/(agreements|documents)$`), async (m, _b, q, user) => {
+  const company = companyById(m[1])
+  if (!company || !company.members.includes(user!.id)) return err(404, 'COMPANY_NOT_FOUND', 'Компания не найдена')
+  const limit = Number(q.get('limit') ?? 20)
+  const offset = Number(q.get('offset') ?? 0)
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100 || !Number.isInteger(offset) || offset < 0 || offset > 2147483647) return err(422, 'VALIDATION_ERROR', 'Некорректная страница')
+  const apps = state.apps.filter((app) => !app.archived && app.company_id === company.id)
+  if (m[2] === 'agreements') {
+    const signed = apps.filter((app) => app.status === 'SIGNED').sort((a, b) => b.updated_at.localeCompare(a.updated_at) || b.id.localeCompare(a.id))
+    const items = await Promise.all(signed.slice(offset, offset + limit).map((app) => mockAgreement(app)))
+    return ok({ items, total: signed.length, limit, offset })
+  }
+  const documents = apps.flatMap((app) => app.documents.map((document) => ({ ...document, application_status: app.status })))
+    .sort((a, b) => b.created_at.localeCompare(a.created_at) || b.id.localeCompare(a.id))
+  return ok({ items: documents.slice(offset, offset + limit), total: documents.length, limit, offset })
+}, { auth: 'CLIENT' })
+
 on('GET', /^\/api\/applications$/, (_m, _b, q, user) => {
   const comp = q.get('company_id')
   const items = state.apps
@@ -1043,6 +1060,7 @@ on('GET', new RegExp(`^/api/applications/${U}/advisor$`), (m, _b, _q, user) => {
 
 on('GET', new RegExp(`^/api/documents/${U}$`), (m, _b, _q, user) => {
   for (const app of state.apps) {
+    if (app.archived) continue
     const d = app.documents.find((x) => x.id === m[1])
     if (!d) continue
     const can = user!.role === 'BANK_STAFF' ? app.revisions.length > 0 : companyById(app.company_id)?.members.includes(user!.id)

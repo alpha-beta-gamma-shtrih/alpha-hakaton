@@ -1,5 +1,7 @@
 # База данных: спецификация для demo-0.2
 
+Разделы профиля «Кредитные договоры» и «Документы по заявкам» — представления уже сохранённых данных, без новых таблиц. Договоры читаются из applications.signing_record только при SIGNED; документы выбираются через documents.application_id → applications.company_id с исключением архивированных черновиков. Доступ ограничен membership компании. Подробности — [COMPANY_FILES_CHECK.md](COMPANY_FILES_CHECK.md).
+
 Демо-доступы для новой установки публикуются в [demo_users.json](demo_data/demo_0_3/demo_users.json): email/password. Это исходный тестовый набор, не поля PostgreSQL: importer хеширует пароль перед INSERT в users. Повторный импорт не меняет существующие пароли. Инструкция — [DEMO_ACCOUNTS.md](DEMO_ACCOUNTS.md).
 
 > Обновление demo-0.3: для нового продукта WC_DEMO/version=3 действуют [PRICING.md](PRICING.md) и [PRICING_CHECK.md](PRICING_CHECK.md): 20% минимум, 6–60 месяцев, пять целей и персональные скидки. Числа demo-0.2 ниже относятся к историческому продукту v2. Условия добавила 0005_personal_pricing; текущая вершина — 0008_bank_offers.

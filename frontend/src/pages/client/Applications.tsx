@@ -34,6 +34,7 @@ export function ApplicationsPage() {
       setConfirmId(null)
       qc.removeQueries({ queryKey: ['application', id] })
       qc.invalidateQueries({ queryKey: ['applications'] })
+      qc.invalidateQueries({ queryKey: ['company-documents'] })
       toast.push({ tone: 'ok', title: 'Черновик удалён' })
     },
     onError: (e) => {

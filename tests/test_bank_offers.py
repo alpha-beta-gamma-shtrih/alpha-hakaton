@@ -88,6 +88,9 @@ def test_offer_preview_approval_signature_and_frozen_original(seeded, client):
     assert document["content"]["approved_amount"] == "400000.00"
     assert document["content"]["term_months"] == 24
     assert sign(client, saved, sign_body(saved, document)).json()["status"] == "SIGNED"
+    contracts = client.get(f"/api/companies/{app['company_id']}/agreements").json()
+    assert contracts["total"] == 1
+    assert contracts["items"][0]["content"] == document["content"]
     assert client.get(f"/api/applications/{app['id']}/revisions/1").json() == frozen
 
 
