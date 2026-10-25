@@ -649,6 +649,116 @@
         }
       }
     },
+    "/api/applications/{application_id}/agreement/decline": {
+      "post": {
+        "tags": [
+          "agreements"
+        ],
+        "summary": "Decline Agreement",
+        "operationId": "decline_agreement_api_applications__application_id__agreement_decline_post",
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Csrf-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeclineAgreementRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
     "/api/companies": {
       "get": {
         "tags": [
@@ -5233,6 +5343,16 @@
               }
             ]
           },
+          "decline": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeclineResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "revision": {
             "$ref": "#/components/schemas/RevisionResponse"
           },
@@ -6665,6 +6785,53 @@
         ],
         "title": "DecisionSource"
       },
+      "DeclineAgreementRequest": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Expected Version"
+          },
+          "decision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Decision Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "decision_id"
+        ],
+        "title": "DeclineAgreementRequest"
+      },
+      "DeclineResponse": {
+        "properties": {
+          "decision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Decision Id"
+          },
+          "declined_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Declined At"
+          },
+          "declined_by_display_name": {
+            "type": "string",
+            "title": "Declined By Display Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "decision_id",
+          "declined_at",
+          "declined_by_display_name"
+        ],
+        "title": "DeclineResponse"
+      },
       "DocumentResponse": {
         "properties": {
           "id": {
@@ -7053,7 +7220,8 @@
               "enum": [
                 "EDIT_DRAFT",
                 "SUBMIT",
-                "SIGN_AGREEMENT"
+                "SIGN_AGREEMENT",
+                "DECLINE_AGREEMENT"
               ]
             },
             "type": "array",
@@ -7063,6 +7231,16 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/SignatureResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decline": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeclineResponse"
               },
               {
                 "type": "null"

@@ -77,6 +77,7 @@ class Application(IdentityMixin, UpdatedMixin, Base):
     archived_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     scenario_set: Mapped[dict | None] = mapped_column(JSON_VALUE)
     signing_record: Mapped[dict | None] = mapped_column(JSON_VALUE)
+    decline_record: Mapped[dict | None] = mapped_column(JSON_VALUE)
     __mapper_args__ = {"version_id_col": lock_version}
     __table_args__ = (
         CheckConstraint(
@@ -96,6 +97,7 @@ class Application(IdentityMixin, UpdatedMixin, Base):
             name="signing_presence",
         ),
         Index("ix_applications_company_updated", "company_id", "updated_at"),
+        CheckConstraint("decline_record IS NULL OR status = 'REJECTED'", name="decline_status"),
         Index("ix_applications_bank_queue", "status", "submitted_at"),
     )
 

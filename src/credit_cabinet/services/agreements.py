@@ -61,6 +61,57 @@ def read(db, principal, application_id):
     return agreement_view(db, client_application(db, principal.user.id, application_id))
 
 
+def decline(db, principal, application_id, body, auth):
+    application = client_application(db, principal.user.id, application_id, lock=True)
+    if application.decline_record:
+        if application.decline_record["decision_id"] != str(body.decision_id):
+            raise APIError(409, "AGREEMENT_CHANGED", "Предложение банка изменилось")
+        # An identical retry after a lost response returns the original refusal.
+        auth.activity(db, principal, commit=False)
+        db.commit()
+        return draft_view(application, db.get(CreditProduct, application.product_id), db)
+    document = agreement_view(db, application)
+    if application.status != ApplicationStatus.APPROVED:
+        raise APIError(409, "AGREEMENT_NOT_AVAILABLE", "Отказ доступен до подписания документа")
+    if document.content.decision_id != body.decision_id:
+        raise APIError(409, "AGREEMENT_CHANGED", "Получите актуальное предложение банка")
+    if application.lock_version != body.expected_version:
+        raise APIError(409, "VERSION_CONFLICT", "Заявка изменена; получите актуальную версию")
+    now = utc_now()
+    application.decline_record = {
+        "decision_id": str(body.decision_id),
+        "declined_at": now.isoformat(),
+        "declined_by_user_id": str(principal.user.id),
+        "declined_by_display_name": principal.user.display_name,
+    }
+    application.status = ApplicationStatus.REJECTED
+    application.closed_at = now
+    application.updated_at = now
+    try:
+        event(
+            db,
+            application,
+            "AGREEMENT_DECLINED",
+            "Клиент отказался от предложенных условий. Заявка закрыта без подписания.",
+            revision=db.get(ApplicationRevision, document.content.revision_id),
+            actor=principal.user.id,
+            previous="APPROVED",
+            details={"decision_id": str(body.decision_id)},
+        )
+        auth.activity(db, principal, commit=False)
+        db.commit()
+    except StaleDataError:
+        db.rollback()
+        raise APIError(
+            409, "VERSION_CONFLICT", "Заявка изменена; получите актуальную версию"
+        ) from None
+    logger.info(
+        "application.agreement_declined",
+        extra={"application_id": str(application.id), "user_id": str(principal.user.id)},
+    )
+    return draft_view(application, db.get(CreditProduct, application.product_id), db)
+
+
 def sign(db, principal, application_id, body, auth):
     application = client_application(db, principal.user.id, application_id, lock=True)
     document = agreement_view(db, application)

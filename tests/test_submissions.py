@@ -106,7 +106,7 @@ def test_c01_submit_persists_frozen_snapshot_checks_and_public_result(seeded, cl
     body = response.json()
     app, rev, assessment = body["application"], body["revision"], body["assessment"]
     assert app["status"] == "APPROVED"
-    assert app["allowed_actions"] == ["SIGN_AGREEMENT"]
+    assert app["allowed_actions"] == ["SIGN_AGREEMENT", "DECLINE_AGREEMENT"]
     assert assessment["risk_score"] == 10 and assessment["routing"] == "APPROVE"
     assert assessment["calculation_details"]["monthly_payment"] == "94559.60"
     assert app["decision"]["approved_amount"] == "1000000.00"

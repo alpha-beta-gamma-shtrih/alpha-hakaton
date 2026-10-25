@@ -15,6 +15,7 @@ from credit_cabinet.models.enums import CheckSource, InfoStatus
 from credit_cabinet.schemas.business import (
     AssessmentResponse,
     DecisionResponse,
+    DeclineResponse,
     InformationRequestResponse,
     SignatureResponse,
 )
@@ -89,6 +90,11 @@ def decision_view(row):
 
 
 def enrich_application(db, application, response):
+    response.decline = (
+        DeclineResponse.model_validate(application.decline_record)
+        if application.decline_record
+        else None
+    )
     response.signature = (
         SignatureResponse.model_validate(application.signing_record)
         if application.signing_record
