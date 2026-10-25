@@ -40,6 +40,7 @@ export type ScenarioSet = S['ScenarioSetResponse']
 export type ScenarioSetUpdate = S['ScenarioSetUpdate']
 export type AdvisorReport = S['AdvisorResponse']
 export type AdvisorMode = NonNullable<S['AdvisorRequest']['mode']>
+export type AdvisorPriority = NonNullable<S['AdvisorRequest']['priority']>
 
 export type BankQueueItem = S['BankQueueItem']
 export type BankCard = S['BankCard']

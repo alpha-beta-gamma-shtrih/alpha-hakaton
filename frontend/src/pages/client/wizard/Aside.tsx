@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { AiDockShell, useClaimAiDock } from '../../../components/AiDock'
 import { ApiError } from '../../../api/client'
 import { PricingBreakdown } from '../../../components/PricingBreakdown'
 import { applications } from '../../../api/endpoints'
-import type { AdvisorMode, AdvisorReport, Candidate, FormStep, ScenarioSetUpdate } from '../../../api/types'
+import type { AdvisorMode, AdvisorPriority, AdvisorReport, Candidate, FormStep, ScenarioSetUpdate } from '../../../api/types'
 import { PixelArt } from '../../../components/pixel'
 import { AnimatedNumber, Button, Checkbox, CheckIcon, useToast } from '../../../components/ui'
 import { money, months, percent, relative } from '../../../lib/format'
@@ -14,6 +15,12 @@ type Editor = ReturnType<typeof useDraftEditor>
 type Ready = ReturnType<typeof readiness>
 
 const fmtRub = (n: number) => `${Math.round(n).toLocaleString('ru-RU')} ₽`
+const PRIORITIES: Record<AdvisorPriority, string> = {
+  BALANCED: 'Без предпочтения — покажите компромиссы',
+  KEEP_AMOUNT: 'Сохранить нужную сумму',
+  LOWER_PAYMENT: 'Снизить ежемесячный платёж',
+  LOWER_OVERPAYMENT: 'Снизить общую переплату',
+}
 
 /** Preliminary calculation via POST /scenarios. Recomputed for every saved version of the draft. */
 export function useScenarios(ed: Editor, ready: Ready) {
@@ -212,6 +219,7 @@ export function AdvisorPanel({ ed }: { ed: Editor }) {
   const qc = useQueryClient()
   const toast = useToast()
   const id = ed.server.id
+  const [choice, setChoice] = useState<{ id: string; priority: AdvisorPriority } | null>(null)
   const last = useQuery({
     queryKey: ['advisor', id, ed.server.version],
     queryFn: async () => {
@@ -227,15 +235,16 @@ export function AdvisorPanel({ ed }: { ed: Editor }) {
     placeholderData: (p) => p,
     retry: false,
   })
+  const priority = choice?.id === id ? choice.priority : last.data?.priority ?? 'BALANCED'
   const run = useMutation({
-    mutationFn: async (mode: AdvisorMode) => {
+    mutationFn: async ({ mode, priority }: { mode: AdvisorMode; priority: AdvisorPriority }) => {
       await ed.flush()
-      return applications.advisor(id, ed.versionRef.current, mode)
+      return applications.advisor(id, ed.versionRef.current, mode, priority)
     },
-    onSuccess: (r) => qc.setQueryData(['advisor', id, ed.server.version], r),
+    onSuccess: (r) => qc.setQueryData(['advisor', id, ed.versionRef.current], r),
     onError: (e) => toast.error(e, 'AI-разбор не получен'),
   })
-  const report: AdvisorReport | null | undefined = run.data && run.data.draft_lock_version === ed.server.version ? run.data : last.data
+  const report = last.data
   const blocked = !ed.form.bkiAllowed
 
   return (
@@ -246,11 +255,18 @@ export function AdvisorPanel({ ed }: { ed: Editor }) {
       </div>
       <h3 className="advisor-title">Объясню расчёт и сравню варианты</h3>
       <p className="advisor-sub">Опираюсь только на цифры, посчитанные банком. Решение не принимаю и заявку не меняю.</p>
+      <label className="advisor-priority">
+        <span>Что важнее при сравнении?</span>
+        <select value={priority} disabled={run.isPending} onChange={(e) => setChoice({ id, priority: e.target.value as AdvisorPriority })}>
+          {Object.entries(PRIORITIES).map(([value, title]) => <option value={value} key={value}>{title}</option>)}
+        </select>
+      </label>
+      <p className="advisor-sub">Выбор приоритета не вызывает модель. Нажмите «Сравнить варианты», чтобы получить разбор.</p>
       <div className="advisor-actions">
-        <Button variant="lime" size="sm" loading={run.isPending && run.variables === 'EXPLAIN'} disabled={blocked || run.isPending} onClick={() => run.mutate('EXPLAIN')}>
+        <Button variant="lime" size="sm" loading={run.isPending && run.variables?.mode === 'EXPLAIN'} disabled={blocked || run.isPending} onClick={() => run.mutate({ mode: 'EXPLAIN', priority: 'BALANCED' })}>
           Объяснить расчёт
         </Button>
-        <Button variant="white" size="sm" loading={run.isPending && run.variables === 'COMPARE'} disabled={blocked || run.isPending} onClick={() => run.mutate('COMPARE')}>
+        <Button variant="white" size="sm" loading={run.isPending && run.variables?.mode === 'COMPARE'} disabled={blocked || run.isPending} onClick={() => run.mutate({ mode: 'COMPARE', priority })}>
           Сравнить варианты
         </Button>
       </div>
@@ -260,9 +276,10 @@ export function AdvisorPanel({ ed }: { ed: Editor }) {
           <i />
           <i />
           <i />
-          <span>Собираю факторы…</span>
+          <span>Объясняю пользу и компромиссы…</span>
         </div>
       )}
+      {report?.mode === 'COMPARE' && report.priority !== priority && !run.isPending && <p className="advisor-lock" role="status">Ниже разбор для другого приоритета. Нажмите «Сравнить варианты» для выбранного.</p>}
       {report && !blocked && !run.isPending && <AdvisorReportView report={{ ...report, is_current: report.is_current && !ed.busy && ed.state !== 'error' && ed.state !== 'conflict' && !last.isPlaceholderData }} />}
     </section>
   )
@@ -277,6 +294,9 @@ export function AdvisorReportView({ report, light }: { report: AdvisorReport; li
         {!report.is_current && <span className="mini warn">неактуально — данные изменились</span>}
         <span className="mini">{relative(report.created_at)}</span>
       </div>
+      {report.mode === 'COMPARE' && <p className="hint">Приоритет разбора: {PRIORITIES[report.priority ?? 'BALANCED']}. {report.preferred_candidate_ids?.length
+        ? `По демо-правилам и этому критерию: ${report.preferred_candidate_ids.map((id) => ADVISOR_CANDIDATE[id as Candidate['candidate_id']]?.label ?? id).join(', ')}. Выбор остаётся за вами.`
+        : 'Победитель не выбран: сравнение условное, проверьте ограничения каждого варианта.'}</p>}
       <p className="advisor-summary">{ex.summary.text}</p>
       {ex.comparisons.length > 0 && (
         <div className="advisor-cmp">

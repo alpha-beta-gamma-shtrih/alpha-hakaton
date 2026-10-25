@@ -1,6 +1,7 @@
 import { get, patch, post, qs, resetCsrf, request } from './client'
 import type {
   AdvisorMode,
+  AdvisorPriority,
   AdvisorReport,
   BankCard,
   BankEvent,
@@ -68,8 +69,8 @@ export const applications = {
     post<ScenarioSetUpdate>(`/api/applications/${id}/scenario-set`, { expected_version, refresh }),
   selectScenario: (id: string, expected_version: number, scenario_set_id: string, candidate_id: Candidate['candidate_id']) =>
     post<ScenarioSetUpdate>(`/api/applications/${id}/scenario-set/select`, { expected_version, scenario_set_id, candidate_id }),
-  advisor: (id: string, expected_version: number, mode: AdvisorMode) =>
-    post<AdvisorReport>(`/api/applications/${id}/advisor`, { expected_version, mode }),
+  advisor: (id: string, expected_version: number, mode: AdvisorMode, priority: AdvisorPriority = 'BALANCED') =>
+    post<AdvisorReport>(`/api/applications/${id}/advisor`, { expected_version, mode, priority }),
   lastAdvisor: (id: string) => get<AdvisorReport>(`/api/applications/${id}/advisor`),
 }
 
