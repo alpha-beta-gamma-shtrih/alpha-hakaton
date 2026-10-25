@@ -52,7 +52,7 @@ def require_confirmation(application):
         )
 
 
-def basis_hash(db, application, *, payload=None, assessment_id=None):
+def basis_hash(db, application, *, payload=None, assessment_id=None, service_context=None):
     from credit_cabinet.services.exposure import service_exposure
 
     revision = latest_revision(db, application.id)
@@ -71,8 +71,12 @@ def basis_hash(db, application, *, payload=None, assessment_id=None):
             "assessment_id": str(assessment_id) if assessment_id else None,
             "latest_revision_id": str(revision.id) if revision else None,
             "status": application.status.value,
-            "service_exposure": service_exposure(
-                db, application.company_id, exclude_application_id=application.id
+            "service_exposure": (
+                service_context
+                if service_context is not None
+                else service_exposure(
+                    db, application.company_id, exclude_application_id=application.id
+                )
             )
             if application.status not in {"APPROVED", "REJECTED", "SIGNED"}
             else None,

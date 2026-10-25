@@ -96,7 +96,11 @@ def generate(db, principal, application_id, body, auth, sources, model, session_
         else None
     )
     context["basis_hash"] = basis_hash(
-        db, application, payload=comparison.payload, assessment_id=comparison.assessment_id
+        db,
+        application,
+        payload=comparison.payload,
+        assessment_id=comparison.assessment_id,
+        service_context=comparison.service_exposure,
     )
     context["assessment_id"] = str(comparison.assessment_id) if comparison.assessment_id else None
     context["fixture_stamp"] = (

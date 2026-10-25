@@ -206,3 +206,28 @@ def test_existing_assessments_without_exposure_fields_still_allow_signing(seeded
     response = sign(client, app, sign_body(app, document))
     assert response.status_code == 200, response.text
     assert response.json()["status"] == "SIGNED"
+
+
+def test_ai_hash_uses_the_same_exposure_as_its_comparison(seeded, client, monkeypatch):
+    from credit_cabinet.services import advisor
+
+    other = approved(client)
+    draft = ready(client)
+    original, changed = advisor.basis_hash, False
+
+    def after_comparison(db, application, **kwargs):
+        nonlocal changed
+        if kwargs.get("payload") is not None and not changed:
+            # An external commitment changes between comparison and cache-key creation.
+            with seeded.state.session_factory() as writer:
+                writer.get(Decision, UUID(other["decision"]["id"])).monthly_payment = Decimal(
+                    "100000"
+                )
+                writer.commit()
+            changed = True
+        return original(db, application, **kwargs)
+
+    monkeypatch.setattr(advisor, "basis_hash", after_comparison)
+    report = explain(client, draft)
+    assert report.status_code == 200, report.text
+    assert changed and not report.json()["is_current"]

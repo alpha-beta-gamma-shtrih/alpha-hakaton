@@ -29,6 +29,7 @@ class ComparisonContext:
     revision_id: UUID | None
     assessment_id: UUID | None
     missing_fields: list[str]
+    service_exposure: dict | None = None
 
 
 def revision_payload(revision):
@@ -231,6 +232,7 @@ def prepare_comparison(db, user_id, application_id, body, sources):
             }
         )
     return ComparisonContext(
+        service_exposure=exposure,
         response=ScenariosResponse(
             mode="PREVIEW" if allowed else "CALCULATION_ONLY",
             application_version=application.lock_version,
