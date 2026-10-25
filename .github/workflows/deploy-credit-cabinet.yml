@@ -1,9 +1,12 @@
 name: Deploy credit-cabinet
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      run_tests:
+        description: With tests
+        type: boolean
+        default: true
 
 jobs:
   deployment:
@@ -36,6 +39,7 @@ jobs:
           tags: credit-cabinet-frontend:local
 
       - name: Run backend tests with PostgreSQL
+        if: inputs.run_tests
         env:
           POSTGRES_PASSWORD: ci-only-database-password
           DEMO_USER_PASSWORD: ci-only-demo-password
