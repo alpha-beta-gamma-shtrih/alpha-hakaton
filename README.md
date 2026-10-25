@@ -1,5 +1,7 @@
 # Умный кредитный кабинет предпринимателя
 
+**Доступы для проверяющих:** все 146 логинов и индивидуальных тестовых паролей — в [demo_users.json](demo_data/demo_0_3/demo_users.json), поля `email` и `password`. На новой БД Docker init создаёт учётки автоматически. [Первый запуск и проверка](DEMO_ACCOUNTS.md). В существующей БД прежние пароли сохраняются.
+
 Работает **одобрение с изменением условий**: сотрудник уменьшает сумму и меняет срок, backend рассчитывает ставку и проверяет ограничения по сохранённым данным. Клиент видит сравнение и подписывает финальное предложение. Исходная отправка и оценка сохраняются отдельно. Обновление и пошаговая приёмка — [BANK_OFFERS_CHECK.md](BANK_OFFERS_CHECK.md).
 
 Прототип для хакатона: путь малого и микробизнеса от выбора финансирования до решения и демонстрационного подписания условий, связанный с рабочим местом сотрудника банка.
@@ -158,7 +160,7 @@ uv run python -m credit_cabinet.seed
 uv run python -m credit_cabinet
 ```
 
-При появлении новых email seed запрашивает пароль НОВЫХ демо-аккаунтов скрытым вводом (12+ символов); существующие пароли сохраняются. Клиенты: client@example.com (C01), client2@example.com (C02), client3@example.com … client144@example.com (C03–C144). Сотрудники: bank@example.com и bank2@example.com. Swagger: http://localhost:8000/docs; проверки: /health/live и /health/ready. Тесты: `uv run pytest -q`. Обновление и контрольные сценарии — [DATA_VALIDATION.md](DATA_VALIDATION.md); cookie/CSRF-вход — [BACKEND.md](BACKEND.md).
+Новые аккаунты получают индивидуальные пароли из [demo_users.json](demo_data/demo_0_3/demo_users.json); общего пароля и интерактивного ввода для этого набора не нужно. Существующие пароли сохраняются. Клиенты: client@example.com (C01), client2@example.com (C02), client3@example.com … client144@example.com (C03–C144). Сотрудники: bank@example.com и bank2@example.com. Swagger: http://localhost:8000/docs; проверки: /health/live и /health/ready. Тесты: `uv run pytest -q`. Обновление и контрольные сценарии — [DATA_VALIDATION.md](DATA_VALIDATION.md); cookie/CSRF-вход — [BACKEND.md](BACKEND.md).
 
 ## Передача контрактов команде
 

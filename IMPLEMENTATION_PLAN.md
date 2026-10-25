@@ -102,7 +102,7 @@ Backend уже предоставляет pyproject/uv.lock, env, миграци
 | AI | HTTP-адаптер, таймаут, ограниченный ответ, явный fallback | Отдельный runtime/volume, получение весов и GPU/CPU-профили |
 | Файлы и логи | Пути относительно конфигурации; логи в stdout, без секретов | Volumes при необходимости, непривилегированный пользователь, Docker logs |
 
-Действующие env-параметры определены в .env.example и BACKEND.md: DATABASE_URL, APP_ENV, PUBLIC_BASE_URL, ALLOWED_ORIGINS, COOKIE_SECURE, CSRF_SIGNING_KEY, CLIENT_SESSION_ABSOLUTE_TTL_SECONDS, CLIENT_SESSION_IDLE_TTL_SECONDS, BANK_SESSION_ABSOLUTE_TTL_SECONDS, BANK_SESSION_IDLE_TTL_SECONDS, LOGIN_RATE_LIMIT, LOGIN_RATE_WINDOW_SECONDS. DEMO_USER_PASSWORD используется importer для новых аккаунтов; LOG_LEVEL управляет логами. AI читает LLM_ENABLED, LLM_BASE_URL, LLM_MODEL, LLM_MODEL_DIGEST, LLM_TIMEOUT_SECONDS и LLM_MAX_PARALLEL по AI_CHECK.md. DEMO_MODE не используется. Публичные frontend-переменные не содержат секретов.
+Действующие env-параметры определены в .env.example и BACKEND.md: DATABASE_URL, APP_ENV, PUBLIC_BASE_URL, ALLOWED_ORIGINS, COOKIE_SECURE, CSRF_SIGNING_KEY, CLIENT_SESSION_ABSOLUTE_TTL_SECONDS, CLIENT_SESSION_IDLE_TTL_SECONDS, BANK_SESSION_ABSOLUTE_TTL_SECONDS, BANK_SESSION_IDLE_TTL_SECONDS, LOGIN_RATE_LIMIT, LOGIN_RATE_WINDOW_SECONDS. DEMO_USER_PASSWORD — запасной пароль для новых email без индивидуального password; текущий demo_users.json уже содержит все тестовые доступы; LOG_LEVEL управляет логами. AI читает LLM_ENABLED, LLM_BASE_URL, LLM_MODEL, LLM_MODEL_DIGEST, LLM_TIMEOUT_SECONDS и LLM_MAX_PARALLEL по AI_CHECK.md. DEMO_MODE не используется. Публичные frontend-переменные не содержат секретов.
 
 Внутри контейнера localhost означает этот контейнер. Для локального backend вне Docker адрес PostgreSQL может быть localhost с отдельно проброшенным dev-портом; различие выражается конфигурацией. В демонстрационном профиле PostgreSQL и Ollama не публикуем в интернет.
 
@@ -147,7 +147,7 @@ AI не является условием readiness кредитного API: п
 | Участник | Следующее действие | Передаваемый результат |
 | --- | --- | --- |
 | Сергей | Общая интеграция и сквозная приемка; документы и AI готовы | Банк готов по BANK_CHECK.md, клиент/расчеты по SUBMISSION_CHECK.md |
-| Дима | Упаковать API/PostgreSQL/однократный init | Команды миграции и seed готовы; для новых пользователей DEMO_USER_PASSWORD |
+| Дима | Упаковать API/PostgreSQL/однократный init | Команды миграции и seed готовы; новые учётки получают пароли из demo_users.json |
 | Ксюша | React/TypeScript/Vite, вход, компании/продукт и форма с автосохранением | frontend/README.md, docs/openapi.json, BANK_CHECK.md, SUBMISSION_CHECK.md и DRAFTS_CHECK.md |
 | Валера | Расширить C01/C02 до C01–C08 | CSV/JSON в demo_data/demo_0_2 по готовым образцам |
 | София | Добавить негативные/повторные ответы и сверить ожидаемые исходы | fns_responses.json, bki_responses.json, scenarios.json и manifest |

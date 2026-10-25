@@ -92,7 +92,7 @@ services:
     image: credit-cabinet-app:local
     environment:
       <<: *backend-environment
-      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:?Set DEMO_USER_PASSWORD (12+ characters) in .env}
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-}
     command: [sh, -ec, 'alembic upgrade head && python -m credit_cabinet.seed --dataset "$${DEMO_DATASET_DIR}"']
     depends_on:
       postgres:

@@ -51,7 +51,9 @@ def main() -> None:
                     )
                 )
             )
-            needs_password = any(str(row.email) not in existing for row in bundle.users)
+            needs_password = any(
+                str(row.email) not in existing and row.password is None for row in bundle.users
+            )
             password = (
                 settings.demo_user_password.get_secret_value()
                 if settings.demo_user_password

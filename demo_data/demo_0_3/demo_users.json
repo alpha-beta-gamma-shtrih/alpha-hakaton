@@ -4,1021 +4,1167 @@
     "email": "client@example.com",
     "display_name": "Демо-клиент C01",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "IfEJ3sqZJ5H6jQIp08Udhf4p"
   },
   {
     "user_key": "CLIENT_C02",
     "email": "client2@example.com",
     "display_name": "Демо-клиент C02",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "ADubbpWyyoTDfOC1g9MLs46v"
   },
   {
     "user_key": "BANK_01",
     "email": "bank@example.com",
     "display_name": "Демо-сотрудник 1",
     "role": "BANK_STAFF",
-    "is_active": true
+    "is_active": true,
+    "password": "QwqD9TRP-gQ5rvPxTRvb-Kiz"
   },
   {
     "user_key": "BANK_02",
     "email": "bank2@example.com",
     "display_name": "Демо-сотрудник 2",
     "role": "BANK_STAFF",
-    "is_active": true
+    "is_active": true,
+    "password": "YXGv6wXVaaeDox-SAXoce4s9"
   },
   {
     "user_key": "CLIENT_C03",
     "email": "client3@example.com",
     "display_name": "Демо-клиент C03",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "NSKUYpPPBXgljOW-a_-Phtir"
   },
   {
     "user_key": "CLIENT_C04",
     "email": "client4@example.com",
     "display_name": "Демо-клиент C04",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "tmjPuwvvX-LyumsekIhmiHK0"
   },
   {
     "user_key": "CLIENT_C05",
     "email": "client5@example.com",
     "display_name": "Демо-клиент C05",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Ne0C0Qko8a6ab-PFR-RfNps1"
   },
   {
     "user_key": "CLIENT_C06",
     "email": "client6@example.com",
     "display_name": "Демо-клиент C06",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "UxRIS-G3FmwGZPnu8MKWypO-"
   },
   {
     "user_key": "CLIENT_C07",
     "email": "client7@example.com",
     "display_name": "Демо-клиент C07",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "QndnAATrqBUPUkqA8AXUFLAE"
   },
   {
     "user_key": "CLIENT_C08",
     "email": "client8@example.com",
     "display_name": "Демо-клиент C08",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "RduIGd4vEijrpYw1mmygsl5j"
   },
   {
     "user_key": "CLIENT_C09",
     "email": "client9@example.com",
     "display_name": "Демо-клиент C09",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "zXEJo0aXbAWbjboxn6YVr7w4"
   },
   {
     "user_key": "CLIENT_C10",
     "email": "client10@example.com",
     "display_name": "Демо-клиент C10",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Yf2cN9S01waYiqTiTOZEj29n"
   },
   {
     "user_key": "CLIENT_C11",
     "email": "client11@example.com",
     "display_name": "Демо-клиент C11",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "_Ig-VFAQOEJSwPiVnk1vf9dQ"
   },
   {
     "user_key": "CLIENT_C12",
     "email": "client12@example.com",
     "display_name": "Демо-клиент C12",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "m8_HTTRdDlLVf6rtcTiSuJfi"
   },
   {
     "user_key": "CLIENT_C13",
     "email": "client13@example.com",
     "display_name": "Демо-клиент C13",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "QlPu8mJ3li0RBGFGz1jZa96E"
   },
   {
     "user_key": "CLIENT_C14",
     "email": "client14@example.com",
     "display_name": "Демо-клиент C14",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "zTQN8nR_sJdX3BG63aFUL4KV"
   },
   {
     "user_key": "CLIENT_C15",
     "email": "client15@example.com",
     "display_name": "Демо-клиент C15",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "3fz4IYZOZHzexc2WRpw0u5rg"
   },
   {
     "user_key": "CLIENT_C16",
     "email": "client16@example.com",
     "display_name": "Демо-клиент C16",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "pAex3XG51m6cUpfVPLzuSLhR"
   },
   {
     "user_key": "CLIENT_C17",
     "email": "client17@example.com",
     "display_name": "Демо-клиент C17",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "7Qgf_sMUNI0FWOzjL4CqeJLY"
   },
   {
     "user_key": "CLIENT_C18",
     "email": "client18@example.com",
     "display_name": "Демо-клиент C18",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Inby7kwEFa5fjVNZnNGrH5Zl"
   },
   {
     "user_key": "CLIENT_C19",
     "email": "client19@example.com",
     "display_name": "Демо-клиент C19",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "vdnx379bDSWq5-sttcT_hMSV"
   },
   {
     "user_key": "CLIENT_C20",
     "email": "client20@example.com",
     "display_name": "Демо-клиент C20",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "ph-Xbnq3JjFl49MNtKvuZDre"
   },
   {
     "user_key": "CLIENT_C21",
     "email": "client21@example.com",
     "display_name": "Демо-клиент C21",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "YXxlkX1yWfTwb589MnyteO2_"
   },
   {
     "user_key": "CLIENT_C22",
     "email": "client22@example.com",
     "display_name": "Демо-клиент C22",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "alyFsIK_yWtWpid4aF6Ihxh7"
   },
   {
     "user_key": "CLIENT_C23",
     "email": "client23@example.com",
     "display_name": "Демо-клиент C23",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "TLtaP-uShZsK10sp_ZOD1CSB"
   },
   {
     "user_key": "CLIENT_C24",
     "email": "client24@example.com",
     "display_name": "Демо-клиент C24",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "jJoU-h8MXzyt5jdGUzN4Ljt0"
   },
   {
     "user_key": "CLIENT_C25",
     "email": "client25@example.com",
     "display_name": "Демо-клиент C25",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "U5TwoB8Yx5rvNG_0q0tDfr-L"
   },
   {
     "user_key": "CLIENT_C26",
     "email": "client26@example.com",
     "display_name": "Демо-клиент C26",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Y7Zvic7-O9JPK027bNyayl5W"
   },
   {
     "user_key": "CLIENT_C27",
     "email": "client27@example.com",
     "display_name": "Демо-клиент C27",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "6WV0Wh9aHPk88l6qMXC7eBJ9"
   },
   {
     "user_key": "CLIENT_C28",
     "email": "client28@example.com",
     "display_name": "Демо-клиент C28",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "HReZHbvJLTmUT1CcnzJF3dJ7"
   },
   {
     "user_key": "CLIENT_C29",
     "email": "client29@example.com",
     "display_name": "Демо-клиент C29",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Zj8_RhSwF4nV23m60OhviFJS"
   },
   {
     "user_key": "CLIENT_C30",
     "email": "client30@example.com",
     "display_name": "Демо-клиент C30",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "S26VohOE-vzA1WIqbmnclKWZ"
   },
   {
     "user_key": "CLIENT_C31",
     "email": "client31@example.com",
     "display_name": "Демо-клиент C31",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "4OQ_H66iZRizsPQ5AWn90ROE"
   },
   {
     "user_key": "CLIENT_C32",
     "email": "client32@example.com",
     "display_name": "Демо-клиент C32",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "t31coac_Nj8h5fDG0e0DSH6m"
   },
   {
     "user_key": "CLIENT_C33",
     "email": "client33@example.com",
     "display_name": "Демо-клиент C33",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "SGK0vM_KuAaqCS6RnzxEqoNc"
   },
   {
     "user_key": "CLIENT_C34",
     "email": "client34@example.com",
     "display_name": "Демо-клиент C34",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "QABJr_SXQOKQEiguCQcdeUaP"
   },
   {
     "user_key": "CLIENT_C35",
     "email": "client35@example.com",
     "display_name": "Демо-клиент C35",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "fxvlDbqm8v-NdEfYnGlXyfiC"
   },
   {
     "user_key": "CLIENT_C36",
     "email": "client36@example.com",
     "display_name": "Демо-клиент C36",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "N4vMCh3bxEGCEbuA90c4dDnl"
   },
   {
     "user_key": "CLIENT_C37",
     "email": "client37@example.com",
     "display_name": "Демо-клиент C37",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "XiXb4S02XURVFVnU4hSoWcuW"
   },
   {
     "user_key": "CLIENT_C38",
     "email": "client38@example.com",
     "display_name": "Демо-клиент C38",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "krXKIObtDxg9nxqWZ5jsRJ0T"
   },
   {
     "user_key": "CLIENT_C39",
     "email": "client39@example.com",
     "display_name": "Демо-клиент C39",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "wru2_CNPFQ4lsmpmX1ShEpkq"
   },
   {
     "user_key": "CLIENT_C40",
     "email": "client40@example.com",
     "display_name": "Демо-клиент C40",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "eSPAXpaAwefU8d8uKy9mu0wt"
   },
   {
     "user_key": "CLIENT_C41",
     "email": "client41@example.com",
     "display_name": "Демо-клиент C41",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "8y4N3hLlv6KSNGAK1DcYz5tK"
   },
   {
     "user_key": "CLIENT_C42",
     "email": "client42@example.com",
     "display_name": "Демо-клиент C42",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "uQIQnc5Razh2bFbw8-_GxeaP"
   },
   {
     "user_key": "CLIENT_C43",
     "email": "client43@example.com",
     "display_name": "Демо-клиент C43",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Qp6_fppAaMcKi6ZpLlLV4tu4"
   },
   {
     "user_key": "CLIENT_C44",
     "email": "client44@example.com",
     "display_name": "Демо-клиент C44",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "rv4zHUN-EPawZb0jFnZOpGSW"
   },
   {
     "user_key": "CLIENT_C45",
     "email": "client45@example.com",
     "display_name": "Демо-клиент C45",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "12PlzgtxOK7GpFkLke99axb-"
   },
   {
     "user_key": "CLIENT_C46",
     "email": "client46@example.com",
     "display_name": "Демо-клиент C46",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "ybCTelwDf0p1eLD1goCIwKh5"
   },
   {
     "user_key": "CLIENT_C47",
     "email": "client47@example.com",
     "display_name": "Демо-клиент C47",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "bF13Ewsj99dWRNOCUd3LE--e"
   },
   {
     "user_key": "CLIENT_C48",
     "email": "client48@example.com",
     "display_name": "Демо-клиент C48",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "XqEU6fbIwM4EDsGbtF-h0z3p"
   },
   {
     "user_key": "CLIENT_C49",
     "email": "client49@example.com",
     "display_name": "Демо-клиент C49",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "d3KFpF4LARGzbWUdpjfzrG8Q"
   },
   {
     "user_key": "CLIENT_C50",
     "email": "client50@example.com",
     "display_name": "Демо-клиент C50",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "SBX63-xcPinOyrHjbMpEL2hi"
   },
   {
     "user_key": "CLIENT_C51",
     "email": "client51@example.com",
     "display_name": "Демо-клиент C51",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "8_N3Am2E1XmMGxD6vK0El45x"
   },
   {
     "user_key": "CLIENT_C52",
     "email": "client52@example.com",
     "display_name": "Демо-клиент C52",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "cLEFDoOldVrGnY9WcxsNa4KY"
   },
   {
     "user_key": "CLIENT_C53",
     "email": "client53@example.com",
     "display_name": "Демо-клиент C53",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Mua5WAkh4klu4yxxm97mmoub"
   },
   {
     "user_key": "CLIENT_C54",
     "email": "client54@example.com",
     "display_name": "Демо-клиент C54",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "bVG6UHvnP15jXQf0nIbJ3DtY"
   },
   {
     "user_key": "CLIENT_C55",
     "email": "client55@example.com",
     "display_name": "Демо-клиент C55",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "QpfFHY7EkuVKVCj2sbk2zKOT"
   },
   {
     "user_key": "CLIENT_C56",
     "email": "client56@example.com",
     "display_name": "Демо-клиент C56",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "W2Pk4lh16LbFtya2B9FOGk90"
   },
   {
     "user_key": "CLIENT_C57",
     "email": "client57@example.com",
     "display_name": "Демо-клиент C57",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "ZkBaXrMYWOdrGQxPDpSdOaTr"
   },
   {
     "user_key": "CLIENT_C58",
     "email": "client58@example.com",
     "display_name": "Демо-клиент C58",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "LbrKX0zx0kuWkGkaOS1jEZGp"
   },
   {
     "user_key": "CLIENT_C59",
     "email": "client59@example.com",
     "display_name": "Демо-клиент C59",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Pc83lkeeHEGseF3dVJ3U8_Lq"
   },
   {
     "user_key": "CLIENT_C60",
     "email": "client60@example.com",
     "display_name": "Демо-клиент C60",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "jiN5H1bo215dfUohnMvNdnYE"
   },
   {
     "user_key": "CLIENT_C61",
     "email": "client61@example.com",
     "display_name": "Демо-клиент C61",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "NrHt-SujFdX3tS2Ztbe3ffyl"
   },
   {
     "user_key": "CLIENT_C62",
     "email": "client62@example.com",
     "display_name": "Демо-клиент C62",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "m70kO9u3g02nb7AtNBRK6WzI"
   },
   {
     "user_key": "CLIENT_C63",
     "email": "client63@example.com",
     "display_name": "Демо-клиент C63",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "L8vaovM_6Pkkc_O-McsML3Tx"
   },
   {
     "user_key": "CLIENT_C64",
     "email": "client64@example.com",
     "display_name": "Демо-клиент C64",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "JXuc15tlbKYA-W4N4-F598vW"
   },
   {
     "user_key": "CLIENT_C65",
     "email": "client65@example.com",
     "display_name": "Демо-клиент C65",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "nHqeT0ZaXGrb0MlRyy-ysg2B"
   },
   {
     "user_key": "CLIENT_C66",
     "email": "client66@example.com",
     "display_name": "Демо-клиент C66",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "GZ3oANfj9yXcTBuQs1EgVHyt"
   },
   {
     "user_key": "CLIENT_C67",
     "email": "client67@example.com",
     "display_name": "Демо-клиент C67",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "o1UFfedf5jLwOTetnjf0Nxv1"
   },
   {
     "user_key": "CLIENT_C68",
     "email": "client68@example.com",
     "display_name": "Демо-клиент C68",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "iT5oTn3BZVpHZG63pD7nIstD"
   },
   {
     "user_key": "CLIENT_C69",
     "email": "client69@example.com",
     "display_name": "Демо-клиент C69",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "tuLNy9TLSmslii8d0s0cP1Vp"
   },
   {
     "user_key": "CLIENT_C70",
     "email": "client70@example.com",
     "display_name": "Демо-клиент C70",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "c3jUbDhrPCj4eN-xZ3pZzafj"
   },
   {
     "user_key": "CLIENT_C71",
     "email": "client71@example.com",
     "display_name": "Демо-клиент C71",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "iMRcYYrDHiFu0f6B0jSf1ADP"
   },
   {
     "user_key": "CLIENT_C72",
     "email": "client72@example.com",
     "display_name": "Демо-клиент C72",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "WCSZ--nFyYunfhIwju1EuWZ2"
   },
   {
     "user_key": "CLIENT_C73",
     "email": "client73@example.com",
     "display_name": "Демо-клиент C73",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "NgRtEDTeiY3sfidfbJ0cu3Cv"
   },
   {
     "user_key": "CLIENT_C74",
     "email": "client74@example.com",
     "display_name": "Демо-клиент C74",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "jyVGR2YKOIa30eSD5VL7cnNw"
   },
   {
     "user_key": "CLIENT_C75",
     "email": "client75@example.com",
     "display_name": "Демо-клиент C75",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "mDcxUzu-X9waaJmJP8dwe0Ij"
   },
   {
     "user_key": "CLIENT_C76",
     "email": "client76@example.com",
     "display_name": "Демо-клиент C76",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "d4pNqoDRo2Y5SEu7ohPxiH-7"
   },
   {
     "user_key": "CLIENT_C77",
     "email": "client77@example.com",
     "display_name": "Демо-клиент C77",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "KpMsQN1TDWsXB5ndAa1ChWJr"
   },
   {
     "user_key": "CLIENT_C78",
     "email": "client78@example.com",
     "display_name": "Демо-клиент C78",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Jh7VVCilH8k8ZDINQWLbT2MH"
   },
   {
     "user_key": "CLIENT_C79",
     "email": "client79@example.com",
     "display_name": "Демо-клиент C79",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "_up97P-J1sdGaNOqinHFlyx6"
   },
   {
     "user_key": "CLIENT_C80",
     "email": "client80@example.com",
     "display_name": "Демо-клиент C80",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "glaxcUeAd9hsVbyZMNbbzbZ4"
   },
   {
     "user_key": "CLIENT_C81",
     "email": "client81@example.com",
     "display_name": "Демо-клиент C81",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "3jyeT7frlK4RPJzCmnUyokuM"
   },
   {
     "user_key": "CLIENT_C82",
     "email": "client82@example.com",
     "display_name": "Демо-клиент C82",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "IDIrWNCvXIAOTYNtx0QZQJFx"
   },
   {
     "user_key": "CLIENT_C83",
     "email": "client83@example.com",
     "display_name": "Демо-клиент C83",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "t6bQYxDXES5aH8DCmzGwbEzJ"
   },
   {
     "user_key": "CLIENT_C84",
     "email": "client84@example.com",
     "display_name": "Демо-клиент C84",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "HRnaysIWGxvh3n1TFOwShV46"
   },
   {
     "user_key": "CLIENT_C85",
     "email": "client85@example.com",
     "display_name": "Демо-клиент C85",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "1EwpKd_R744P0SVzHQ3uIuS4"
   },
   {
     "user_key": "CLIENT_C86",
     "email": "client86@example.com",
     "display_name": "Демо-клиент C86",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "dCVDFLtgO4VeoL2MkdG6nCcm"
   },
   {
     "user_key": "CLIENT_C87",
     "email": "client87@example.com",
     "display_name": "Демо-клиент C87",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "wl8gv2o_LLDYU0VbVceFWN1I"
   },
   {
     "user_key": "CLIENT_C88",
     "email": "client88@example.com",
     "display_name": "Демо-клиент C88",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "dAo-8DUmAYSvqtllYcFsbqS0"
   },
   {
     "user_key": "CLIENT_C89",
     "email": "client89@example.com",
     "display_name": "Демо-клиент C89",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "xZASia_HLXENa2CQXmoVnRSw"
   },
   {
     "user_key": "CLIENT_C90",
     "email": "client90@example.com",
     "display_name": "Демо-клиент C90",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "LQrk-Qv-krQE0DnAvzpjJ_ir"
   },
   {
     "user_key": "CLIENT_C91",
     "email": "client91@example.com",
     "display_name": "Демо-клиент C91",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "d6COZtHr5L9nUnRm9kGOvBGF"
   },
   {
     "user_key": "CLIENT_C92",
     "email": "client92@example.com",
     "display_name": "Демо-клиент C92",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "w1NPkRO8R-bfC5eET7QEVe08"
   },
   {
     "user_key": "CLIENT_C93",
     "email": "client93@example.com",
     "display_name": "Демо-клиент C93",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Ee7sARZS3kTMn6Mf2MLGIKGY"
   },
   {
     "user_key": "CLIENT_C94",
     "email": "client94@example.com",
     "display_name": "Демо-клиент C94",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "GqGjmxYpMARQbEFYP_ZvTLqj"
   },
   {
     "user_key": "CLIENT_C95",
     "email": "client95@example.com",
     "display_name": "Демо-клиент C95",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "dEhmaGk-w-eFWPbQgFQwe5gP"
   },
   {
     "user_key": "CLIENT_C96",
     "email": "client96@example.com",
     "display_name": "Демо-клиент C96",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "DXnGvclgQKNx1PApa6W9EFyb"
   },
   {
     "user_key": "CLIENT_C97",
     "email": "client97@example.com",
     "display_name": "Демо-клиент C97",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "2zjtiADvTeZEZp3ty8K9GHY3"
   },
   {
     "user_key": "CLIENT_C98",
     "email": "client98@example.com",
     "display_name": "Демо-клиент C98",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "pbh1lKV2VeJqeml6dMCWzVG6"
   },
   {
     "user_key": "CLIENT_C99",
     "email": "client99@example.com",
     "display_name": "Демо-клиент C99",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "un4KNVFCXv4z7zDzAbRimb3Q"
   },
   {
     "user_key": "CLIENT_C100",
     "email": "client100@example.com",
     "display_name": "Демо-клиент C100",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "fkE5cfMk9Xyb2pMNNbhe1YmR"
   },
   {
     "user_key": "CLIENT_C101",
     "email": "client101@example.com",
     "display_name": "Демо-клиент C101",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "OkjVC58OSCdVDo1v853pIXrj"
   },
   {
     "user_key": "CLIENT_C102",
     "email": "client102@example.com",
     "display_name": "Демо-клиент C102",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "cIhrBIzpNNV9y9twHbZHFzvG"
   },
   {
     "user_key": "CLIENT_C103",
     "email": "client103@example.com",
     "display_name": "Демо-клиент C103",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Yi-WbaN7Fnn_X5ng6gnjp3Ff"
   },
   {
     "user_key": "CLIENT_C104",
     "email": "client104@example.com",
     "display_name": "Демо-клиент C104",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "41Bg3Eo1IcEeaTgsW2j3CWr8"
   },
   {
     "user_key": "CLIENT_C105",
     "email": "client105@example.com",
     "display_name": "Демо-клиент C105",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "mrgFp9Sh9GafiAkrugVXlOqi"
   },
   {
     "user_key": "CLIENT_C106",
     "email": "client106@example.com",
     "display_name": "Демо-клиент C106",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "ufSt0nX7yCXK8mRpGqcztupN"
   },
   {
     "user_key": "CLIENT_C107",
     "email": "client107@example.com",
     "display_name": "Демо-клиент C107",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "5pjKVl6WgXRPuVetqU5ZmASc"
   },
   {
     "user_key": "CLIENT_C108",
     "email": "client108@example.com",
     "display_name": "Демо-клиент C108",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "gBcH54vNQ050mE11smYvqDTl"
   },
   {
     "user_key": "CLIENT_C109",
     "email": "client109@example.com",
     "display_name": "Демо-клиент C109",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "9t8ScRLDyUYrQoXzTd0ifYPE"
   },
   {
     "user_key": "CLIENT_C110",
     "email": "client110@example.com",
     "display_name": "Демо-клиент C110",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "6eArEUiuylmt5tRGsDsEACFr"
   },
   {
     "user_key": "CLIENT_C111",
     "email": "client111@example.com",
     "display_name": "Демо-клиент C111",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "IOPxGa18_K1HRA7C4zWj2LlS"
   },
   {
     "user_key": "CLIENT_C112",
     "email": "client112@example.com",
     "display_name": "Демо-клиент C112",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "toc8cdF1nwfg9WmmUi3fe_yO"
   },
   {
     "user_key": "CLIENT_C113",
     "email": "client113@example.com",
     "display_name": "Демо-клиент C113",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "2TB-k2QZb4KgmN7JwnXdSKUp"
   },
   {
     "user_key": "CLIENT_C114",
     "email": "client114@example.com",
     "display_name": "Демо-клиент C114",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "6p2RpLBE2JpHc7OcTpy2d4nj"
   },
   {
     "user_key": "CLIENT_C115",
     "email": "client115@example.com",
     "display_name": "Демо-клиент C115",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "PM4309hehtStg5RhQmplRkf7"
   },
   {
     "user_key": "CLIENT_C116",
     "email": "client116@example.com",
     "display_name": "Демо-клиент C116",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "8L1RTzuBtiJBf9WtMoi6rTPT"
   },
   {
     "user_key": "CLIENT_C117",
     "email": "client117@example.com",
     "display_name": "Демо-клиент C117",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "D0raubNDieK5FmwrNISMXbQs"
   },
   {
     "user_key": "CLIENT_C118",
     "email": "client118@example.com",
     "display_name": "Демо-клиент C118",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "VFCjjj7kfnnkF1V0r9M_4bIU"
   },
   {
     "user_key": "CLIENT_C119",
     "email": "client119@example.com",
     "display_name": "Демо-клиент C119",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "SwUGTC3PYCGghjwh5LuoMyjc"
   },
   {
     "user_key": "CLIENT_C120",
     "email": "client120@example.com",
     "display_name": "Демо-клиент C120",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "oD2KqIW2cogFAqF8vuIgxV07"
   },
   {
     "user_key": "CLIENT_C121",
     "email": "client121@example.com",
     "display_name": "Демо-клиент C121",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "4Vn_USHDHparPb1zQqRJG5hG"
   },
   {
     "user_key": "CLIENT_C122",
     "email": "client122@example.com",
     "display_name": "Демо-клиент C122",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "55yNB35KEyfLEf9_J4rD3UDV"
   },
   {
     "user_key": "CLIENT_C123",
     "email": "client123@example.com",
     "display_name": "Демо-клиент C123",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "dbXfVB_vPEvJPccL5B9M6D3h"
   },
   {
     "user_key": "CLIENT_C124",
     "email": "client124@example.com",
     "display_name": "Демо-клиент C124",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "PuKsQ89oPtHg03bpqnHJ9bwA"
   },
   {
     "user_key": "CLIENT_C125",
     "email": "client125@example.com",
     "display_name": "Демо-клиент C125",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "aTVPcBbRWmT20o-Iza0ZxM2a"
   },
   {
     "user_key": "CLIENT_C126",
     "email": "client126@example.com",
     "display_name": "Демо-клиент C126",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "agPE8pM2x-Hf1MKAK-PKBQwL"
   },
   {
     "user_key": "CLIENT_C127",
     "email": "client127@example.com",
     "display_name": "Демо-клиент C127",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "uz8Vufw7v19jII3nNCq1624v"
   },
   {
     "user_key": "CLIENT_C128",
     "email": "client128@example.com",
     "display_name": "Демо-клиент C128",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Ulsa-pGToduBbqaSlXJzu31H"
   },
   {
     "user_key": "CLIENT_C129",
     "email": "client129@example.com",
     "display_name": "Демо-клиент C129",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Li5hOP2E86vAxCxHTBEODjNe"
   },
   {
     "user_key": "CLIENT_C130",
     "email": "client130@example.com",
     "display_name": "Демо-клиент C130",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "MJKwLS8PdFdGsocmrRLxFqKx"
   },
   {
     "user_key": "CLIENT_C131",
     "email": "client131@example.com",
     "display_name": "Демо-клиент C131",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "VSrvdJczfejRY_rdduND-snI"
   },
   {
     "user_key": "CLIENT_C132",
     "email": "client132@example.com",
     "display_name": "Демо-клиент C132",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "HM3Db7nk2QDHGnn90OIe0INk"
   },
   {
     "user_key": "CLIENT_C133",
     "email": "client133@example.com",
     "display_name": "Демо-клиент C133",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "9VCqs5fhbf3nsUf_oHwoPAKq"
   },
   {
     "user_key": "CLIENT_C134",
     "email": "client134@example.com",
     "display_name": "Демо-клиент C134",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "tKkjUsYinTDU_qtafkbGCVCD"
   },
   {
     "user_key": "CLIENT_C135",
     "email": "client135@example.com",
     "display_name": "Демо-клиент C135",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "Tl1M2J6dDXwlZifL6gvQwaC3"
   },
   {
     "user_key": "CLIENT_C136",
     "email": "client136@example.com",
     "display_name": "Демо-клиент C136",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "PM5CSJaY1eidZbICN19Iksx3"
   },
   {
     "user_key": "CLIENT_C137",
     "email": "client137@example.com",
     "display_name": "Демо-клиент C137",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "QBW-NaRWA_-lKivJ77HiNaJ8"
   },
   {
     "user_key": "CLIENT_C138",
     "email": "client138@example.com",
     "display_name": "Демо-клиент C138",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "u0tF5DfBosh-Fio8-qRvqoyl"
   },
   {
     "user_key": "CLIENT_C139",
     "email": "client139@example.com",
     "display_name": "Демо-клиент C139",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "OnAESYeKGG1hVw7JjIjv1E7F"
   },
   {
     "user_key": "CLIENT_C140",
     "email": "client140@example.com",
     "display_name": "Демо-клиент C140",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "sAcO-DeVgsZhmgA_MFvaKVpz"
   },
   {
     "user_key": "CLIENT_C141",
     "email": "client141@example.com",
     "display_name": "Демо-клиент C141",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "OqSG5aXAJRIO50Zy8G7m9bTc"
   },
   {
     "user_key": "CLIENT_C142",
     "email": "client142@example.com",
     "display_name": "Демо-клиент C142",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "f1wi73Iif27pcYXjIhz4GM0k"
   },
   {
     "user_key": "CLIENT_C143",
     "email": "client143@example.com",
     "display_name": "Демо-клиент C143",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "ftUi3Kj8Yv-5yLX4vjAWEKFX"
   },
   {
     "user_key": "CLIENT_C144",
     "email": "client144@example.com",
     "display_name": "Демо-клиент C144",
     "role": "CLIENT",
-    "is_active": true
+    "is_active": true,
+    "password": "wU0CSFnBTiMZq44go5fwzDjl"
   }
 ]

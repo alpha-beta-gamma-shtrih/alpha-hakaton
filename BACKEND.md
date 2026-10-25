@@ -57,7 +57,7 @@ React подключен к реальному API; совместный зап�
 | PUBLIC_BASE_URL | Точный origin frontend, по умолчанию http://localhost:8080 |
 | ALLOWED_ORIGINS | JSON-массив дополнительных точных origin без путей и завершающего / |
 | COOKIE_SECURE | true для HTTPS; локальный HTTP требует false |
-| DEMO_USER_PASSWORD | Необязательный секрет 12+ символов для новых демо-аккаунтов при неинтерактивном seed; старые пароли не сбрасывает |
+| DEMO_USER_PASSWORD | Необязательный запасной пароль 12–1024 символа для новых email без индивидуального password; demo_0_3 использует пароли из demo_users.json, старые пароли не сбрасывает |
 | DEMO_DATASET_DIR | Каталог локальных источников, по умолчанию demo_data/demo_0_3; нужен API на чтение и должен быть включен в Docker-поставку |
 | DOCUMENTS_DIR | Приватные неизменяемые копии CSV, по умолчанию .data/documents; нужен на запись, отдельный постоянный volume. Не раздавать как static |
 | LLM_ENABLED | true; false дает явный FALLBACK без вызова runtime |
@@ -171,7 +171,7 @@ POST /api/auth/activity с текущим CSRF отмечает явное де�
 - Команда процесса: python -m credit_cabinet; миграций: alembic upgrade head (в окружении установленных зависимостей).
 - PostgreSQL 17.x; DATABASE_URL у контейнера использует host db, не localhost. API не требует внешнего LLM.
 - Для dev proxy: /api → api:8000; /docs, /openapi.json и /health также можно проксировать. Внешний web-порт по общему договору 8080.
-- Init/миграции выполняются отдельно один раз. Importer/manifest-проверка C01/C02 реализованы: python -m credit_cabinet.seed, для init нужен DEMO_USER_PASSWORD при создании новых аккаунтов. Полный C01–C08 расширяют Валера/София.
+- Init/миграции выполняются отдельно перед API. python -m credit_cabinet.seed проверяет manifest и импортирует полный C01–C144; новые пользователи получают индивидуальные пароли из demo_data/demo_0_3/demo_users.json без DEMO_USER_PASSWORD. Повторный импорт сохраняет существующие пароли. Инструкция — DEMO_ACCOUNTS.md.
 - DEMO_DATASET_DIR содержит manifest, companies.csv, fns_responses.json и bki_responses.json с верными SHA-256. Файлы читаются локально; нет сетевых ФНС/БКИ. Контракт попыток — demo_data/README.md. Миграция 0002 защищает снимки триггерами PostgreSQL.
 - AI: LLM_BASE_URL=http://ollama:11434 в Compose, модель qwen2.5:1.5b и отдельный volume весов; LLM_ENABLED=false дает явный fallback. Ограничения и контракт — AI_CHECK.md. Readiness проверяет БД, не модель.
 - Один API worker: лимитер попыток входа пока в памяти процесса и сбрасывается при рестарте. Сами сессии в БД и рестарт переживают. Для нескольких worker нужен общий лимитер.

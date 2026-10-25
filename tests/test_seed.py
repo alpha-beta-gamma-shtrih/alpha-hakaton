@@ -174,14 +174,17 @@ def test_seed_rejects_scenario_outside_product_contract(tmp_path, change):
         load_bundle(root)
 
 
-def test_no_password_fields_allowed_in_user_file(tmp_path):
+@pytest.mark.parametrize("password", ["short", "x" * 1025, 123456789012, ""])
+def test_invalid_password_in_user_file_is_rejected_without_echo(tmp_path, password):
     root = tmp_path / "dataset"
     shutil.copytree(DATA, root)
     data = json.loads((root / "demo_users.json").read_text(encoding="utf-8"))
-    data[0]["password"] = "private-accidental-secret"
+    data[0]["password"] = password
     rewrite(root, "demo_users.json", data)
-    with pytest.raises(DatasetError):
+    with pytest.raises(DatasetError) as error:
         load_bundle(root)
+    if password:
+        assert str(password) not in str(error.value)
 
 
 def test_manifest_path_escape_is_rejected(tmp_path):
@@ -215,7 +218,7 @@ def test_noninteractive_seed_without_password_exits_before_writing(app, monkeypa
 
     monkeypatch.setattr(seed, "Settings", lambda: app.state.settings)
     monkeypatch.setattr(seed, "build_engine", lambda _settings: app.state.engine)
-    monkeypatch.setattr(sys, "argv", ["credit-cabinet-seed"])
+    monkeypatch.setattr(sys, "argv", ["credit-cabinet-seed", "--dataset", str(DATA)])
     monkeypatch.setattr(sys.stdin, "isatty", lambda: False)
     with pytest.raises(SystemExit) as error:
         seed.main()
