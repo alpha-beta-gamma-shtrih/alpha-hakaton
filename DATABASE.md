@@ -1,5 +1,7 @@
 # База данных: спецификация для demo-0.2
 
+Демо-доступы для новой установки публикуются в [demo_users.json](demo_data/demo_0_3/demo_users.json): email/password. Это исходный тестовый набор, не поля PostgreSQL: importer хеширует пароль перед INSERT в users. Повторный импорт не меняет существующие пароли. Инструкция — [DEMO_ACCOUNTS.md](DEMO_ACCOUNTS.md).
+
 > Обновление demo-0.3: для нового продукта WC_DEMO/version=3 действуют [PRICING.md](PRICING.md) и [PRICING_CHECK.md](PRICING_CHECK.md): 20% минимум, 6–60 месяцев, пять целей и персональные скидки. Числа demo-0.2 ниже относятся к историческому продукту v2. Условия добавила 0005_personal_pricing; текущая вершина — 0008_bank_offers.
 
 > Рабочий seed теперь содержит 144 компании и 146 аккаунтов; схема БД и 15 таблиц остались прежними. Что импортируется в PostgreSQL, что остаётся файлами и как обновлять заполненную БД — [DATA_VALIDATION.md](DATA_VALIDATION.md).

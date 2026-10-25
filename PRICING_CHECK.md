@@ -14,7 +14,7 @@ cd C:\alpha\alpha-hakaton
 .\.venv\Scripts\python.exe -m alembic current
 ```
 
-Ожидается актуальная вершина 0006_scenario_sets. Условия ставок добавила предыдущая 0005_personal_pricing; сохранённые варианты описаны в [SCENARIO_SETS_CHECK.md](SCENARIO_SETS_CHECK.md). На ноутбуке Сергея миграции и полный набор 144 компаний уже применены. На другой БД импорт выполнять по [DATA_VALIDATION.md](DATA_VALIDATION.md). Существующие пароли сохраняются; для новых email seed запросит пароль 12+ символов (в Docker — DEMO_USER_PASSWORD), в том числе на заполненной БД. Не удалять базу или volumes. В существующем .env оставить DEMO_DATASET_DIR=demo_data/demo_0_3, остальные настройки/секреты сохранить. API не обновляет схему и не импортирует данные при старте.
+Ожидается актуальная вершина 0006_scenario_sets. Условия ставок добавила предыдущая 0005_personal_pricing; сохранённые варианты описаны в [SCENARIO_SETS_CHECK.md](SCENARIO_SETS_CHECK.md). На ноутбуке Сергея миграции и полный набор 144 компаний уже применены. На другой БД импорт выполнять по [DATA_VALIDATION.md](DATA_VALIDATION.md). Существующие пароли сохраняются; новые email получают индивидуальные тестовые пароли из demo_data/demo_0_3/demo_users.json (подробности — DEMO_ACCOUNTS.md). Не удалять базу или volumes. В существующем .env оставить DEMO_DATASET_DIR=demo_data/demo_0_3, остальные настройки/секреты сохранить. API не обновляет схему и не импортирует данные при старте.
 
 Первый терминал:
 
